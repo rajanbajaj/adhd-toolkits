@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap">
+<style>
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0d0d0d;
+    --surface: #161616;
+    --border: #2a2a2a;
+    --text: #f0ede8;
+    --muted: #6b6660;
+    --focus: #ff6b35;
+    --async: #4ecdc4;
+    --collab: #a78bfa;
+    --ops: #fbbf24;
+  }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 4px; }
+  .subtitle { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); margin-bottom: 24px; letter-spacing: 0.05em; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab { font-family: 'DM Mono', monospace; font-size: 0.68rem; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.2s; letter-spacing: 0.05em; text-transform: uppercase; }
+  .tab.active, .tab:hover { border-color: #ff6b35; color: var(--text); background: rgba(255,107,53,0.08); }
+  .tab[data-cat="focus"].active { border-color: var(--focus); background: rgba(255,107,53,0.1); color: var(--focus); }
+  .tab[data-cat="async"].active { border-color: var(--async); background: rgba(78,205,196,0.1); color: var(--async); }
+  .tab[data-cat="collab"].active { border-color: var(--collab); background: rgba(167,139,250,0.1); color: var(--collab); }
+  .tab[data-cat="ops"].active { border-color: var(--ops); background: rgba(251,191,36,0.1); color: var(--ops); }
+
+  .legend { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; cursor: default; transition: all 0.25s; position: relative; overflow: hidden; }
+  .card:hover { transform: translateY(-2px); border-color: var(--card-color, var(--focus)); box-shadow: 0 0 20px -5px var(--card-color, var(--focus)); }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--card-color, var(--focus)); }
+
+  .card-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+  .card-icon { font-size: 1.4rem; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+  .card-title { font-size: 0.95rem; font-weight: 700; line-height: 1.3; letter-spacing: -0.01em; }
+  .card-type { font-family: 'DM Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--card-color, var(--focus)); margin-top: 3px; }
+  .card-desc { font-size: 0.8rem; color: #a09a94; line-height: 1.5; margin-bottom: 12px; }
+
+  .tools-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 6px; }
+  .tools { display: flex; flex-wrap: wrap; gap: 5px; }
+  .tool-chip { font-family: 'DM Mono', monospace; font-size: 0.62rem; padding: 3px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: var(--text); display: flex; align-items: center; gap: 4px; }
+  .tool-chip .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--card-color, var(--focus)); flex-shrink: 0; }
+
+  .adhd-tip { margin-top: 10px; padding: 8px 10px; background: rgba(255,107,53,0.06); border-left: 2px solid var(--card-color, var(--focus)); border-radius: 0 6px 6px 0; font-size: 0.74rem; color: #c4bfb9; line-height: 1.45; }
+  .adhd-tip strong { color: var(--card-color, var(--focus)); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 2px; }
+
+  /* How-to trigger */
+  .howto-trigger { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
+  .howto-btn { width: 100%; background: none; border: none; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: color 0.2s; }
+  .howto-btn:hover { color: var(--card-color, var(--focus)); }
+  .howto-btn .arrow { font-size: 0.55rem; display: inline-block; }
+
+  /* Floating tooltip */
+  #howto-tooltip {
+    position: fixed;
+    z-index: 9999;
+    background: #1c1c1c;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 14px 16px;
+    max-width: 320px;
+    min-width: 240px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+    pointer-events: auto;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  #howto-tooltip.visible { opacity: 1; }
+  #howto-tooltip .tt-title { font-family: 'DM Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+  #howto-tooltip .tt-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  #howto-tooltip .tt-list li { font-size: 0.75rem; color: #b0aaa4; line-height: 1.45; padding-left: 16px; position: relative; }
+  #howto-tooltip .tt-list li::before { content: '→'; position: absolute; left: 0; font-size: 0.65rem; top: 1px; }
+</style>
+</head>
+<body>
+
+<h1>Senior SDE × ADHD Toolkit</h1>
+<p class="subtitle">// task taxonomy + tools for every brain mode</p>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#ff6b35"></div>Deep Focus</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#4ecdc4"></div>Async / Batched</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div>Collaboration</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div>Ops / Admin</div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-cat="all">All Tasks</button>
+  <button class="tab" data-cat="focus">🔥 Deep Focus</button>
+  <button class="tab" data-cat="async">⚡ Async</button>
+  <button class="tab" data-cat="collab">🤝 Collab</button>
+  <button class="tab" data-cat="ops">⚙️ Ops</button>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const TASKS = [
+  { cat:"focus", color:"#ff6b35", icon:"🧠", title:"Architecture & System Design", type:"Deep Focus · 2–4h block", desc:"Designing new services, choosing infra patterns, writing HLD/LLD docs. Requires unbroken thinking — context switching kills this.", tools:["Excalidraw","Notion","Miro","Claude"], tip:"Schedule first thing AM when dopamine is freshest. Use Pomodoro 50/10. Park half-baked ideas in a scratchpad — don't chase rabbit holes mid-session.", howto:["Block a 3h calendar slot with 'Focus — No meetings' and set phone to DND","Open Excalidraw and draw the system boundary first — boxes before lines","Write down 3 constraints (latency / cost / team size) to scope the design","Use Notion to capture any rabbit-hole ideas mid-session — revisit after the block","At the end of the session, write 2-sentence TL;DR to close the mental loop"] },
+  { cat:"focus", color:"#ff6b35", icon:"⚙️", title:"Complex Feature Development", type:"Deep Focus · 90min–3h blocks", desc:"Writing non-trivial logic, refactoring legacy code, implementing algorithms. Needs flow state.", tools:["VS Code","Cursor AI","Pomodoro timer","noise-cancelling"], tip:"Write a micro-plan (3 bullet points) before starting. If stuck >10 min, do a timed rubber-duck break — write what you know out loud.", howto:["Before opening VS Code, write 3 bullet micro-plan in a comment at top of file","Start a 25-min Pomodoro — commit to zero tab-switching during the block","If blocked >10 min, switch to rubber-duck mode: write what you DO know out loud","After each Pomodoro, write one sentence of what changed — keeps ADHD brain grounded","End session by pushing to a WIP branch — externalize progress so anxiety drops"] },
+  { cat:"focus", color:"#ff6b35", icon:"🐛", title:"Debugging Hard Issues", type:"Deep Focus · variable", desc:"Prod incidents, race conditions, memory leaks. Hyperfocus can be a superpower here — but set a time limit to avoid rabbit holes.", tools:["Datadog","Sentry","gdb/lldb","Claude"], tip:"Set a 45-min timer before starting. If no breakthrough → get a second pair of eyes. ADHD hyperfocus can trap you in diminishing-returns loops.", howto:["Start with a hypothesis in writing: 'I think X because Y' — forces clarity","Set a hard 45-min timer before you start — gives hyperfocus a boundary","Reproduce locally first; never debug blind in prod","Use bisect or blame to narrow to the commit — don't guess at the cause","If no progress at 45 min, paste error + context into Claude or ping a teammate"] },
+  { cat:"focus", color:"#ff6b35", icon:"📄", title:"Technical Design Docs / RFCs", type:"Deep Focus · 1–2h", desc:"Writing structured proposals for team review. Hard to start, easy to procrastinate.", tools:["Notion","Google Docs","Claude (outline)","Grammarly"], tip:"Use Claude to generate a skeleton outline first. Fill sections in any order — done > perfect. Set a 'ship it' timer to avoid endless polishing.", howto:["Paste your 2-line problem statement into Claude and ask for a doc skeleton","Fill in the easiest section first — momentum > order","Use comments like '// TODO: add numbers here' to skip blockers and keep moving","Share a draft with 'WIP — feedback welcome' framing to reduce perfectionism pressure","Set a 'ship it by' datetime in the doc title to create an external deadline"] },
+  { cat:"async", color:"#4ecdc4", icon:"👀", title:"Code Reviews", type:"Async · Batched 2×/day", desc:"Reviewing PRs for correctness, style, security. Best batched rather than interrupting flow.", tools:["GitHub/GitLab","Linear","CodeRabbit AI","checklist"], tip:"Batch to 10am + 4pm slots. Mental checklist: logic → edge cases → readability → naming. Never review when tired — mistakes compound.", howto:["Set two recurring calendar blocks: 10–10:30am and 4–4:30pm for all PRs","Use CodeRabbit AI first pass — read its summary before reading the diff","Follow a fixed checklist: logic correctness → edge cases → test coverage → naming","Leave specific, actionable comments — not just 'fix this'","If a PR is too large to review in 15 min, leave a comment asking for a split"] },
+  { cat:"async", color:"#4ecdc4", icon:"📧", title:"Slack / Email Triage", type:"Async · 3×/day max", desc:"Responding to messages, unblocking teammates, async decisions. Constant checking is ADHD kryptonite.", tools:["Slack DND","Reclaim.ai","Gmail filters","scheduled sends"], tip:"3 fixed slots only: 9am, 1pm, 5pm. Use status emoji to signal focus mode. Star anything needing >2min — handle in a batch.", howto:["Set Slack notification schedule: only allow pings 9–9:30, 1–1:30, 5–5:30","Use 🎯 status emoji during focus blocks — teammates learn to wait","In triage slots: reply to anything <2 min immediately, star the rest","Process starred items as a second pass in the same slot — never carry over","Use Gmail filters to auto-label low-priority threads so they never hit inbox"] },
+  { cat:"async", color:"#4ecdc4", icon:"📊", title:"Data Analysis & Reports", type:"Async · One-off or weekly", desc:"SQL queries, dashboards, performance reports, incident postmortems.", tools:["ClickHouse/BigQuery","Metabase","Python + pandas","Claude"], tip:"Write the exact question you're answering at the top of the file before starting. Prevents scope creep and gives ADHD brain a concrete endpoint.", howto:["Write the question as a comment at line 1 of your SQL/notebook before anything else","Start with the smallest possible query that answers a piece of the question","Annotate each intermediate result with what it means in plain English","Set a timebox (e.g. 1h) — analysis without a deadline expands infinitely","End with a 3-bullet summary: finding / implication / recommended action"] },
+  { cat:"async", color:"#4ecdc4", icon:"🔁", title:"CI/CD & Infra Maintenance", type:"Async · Recurring / one-off", desc:"Pipeline fixes, dependency upgrades, cert renewals, scaling adjustments. Interruption-tolerant tasks.", tools:["GitHub Actions","Terraform","Dependabot","Runbooks"], tip:"Build runbooks for recurring ops tasks. ADHD brain hates relearning the same thing — documentation is self-defense.", howto:["Every time you fix a pipeline issue, write a 3-step runbook before closing the tab","Group dependency upgrades into a weekly 30-min slot — don't do them ad-hoc","Use Dependabot auto-PRs so upgrades come to you, not the other way around","For cert renewals: set a calendar reminder 30 days before expiry with the runbook link","After each infra change, write a one-line changelog entry — future you will thank you"] },
+  { cat:"collab", color:"#a78bfa", icon:"🗣️", title:"Standups & Syncs", type:"Collab · Daily / recurring", desc:"Daily standups, sprint planning, 1:1s. Short, time-boxed — but easy to lose the thread.", tools:["Notion agenda","Grain","Otter.ai","fidget tool"], tip:"Write your 3 bullets BEFORE the standup (done/doing/blocked). Use auto-note takers so you can stay present instead of multitasking.", howto:["5 min before standup, fill in your 3 bullets: done / doing / blocked","Keep a fidget object at your desk — physical grounding reduces mental drift","Use Grain or Otter.ai to auto-record — stops the urge to take notes while listening","If your mind wanders, anchor back by watching for your name or your team's work","For 1:1s: prepare one agenda item you want to raise — just one is enough"] },
+  { cat:"collab", color:"#a78bfa", icon:"🎯", title:"Sprint Planning & Estimation", type:"Collab · Bi-weekly", desc:"Ticket grooming, story point estimation, capacity planning. ADHD often causes under/over-estimation.", tools:["Linear / Jira","Planning Poker","Notion","norms doc"], tip:"Time-box estimation per ticket (2 min). Use reference tickets as anchors — ADHD brain is bad at absolute estimates, good at relative ones.", howto:["Before the session, read through all tickets once — cold-reading in the meeting is chaos","Pick 2 reference tickets (one small, one medium) to use as anchors for the whole session","Cap discussion per ticket at 2 min — if unclear, it needs a spike ticket, not more debate","Halve your estimates for tasks you think are 'quick' — ADHD routinely underestimates","After planning, add your tasks to tomorrow's focus blocks immediately while context is fresh"] },
+  { cat:"collab", color:"#a78bfa", icon:"🧑‍🏫", title:"Mentoring & Tech Talks", type:"Collab · One-off / scheduled", desc:"Pair programming, onboarding juniors, internal knowledge sharing. High engagement, often energizing.", tools:["Loom (async)","VS Code Live Share","Slides","Notion"], tip:"ADHD can shine here — high novelty + social pressure = natural focus trigger. Prepare 3 key points max for any talk.", howto:["For a talk: write your 3 key points first — then build slides around them, not vice versa","For pair sessions: let the mentee drive the keyboard — you narrate and ask questions","Use Loom to record any repeated explanation once — share the link instead of repeating","Start each mentoring session by asking what they've tried — avoids solving the wrong problem","After the session, write one sentence on what worked — builds a reusable playbook"] },
+  { cat:"ops", color:"#fbbf24", icon:"🎫", title:"Ticket Writing & Grooming", type:"Ops · Weekly batch", desc:"Writing clear acceptance criteria, breaking epics into stories, maintaining backlog hygiene.", tools:["Linear / Jira","Notion templates","Claude (drafts)"], tip:"Use a template: Context / Goal / Acceptance Criteria / Out of scope. Batch-write tickets in one session — context switching between writing and coding is costly.", howto:["Reserve 30 min on Friday to batch-write all next-week tickets — never write mid-sprint","Use a Notion snippet template: Context / Goal / AC / Out of Scope — fill blanks only","For large epics: ask Claude to break it into sub-tasks given the goal and constraints","Each ticket should have exactly one acceptance criterion — if there are two, split it","Tag tickets with effort estimate before grooming — anchors the room's perception"] },
+  { cat:"ops", color:"#fbbf24", icon:"📅", title:"Weekly Planning & Review", type:"Ops · Once/week · 30min", desc:"End-of-week review, next-week priority setting. The meta-task that makes all other tasks easier.", tools:["Notion weekly template","Google Calendar","Reclaim.ai","Todoist"], tip:"Friday 4–4:30pm. Write 3 wins + 3 next-week priorities. Time-block deep work BEFORE adding meetings. Protect at least one 3h unbroken block/day.", howto:["Open Notion weekly template every Friday 4pm — make it a non-negotiable calendar block","Write 3 wins first (even small ones) — trains ADHD brain to close loops, not just open them","Write 3 priorities for next week — rank them 1-2-3, not equal weight","Open Google Calendar and block deep-focus slots BEFORE others schedule meetings","Use Reclaim.ai to auto-defend focus time if your calendar is fought over"] },
+  { cat:"ops", color:"#fbbf24", icon:"🔐", title:"On-call & Incident Response", type:"Ops · Unpredictable / rotational", desc:"Handling prod alerts, postmortems, runbook execution. High-urgency, unpredictable timing.", tools:["PagerDuty","Datadog","Runbooks","Slack war room"], tip:"Pre-write your incident triage checklist. Under stress + ADHD = blank mind. Having a script to follow is not a crutch — it's engineering.", howto:["Before your on-call week starts, re-read all runbooks for your service area","When paged: open the runbook first, resist the urge to jump to a fix immediately","Follow the triage script: impact → scope → recent deploys → known issues","Assign a single incident commander in war rooms — prevents everyone talking at once","After resolution: write the postmortem while the incident is still fresh — same day, always"] },
+];
+
+function renderCards(filter) {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  const filtered = filter === 'all' ? TASKS : TASKS.filter(t => t.cat === filter);
+  filtered.forEach((t, idx) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.setProperty('--card-color', t.color);
+    const accId = `acc-${idx}`;
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="card-icon">${t.icon}</div>
+        <div><div class="card-title">${t.title}</div><div class="card-type">${t.type}</div></div>
+      </div>
+      <div class="card-desc">${t.desc}</div>
+      <div class="tools-label">Tools</div>
+      <div class="tools">${t.tools.map(tool => `<span class="tool-chip"><span class="dot"></span>${tool}</span>`).join('')}</div>
+      <div class="adhd-tip"><strong>⚡ ADHD strategy</strong>${t.tip}</div>
+      <div class="howto-trigger">
+        <button class="howto-btn" data-idx="${idx}">How to tackle this <span class="arrow">▼</span></button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  // Wire how-to hover tooltips
+  const currentFilter = filter;
+  const filteredTasks = filter === 'all' ? TASKS : TASKS.filter(t => t.cat === filter);
+  document.querySelectorAll('.howto-btn').forEach(btn => {
+    btn.addEventListener('mouseenter', () => showTooltip(btn, filteredTasks[+btn.dataset.idx]));
+    btn.addEventListener('mouseleave', scheduleHide);
+  });
+}
+
+// ── Floating tooltip ─────────────────────────────────────────────────────────
+const tooltip = document.createElement('div');
+tooltip.id = 'howto-tooltip';
+document.body.appendChild(tooltip);
+
+let hideTimer;
+
+function showTooltip(btn, task) {
+  if (!task) return;
+  clearTimeout(hideTimer);
+
+  tooltip.innerHTML = `
+    <div class="tt-title" style="color:${task.color || '#ff6b35'}">How to tackle this</div>
+    <ul class="tt-list">
+      ${task.howto.map(s => `<li>${s}</li>`).join('')}
+    </ul>
+  `;
+  tooltip.style.borderColor = task.color || '#ff6b35';
+
+  // Make visible off-screen to measure actual size
+  tooltip.style.visibility = 'hidden';
+  tooltip.style.display = 'block';
+
+  const rect = btn.getBoundingClientRect();
+  const tw = tooltip.offsetWidth;
+  const th = tooltip.offsetHeight;
+  const gap = 10;
+
+  let top = rect.top - th - gap;
+  if (top < 8) top = rect.bottom + gap;  // flip below if no room above
+
+  let left = rect.left;
+  if (left + tw > window.innerWidth - 8) left = window.innerWidth - tw - 8;
+  if (left < 8) left = 8;
+
+  tooltip.style.left = left + 'px';
+  tooltip.style.top = top + 'px';
+  tooltip.style.visibility = '';
+  tooltip.classList.add('visible');
+}
+
+function scheduleHide() {
+  hideTimer = setTimeout(() => {
+    tooltip.classList.remove('visible');
+    setTimeout(() => { tooltip.style.display = 'none'; }, 150);
+  }, 120);
+}
+
+tooltip.addEventListener('mouseenter', () => clearTimeout(hideTimer));
+tooltip.addEventListener('mouseleave', scheduleHide);
+// ─────────────────────────────────────────────────────────────────────────────
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderCards(tab.dataset.cat);
+  });
+});
+
+renderCards('all');
+</script>
+</body>
+</html>

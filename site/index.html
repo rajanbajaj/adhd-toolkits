@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rajan's Toolkits</title>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QN3P3HSD90"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-QN3P3HSD90');
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --border: #2a2d3a;
+      --text: #e2e8f0;
+      --muted: #8b92a5;
+      --accent: #6366f1;
+      --accent-hover: #818cf8;
+      --tag-bg: #1e2035;
+      --tag-text: #a5b4fc;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0 1.5rem;
+    }
+
+    header {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem 0 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      margin-top: 0.5rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2.5rem 0 4rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+
+    .card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .tag {
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .card p {
+      color: var(--muted);
+      font-size: 0.875rem;
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .card a {
+      display: inline-block;
+      margin-top: 0.25rem;
+      padding: 0.5rem 1rem;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: background 0.15s;
+      align-self: flex-start;
+    }
+
+    .card a:hover { background: var(--accent-hover); }
+
+    .empty {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Rajan's Toolkits</h1>
+    <p>Personal tools &amp; references I've built for myself.</p>
+  </header>
+  <main>
+    <div class="grid" id="grid"></div>
+  </main>
+
+  <script>
+    // ── ADD NEW TOOLKITS HERE ──────────────────────────────────────────────
+    const toolkits = [
+      {
+        title: "ADHD SDE Toolkit",
+        desc: "Strategies, workflows, and references for software engineers with ADHD.",
+        file: "toolkits/adhd_sde_toolkit.html",
+        tag: "ADHD",
+      },
+    ];
+    // ──────────────────────────────────────────────────────────────────────
+
+    const grid = document.getElementById("grid");
+
+    if (toolkits.length === 0) {
+      grid.innerHTML = '<p class="empty">No toolkits yet.</p>';
+    } else {
+      toolkits.forEach(({ title, desc, file, tag }) => {
+        grid.innerHTML += `
+          <div class="card">
+            <div class="card-top">
+              <h2>${title}</h2>
+              ${tag ? `<span class="tag">${tag}</span>` : ""}
+            </div>
+            <p>${desc}</p>
+            <a href="${file}" target="_blank" rel="noopener">Open →</a>
+          </div>`;
+      });
+    }
+  </script>
+</body>
+</html>
