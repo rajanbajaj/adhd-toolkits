@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Good Enough for Now</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #f5f0e8;
+  --ink: #1a1510;
+  --muted: #8a7e6e;
+  --border: #d4cbbe;
+  --surface: #ede8de;
+  --accent: #c84b2f;
+  --accent2: #2a6e5e;
+  --accent3: #4a5fa8;
+  --paper: #faf7f2;
+}
+
+body {
+  font-family: 'DM Mono', monospace;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0.4;
+}
+
+.app {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 36px 24px 80px;
+}
+
+/* Header */
+.header {
+  margin-bottom: 36px;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 18px;
+}
+
+.logo {
+  font-family: 'Instrument Serif', serif;
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.logo em { font-style: italic; color: var(--accent); }
+
+.tagline {
+  font-size: 0.6rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-top: 6px;
+}
+
+.phase-track {
+  display: flex;
+  gap: 0;
+  margin-top: 18px;
+}
+
+.phase-step {
+  flex: 1;
+  padding: 7px 8px;
+  font-size: 0.56rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1px solid var(--border);
+  border-right: none;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.phase-step:last-child { border-right: 1px solid var(--border); border-radius: 0 4px 4px 0; }
+.phase-step:first-child { border-radius: 4px 0 0 4px; }
+.phase-step.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.phase-step.done { background: var(--surface); color: var(--accent2); text-decoration: line-through; }
+
+.progress-bar { height: 2px; background: var(--border); border-radius: 2px; margin-top: 12px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s ease; }
+
+/* Sections */
+.section { display: none; animation: slideIn 0.25s ease; }
+.section.visible { display: block; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-label {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.section-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.6rem;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.section-sub {
+  font-size: 0.7rem;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-bottom: 24px;
+}
+
+/* Prompt cards */
+.prompt-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px 18px 16px;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.prompt-card::before {
+  content: attr(data-num);
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  font-family: 'Instrument Serif', serif;
+  font-size: 2.2rem;
+  color: var(--border);
+  line-height: 1;
+  font-style: italic;
+}
+
+.prompt-q {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 6px;
+  line-height: 1.45;
+  padding-right: 36px;
+}
+
+.prompt-hint {
+  font-size: 0.66rem;
+  color: var(--muted);
+  margin-bottom: 10px;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 9px 11px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.74rem;
+  color: var(--ink);
+  resize: vertical;
+  min-height: 54px;
+  line-height: 1.5;
+  transition: border-color 0.2s;
+}
+
+textarea:focus { outline: none; border-color: var(--accent); }
+textarea::placeholder { color: var(--muted); }
+
+/* Zoom widget */
+.zoom-widget {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.zoom-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.zoom-levels { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.zoom-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.64rem;
+  padding: 6px 13px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+
+.zoom-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+.zoom-btn[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 0.6rem;
+  line-height: 1.5;
+  padding: 7px 10px;
+  border-radius: 5px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 100;
+  max-width: 220px;
+  white-space: normal;
+  text-align: left;
+  width: max-content;
+}
+
+.zoom-btn[data-tip]::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 3px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--ink);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 100;
+}
+
+.zoom-btn[data-tip]:hover::after,
+.zoom-btn[data-tip]:hover::before { opacity: 1; }
+
+.zoom-reminder {
+  margin-top: 10px;
+  font-size: 0.67rem;
+  color: var(--accent);
+  display: none;
+  line-height: 1.4;
+}
+
+.zoom-reminder.show { display: block; }
+
+/* TBD Parking Lot */
+.tbd-zone {
+  background: var(--paper);
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.tbd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.tbd-title {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.tbd-count {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.4rem;
+  color: var(--accent);
+  font-style: italic;
+}
+
+.tbd-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.tbd-input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 11px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--ink);
+  min-width: 0;
+}
+
+.tbd-input:focus { outline: none; border-color: var(--accent); }
+.tbd-input::placeholder { color: var(--muted); }
+
+.tbd-tag-select {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 16px;
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--bg);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn:hover { background: var(--accent); border-color: var(--accent); }
+.btn-ghost { background: transparent; color: var(--ink); }
+.btn-ghost:hover { background: var(--surface); color: var(--ink); }
+
+.tbd-list { display: flex; flex-direction: column; gap: 6px; }
+
+.tbd-empty {
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.tbd-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 7px 10px;
+  animation: popIn 0.18s ease;
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.tbd-item-text { flex: 1; font-size: 0.71rem; color: var(--ink); }
+
+.tbd-badge {
+  font-size: 0.56rem;
+  padding: 2px 7px;
+  border-radius: 20px;
+  border: 1px solid;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.badge-later { border-color: var(--accent2); color: var(--accent2); }
+.badge-maybe { border-color: var(--accent3); color: var(--accent3); }
+.badge-drop  { border-color: var(--muted); color: var(--muted); text-decoration: line-through; }
+
+.tbd-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.9rem;
+  padding: 0 2px;
+  line-height: 1;
+  transition: color 0.15s;
+  flex-shrink: 0;
+}
+
+.tbd-remove:hover { color: var(--accent); }
+
+/* Nav */
+.nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+/* Summary */
+.summary-block {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+  margin-bottom: 12px;
+}
+
+.summary-block h3 {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1rem;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.summary-item {
+  font-size: 0.73rem;
+  color: var(--ink);
+  line-height: 1.5;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.summary-item:last-child { border-bottom: none; }
+
+.summary-item .label {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.empty-state { font-size: 0.68rem; color: var(--muted); font-style: italic; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <a href="/" style="display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);text-decoration:none;margin-bottom:20px;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">← All Toolkits</a>
+
+  <div class="header">
+    <div class="logo">Good Enough <em>for Now</em></div>
+    <div class="tagline">Architecture session guide · commit to incomplete maps</div>
+    <div class="phase-track" id="phaseTrack">
+      <div class="phase-step active" data-phase="0">① Anchor</div>
+      <div class="phase-step" data-phase="1">② Fence</div>
+      <div class="phase-step" data-phase="2">③ Session</div>
+      <div class="phase-step" data-phase="3">④ Close</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+
+  <!-- PHASE 0: ANCHOR -->
+  <div class="section visible" id="phase0">
+    <div class="section-label">Phase 1 of 4</div>
+    <div class="section-title">Anchor the session</div>
+    <div class="section-sub">Three questions. Don't skip — they're the fence that stops your brain from solving everything at once.</div>
+
+    <div class="prompt-card" data-num="1">
+      <div class="prompt-q">What ONE decision must this session produce?</div>
+      <div class="prompt-hint">Not "design the system" — too big. One specific call.</div>
+      <textarea id="a0" placeholder="e.g. Decide: message queue vs. direct API between service A and B" rows="2"></textarea>
+    </div>
+
+    <div class="prompt-card" data-num="2">
+      <div class="prompt-q">What zoom level are you working at today?</div>
+      <div class="prompt-hint">Pick one. "All of them" means scope is already too large.</div>
+      <div class="zoom-levels" style="margin-bottom:10px">
+        <button class="zoom-btn" onclick="selectZoom(this,'System')" data-tip="How do pieces connect? e.g. Does the pipeline push to ClickHouse directly or via Kafka?">🌍 System</button>
+        <button class="zoom-btn" onclick="selectZoom(this,'Service')" data-tip="How does one service behave? e.g. How does the ingestion service batch-write to ClickHouse?">📦 Service</button>
+        <button class="zoom-btn" onclick="selectZoom(this,'Component')" data-tip="Schema, table design, one module. e.g. What tables + materialized views does the analytics DB need?">🧩 Component</button>
+        <button class="zoom-btn" onclick="selectZoom(this,'Code')" data-tip="Specific query or implementation. e.g. Which ClickHouse insert pattern handles deduplication?">💻 Code</button>
+      </div>
+      <input type="hidden" id="a1" value="">
+    </div>
+
+    <div class="prompt-card" data-num="3">
+      <div class="prompt-q">Who needs to agree with the output?</div>
+      <div class="prompt-hint">Too many people = scope is too large.</div>
+      <textarea id="a2" placeholder="e.g. Me + backend lead. Not infra — that's next week." rows="2"></textarea>
+    </div>
+
+    <div class="nav-row">
+      <span></span>
+      <button class="btn" onclick="goPhase(1)">Next →</button>
+    </div>
+  </div>
+
+  <!-- PHASE 1: SCOPE / FENCE -->
+  <div class="section" id="phase1">
+    <div class="section-label">Phase 2 of 4</div>
+    <div class="section-title">Draw the fence</div>
+    <div class="section-sub">Explicitly name what you are NOT solving today. Every item here is a rabbit hole you're allowed to skip.</div>
+
+    <div class="prompt-card" data-num="1">
+      <div class="prompt-q">What constraints are FIXED? (don't question these today)</div>
+      <div class="prompt-hint">Existing stack, team size, latency SLA, cost ceiling — your walls.</div>
+      <textarea id="b0" placeholder="e.g. Must use existing Kafka. Team of 3. Latency &lt;200ms p95." rows="2"></textarea>
+    </div>
+
+    <div class="prompt-card" data-num="2">
+      <div class="prompt-q">What are you explicitly NOT deciding today?</div>
+      <div class="prompt-hint">Write as many as you want. This is your TBD licence — drop these without guilt.</div>
+      <textarea id="b1" placeholder="e.g. Auth, DB schema, deployment, cost optimisation, retry strategy..." rows="3"></textarea>
+    </div>
+
+    <div class="prompt-card" data-num="3">
+      <div class="prompt-q">One sentence: what does "done" look like?</div>
+      <div class="prompt-hint">If you had this at session end, you'd feel finished.</div>
+      <textarea id="b2" placeholder="e.g. A diagram we both agree on, with open questions labelled." rows="2"></textarea>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goPhase(0)">← Back</button>
+      <button class="btn" onclick="goPhase(2)">Start session →</button>
+    </div>
+  </div>
+
+  <!-- PHASE 2: SESSION -->
+  <div class="section" id="phase2">
+    <div class="section-label">Phase 3 of 4 · You're in the session now</div>
+    <div class="section-title">Capture & keep moving</div>
+    <div class="section-sub">Brain spots a rabbit hole? Dump it below and move on. Don't solve it now.</div>
+
+    <!-- Zoom checker -->
+    <div class="zoom-widget">
+      <div class="zoom-label">Zoom check — where are you right now?</div>
+      <div class="zoom-levels" id="sessionZoomLevels">
+        <button class="zoom-btn" onclick="checkZoom(this,'System')" data-tip="How do pieces connect? e.g. Does the pipeline push to ClickHouse directly or via Kafka?">🌍 System</button>
+        <button class="zoom-btn" onclick="checkZoom(this,'Service')" data-tip="How does one service behave? e.g. How does the ingestion service batch-write to ClickHouse?">📦 Service</button>
+        <button class="zoom-btn" onclick="checkZoom(this,'Component')" data-tip="Schema, table design, one module. e.g. What tables + materialized views does the analytics DB need?">🧩 Component</button>
+        <button class="zoom-btn" onclick="checkZoom(this,'Code')" data-tip="Specific query or implementation. e.g. Which ClickHouse insert pattern handles deduplication?">💻 Code</button>
+      </div>
+      <div class="zoom-reminder" id="zoomReminder"></div>
+    </div>
+
+    <!-- TBD parking lot -->
+    <div class="tbd-zone">
+      <div class="tbd-header">
+        <div class="tbd-title">🅿 Parking Lot</div>
+        <div class="tbd-count" id="tbdCount">0</div>
+      </div>
+      <div class="tbd-input-row">
+        <input class="tbd-input" id="tbdInput" placeholder="Rabbit hole spotted — name it briefly..." onkeydown="if(event.key==='Enter')addTBD()">
+        <select id="tbdTag" class="tbd-tag-select">
+          <option value="later">Later</option>
+          <option value="maybe">Maybe</option>
+          <option value="drop">Drop</option>
+        </select>
+        <button class="btn" onclick="addTBD()">Park it</button>
+      </div>
+      <div class="tbd-list" id="tbdList">
+        <div class="tbd-empty" id="tbdEmpty">Nothing parked yet.</div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goPhase(1)">← Back</button>
+      <button class="btn" onclick="goPhase(3)">Close session →</button>
+    </div>
+  </div>
+
+  <!-- PHASE 3: CLOSE -->
+  <div class="section" id="phase3">
+    <div class="section-label">Phase 4 of 4</div>
+    <div class="section-title">What did you decide?</div>
+    <div class="section-sub">Close the loop. One decision, one next step. Everything else is filed as TBD.</div>
+
+    <div class="prompt-card" data-num="1">
+      <div class="prompt-q">State the ONE decision in one sentence.</div>
+      <div class="prompt-hint">Can't write it in one sentence? You haven't decided yet — go back and narrow.</div>
+      <textarea id="d0" placeholder="e.g. We will use Kafka for async flow between ingestion and analytics." rows="2"></textarea>
+    </div>
+
+    <div class="prompt-card" data-num="2">
+      <div class="prompt-q">ONE next action. Who owns it?</div>
+      <div class="prompt-hint">A name, not a team. A day, not a sprint.</div>
+      <textarea id="d1" placeholder="e.g. Rajan — draft Kafka topic schema by Thursday." rows="2"></textarea>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="goPhase(2)">← Back</button>
+      <button class="btn" onclick="goPhase(4)">See summary →</button>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="section" id="phase4">
+    <div class="section-label">Session complete</div>
+    <div class="section-title">Your session summary</div>
+    <div class="section-sub">Copy this into Notion, Slack, or wherever decisions live. TBD items aren't failures — they're scope control.</div>
+
+    <div class="summary-block" id="summaryDecision"></div>
+    <div class="summary-block" id="summaryScope"></div>
+    <div class="summary-block" id="summaryTBD"></div>
+    <div class="summary-block" id="summaryNext"></div>
+
+    <div class="nav-row">
+      <button class="btn btn-ghost" onclick="resetAll()">Start new session</button>
+      <button class="btn" onclick="copySummary()">⎘ Copy summary</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let currentPhase = 0;
+let tbdItems = [];
+
+function goPhase(n) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
+  const el = document.getElementById('phase' + n);
+  if (el) el.classList.add('visible');
+  currentPhase = n;
+
+  document.querySelectorAll('.phase-step').forEach(s => {
+    const p = parseInt(s.dataset.phase);
+    s.classList.remove('active', 'done');
+    if (p === n) s.classList.add('active');
+    else if (p < n) s.classList.add('done');
+  });
+
+  document.getElementById('progressFill').style.width = Math.min(n / 4 * 100, 100) + '%';
+  if (n === 4) buildSummary();
+}
+
+function selectZoom(btn, label) {
+  document.querySelectorAll('#phase0 .zoom-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('a1').value = label;
+}
+
+function checkZoom(btn, label) {
+  document.querySelectorAll('#sessionZoomLevels .zoom-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const intended = document.getElementById('a1').value;
+  const reminder = document.getElementById('zoomReminder');
+  if (intended && intended !== label) {
+    reminder.textContent = `⚠ You anchored at ${intended} level — you're now at ${label}. Rabbit hole? Park it and zoom back out.`;
+  } else {
+    reminder.textContent = `✓ Still at ${label} — matches your anchor. Stay here.`;
+  }
+  reminder.classList.add('show');
+}
+
+function addTBD() {
+  const input = document.getElementById('tbdInput');
+  const text = input.value.trim();
+  if (!text) return;
+  tbdItems.push({ text, tag: document.getElementById('tbdTag').value });
+  input.value = '';
+  input.focus();
+  renderTBD();
+}
+
+function removeTBD(i) {
+  tbdItems.splice(i, 1);
+  renderTBD();
+}
+
+function renderTBD() {
+  const list = document.getElementById('tbdList');
+  const empty = document.getElementById('tbdEmpty');
+  document.getElementById('tbdCount').textContent = tbdItems.length;
+
+  // Remove only item rows — leave #tbdEmpty in the DOM
+  list.querySelectorAll('.tbd-item').forEach(el => el.remove());
+
+  if (tbdItems.length === 0) {
+    empty.style.display = '';
+    return;
+  }
+
+  empty.style.display = 'none';
+  const tagMap = { later: ['badge-later','later'], maybe: ['badge-maybe','maybe'], drop: ['badge-drop','drop'] };
+  tbdItems.forEach((item, i) => {
+    const [cls, label] = tagMap[item.tag];
+    const div = document.createElement('div');
+    div.className = 'tbd-item';
+    div.innerHTML = `
+      <span class="tbd-item-text">${item.text}</span>
+      <span class="tbd-badge ${cls}">${label}</span>
+      <button class="tbd-remove" onclick="removeTBD(${i})" title="Remove">×</button>`;
+    list.appendChild(div);
+  });
+}
+
+function buildSummary() {
+  const v = id => document.getElementById(id).value.trim();
+  const or = (s, fb) => s || `<span class="empty-state">${fb}</span>`;
+
+  document.getElementById('summaryDecision').innerHTML = `
+    <h3>✅ Decision</h3>
+    <div class="summary-item"><span class="label">Session goal</span>${or(v('a0'), 'not filled in')}</div>
+    <div class="summary-item"><span class="label">Zoom level</span>${or(v('a1'), 'not selected')}</div>
+    <div class="summary-item"><span class="label">Decision made</span>${or(v('d0'), 'not filled in')}</div>
+    <div class="summary-item"><span class="label">Done looked like</span>${or(v('b2'), 'not filled in')}</div>`;
+
+  document.getElementById('summaryScope').innerHTML = `
+    <h3>🚫 Out of scope today</h3>
+    <div class="summary-item">${or(v('b1'), 'not filled in')}</div>`;
+
+  const byTag = tag => tbdItems.filter(t => t.tag === tag).map(t => t.text).join(' · ');
+  let tbdHtml = `<h3>🅿 Parking Lot (${tbdItems.length})</h3>`;
+  if (!tbdItems.length) {
+    tbdHtml += `<div class="empty-state">Nothing parked.</div>`;
+  } else {
+    if (byTag('later')) tbdHtml += `<div class="summary-item"><span class="label">Later</span>${byTag('later')}</div>`;
+    if (byTag('maybe')) tbdHtml += `<div class="summary-item"><span class="label">Maybe</span>${byTag('maybe')}</div>`;
+    if (byTag('drop'))  tbdHtml += `<div class="summary-item"><span class="label">Drop</span>${byTag('drop')}</div>`;
+  }
+  document.getElementById('summaryTBD').innerHTML = tbdHtml;
+
+  document.getElementById('summaryNext').innerHTML = `
+    <h3>➡ Next action</h3>
+    <div class="summary-item">${or(v('d1'), 'not filled in')}</div>`;
+}
+
+function copySummary() {
+  const v = id => document.getElementById(id).value.trim();
+  const tbdText = tbdItems.length
+    ? tbdItems.map(t => `  - [${t.tag.toUpperCase()}] ${t.text}`).join('\n')
+    : '  (none)';
+
+  const text = [
+    'ARCHITECTURE SESSION SUMMARY',
+    '============================',
+    `Goal: ${v('a0')}`,
+    `Zoom: ${v('a1')}`,
+    '',
+    `DECISION: ${v('d0')}`,
+    '',
+    `NEXT: ${v('d1')}`,
+    '',
+    `OUT OF SCOPE TODAY:\n${v('b1')}`,
+    '',
+    `PARKING LOT:\n${tbdText}`,
+  ].join('\n');
+
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.nav-row .btn:last-child');
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = orig, 1800);
+  });
+}
+
+function resetAll() {
+  document.querySelectorAll('textarea').forEach(t => t.value = '');
+  document.querySelectorAll('input[type=hidden]').forEach(t => t.value = '');
+  tbdItems = [];
+  renderTBD();
+  document.querySelectorAll('.zoom-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('zoomReminder').classList.remove('show');
+  goPhase(0);
+}
+</script>
+</body>
+</html>
