@@ -189,6 +189,256 @@ textarea {
 textarea:focus { outline: none; border-color: var(--accent); }
 textarea::placeholder { color: var(--muted); }
 
+/* Brain dump card */
+.brain-dump-card {
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.brain-dump-card .prompt-q {
+  font-size: 0.72rem;
+  margin-bottom: 4px;
+}
+
+.brain-dump-card textarea {
+  min-height: 64px;
+  background: var(--paper);
+}
+
+/* Session checklist builder (Phase 1) */
+.checklist-builder {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.checklist-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.checklist-num {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.1rem;
+  color: var(--border);
+  font-style: italic;
+  width: 14px;
+  flex-shrink: 0;
+}
+
+.checklist-input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 11px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--ink);
+  transition: border-color 0.2s;
+}
+
+.checklist-input:focus { outline: none; border-color: var(--accent2); }
+.checklist-input::placeholder { color: var(--muted); }
+
+/* Session checklist display (Phase 2) */
+.session-checklist {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.session-checklist-header {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.session-checklist-done {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1rem;
+  color: var(--accent2);
+  font-style: italic;
+}
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.check-item:last-child { border-bottom: none; }
+
+.check-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent2);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.check-item-text {
+  font-size: 0.74rem;
+  color: var(--ink);
+  line-height: 1.4;
+  transition: all 0.2s;
+}
+
+.check-item.checked .check-item-text {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.checklist-empty {
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Timer widget */
+.timer-widget {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.timer-header {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.timer-body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.timer-display {
+  font-family: 'Instrument Serif', serif;
+  font-size: 2.8rem;
+  line-height: 1;
+  color: var(--ink);
+  font-style: italic;
+  letter-spacing: -0.02em;
+  min-width: 120px;
+}
+
+.timer-display.warning { color: var(--accent); }
+.timer-display.done { color: var(--accent2); }
+
+.timer-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.timer-presets {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.timer-preset-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.timer-preset-btn:hover,
+.timer-preset-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+.timer-btn-row { display: flex; gap: 6px; }
+
+/* Good enough check */
+.good-enough-zone {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.good-enough-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.good-enough-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent2);
+  font-weight: 500;
+}
+
+.good-enough-panel {
+  margin-top: 14px;
+  display: none;
+  animation: slideIn 0.2s ease;
+}
+
+.good-enough-panel.open { display: block; }
+
+.ge-criterion {
+  padding: 8px 10px;
+  background: var(--bg);
+  border-left: 2px solid var(--accent2);
+  border-radius: 0 4px 4px 0;
+  font-size: 0.72rem;
+  color: var(--ink);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.ge-criterion .ge-label {
+  font-size: 0.56rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 3px;
+}
+
+.ge-question {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 14px 0 10px;
+}
+
+.ge-actions { display: flex; gap: 8px; }
+
 /* Zoom widget */
 .zoom-widget {
   background: var(--paper);
@@ -235,7 +485,6 @@ textarea::placeholder { color: var(--muted); }
   line-height: 1.5;
   padding: 7px 10px;
   border-radius: 5px;
-  white-space: nowrap;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.15s;
@@ -354,6 +603,8 @@ textarea::placeholder { color: var(--muted); }
 .btn:hover { background: var(--accent); border-color: var(--accent); }
 .btn-ghost { background: transparent; color: var(--ink); }
 .btn-ghost:hover { background: var(--surface); color: var(--ink); }
+.btn-green { background: var(--accent2); border-color: var(--accent2); }
+.btn-green:hover { background: #1f5446; border-color: #1f5446; }
 
 .tbd-list { display: flex; flex-direction: column; gap: 6px; }
 
@@ -480,7 +731,14 @@ textarea::placeholder { color: var(--muted); }
   <div class="section visible" id="phase0">
     <div class="section-label">Phase 1 of 4</div>
     <div class="section-title">Anchor the session</div>
-    <div class="section-sub">Three questions. Don't skip — they're the fence that stops your brain from solving everything at once.</div>
+    <div class="section-sub">Brain dump first, then three questions. Don't skip either.</div>
+
+    <!-- Brain dump -->
+    <div class="brain-dump-card">
+      <div class="prompt-q">Brain dump — 60 seconds</div>
+      <div class="prompt-hint">Empty the buffer before you start. What's already competing for attention?</div>
+      <textarea id="brainDump" placeholder="What's swirling? Worries, half-formed ideas, things from earlier today... get it out." rows="3"></textarea>
+    </div>
 
     <div class="prompt-card" data-num="1">
       <div class="prompt-q">What ONE decision must this session produce?</div>
@@ -516,7 +774,7 @@ textarea::placeholder { color: var(--muted); }
   <div class="section" id="phase1">
     <div class="section-label">Phase 2 of 4</div>
     <div class="section-title">Draw the fence</div>
-    <div class="section-sub">Explicitly name what you are NOT solving today. Every item here is a rabbit hole you're allowed to skip.</div>
+    <div class="section-sub">Name what you're NOT solving, set your session checklist, define done.</div>
 
     <div class="prompt-card" data-num="1">
       <div class="prompt-q">What constraints are FIXED? (don't question these today)</div>
@@ -536,6 +794,25 @@ textarea::placeholder { color: var(--muted); }
       <textarea id="b2" placeholder="e.g. A diagram we both agree on, with open questions labelled." rows="2"></textarea>
     </div>
 
+    <div class="prompt-card" data-num="✓">
+      <div class="prompt-q">Session checklist — max 3 things to cover</div>
+      <div class="prompt-hint">Not a full todo list. Three specific topics this session must touch to feel complete.</div>
+      <div class="checklist-builder">
+        <div class="checklist-input-row">
+          <span class="checklist-num">1</span>
+          <input class="checklist-input" id="cl0" placeholder="e.g. Decide write path: Kafka vs. direct insert">
+        </div>
+        <div class="checklist-input-row">
+          <span class="checklist-num">2</span>
+          <input class="checklist-input" id="cl1" placeholder="e.g. Agree on table schema shape">
+        </div>
+        <div class="checklist-input-row">
+          <span class="checklist-num">3</span>
+          <input class="checklist-input" id="cl2" placeholder="e.g. Identify the one open question to park (optional)">
+        </div>
+      </div>
+    </div>
+
     <div class="nav-row">
       <button class="btn btn-ghost" onclick="goPhase(0)">← Back</button>
       <button class="btn" onclick="goPhase(2)">Start session →</button>
@@ -546,7 +823,58 @@ textarea::placeholder { color: var(--muted); }
   <div class="section" id="phase2">
     <div class="section-label">Phase 3 of 4 · You're in the session now</div>
     <div class="section-title">Capture & keep moving</div>
-    <div class="section-sub">Brain spots a rabbit hole? Dump it below and move on. Don't solve it now.</div>
+    <div class="section-sub">Tick off your checklist. Dump rabbit holes in the parking lot. Check time.</div>
+
+    <!-- Session checklist -->
+    <div class="session-checklist" id="sessionChecklist">
+      <div class="session-checklist-header">
+        <span>Session checklist</span>
+        <span class="session-checklist-done" id="checklistDoneCount"></span>
+      </div>
+      <div id="checklistItems"></div>
+    </div>
+
+    <!-- Timer -->
+    <div class="timer-widget">
+      <div class="timer-header">Session timer — time blindness protection</div>
+      <div class="timer-body">
+        <div class="timer-display" id="timerDisplay">25:00</div>
+        <div class="timer-controls">
+          <div class="timer-presets">
+            <button class="timer-preset-btn active" onclick="setTimer(25, this)">25 min</button>
+            <button class="timer-preset-btn" onclick="setTimer(45, this)">45 min</button>
+            <button class="timer-preset-btn" onclick="setTimer(60, this)">60 min</button>
+          </div>
+          <div class="timer-btn-row">
+            <button class="btn" id="timerToggleBtn" onclick="toggleTimer()">Start</button>
+            <button class="btn btn-ghost" onclick="resetTimer()">Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Good enough check -->
+    <div class="good-enough-zone">
+      <div class="good-enough-trigger" onclick="toggleGoodEnough()">
+        <span class="good-enough-label">✓ Good enough check</span>
+        <span id="geArrow" style="font-size:0.7rem;color:var(--muted)">▼</span>
+      </div>
+      <div class="good-enough-panel" id="goodEnoughPanel">
+        <div class="ge-criterion">
+          <span class="ge-label">Your goal</span>
+          <span id="geGoal"></span>
+        </div>
+        <div class="ge-criterion">
+          <span class="ge-label">Done looks like</span>
+          <span id="geDone"></span>
+        </div>
+        <div class="ge-question">Have you hit it?</div>
+        <div class="ge-actions">
+          <button class="btn btn-green" onclick="goPhase(3)">Yes — close session →</button>
+          <button class="btn btn-ghost" onclick="toggleGoodEnough()">Not yet — keep going</button>
+        </div>
+      </div>
+    </div>
 
     <!-- Zoom checker -->
     <div class="zoom-widget">
@@ -617,6 +945,7 @@ textarea::placeholder { color: var(--muted); }
     <div class="section-sub">Copy this into Notion, Slack, or wherever decisions live. TBD items aren't failures — they're scope control.</div>
 
     <div class="summary-block" id="summaryDecision"></div>
+    <div class="summary-block" id="summaryChecklist"></div>
     <div class="summary-block" id="summaryScope"></div>
     <div class="summary-block" id="summaryTBD"></div>
     <div class="summary-block" id="summaryNext"></div>
@@ -632,7 +961,125 @@ textarea::placeholder { color: var(--muted); }
 <script>
 let currentPhase = 0;
 let tbdItems = [];
+let checklistChecked = [false, false, false];
 
+// ── Timer ─────────────────────────────────────────────────────────────────
+let timerTotal = 25 * 60;
+let timerRemaining = 25 * 60;
+let timerRunning = false;
+let timerInterval = null;
+
+function setTimer(minutes, btn) {
+  if (timerRunning) return;
+  timerTotal = minutes * 60;
+  timerRemaining = timerTotal;
+  document.querySelectorAll('.timer-preset-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderTimer();
+}
+
+function toggleTimer() {
+  if (timerRemaining === 0) { resetTimer(); return; }
+  timerRunning = !timerRunning;
+  document.getElementById('timerToggleBtn').textContent = timerRunning ? 'Pause' : 'Resume';
+  if (timerRunning) {
+    timerInterval = setInterval(() => {
+      timerRemaining--;
+      renderTimer();
+      if (timerRemaining === 0) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        document.getElementById('timerToggleBtn').textContent = 'Done';
+        document.getElementById('timerDisplay').classList.add('done');
+        // Auto-open good enough check
+        const panel = document.getElementById('goodEnoughPanel');
+        if (!panel.classList.contains('open')) toggleGoodEnough();
+      }
+    }, 1000);
+  } else {
+    clearInterval(timerInterval);
+  }
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerRemaining = timerTotal;
+  document.getElementById('timerToggleBtn').textContent = 'Start';
+  const disp = document.getElementById('timerDisplay');
+  disp.classList.remove('warning', 'done');
+  renderTimer();
+}
+
+function renderTimer() {
+  const m = Math.floor(timerRemaining / 60);
+  const s = timerRemaining % 60;
+  document.getElementById('timerDisplay').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const disp = document.getElementById('timerDisplay');
+  disp.classList.remove('warning', 'done');
+  if (timerRemaining === 0) disp.classList.add('done');
+  else if (timerRemaining <= 300) disp.classList.add('warning'); // last 5 min
+}
+
+// ── Good enough check ─────────────────────────────────────────────────────
+function toggleGoodEnough() {
+  const panel = document.getElementById('goodEnoughPanel');
+  const arrow = document.getElementById('geArrow');
+  const isOpen = panel.classList.toggle('open');
+  arrow.textContent = isOpen ? '▲' : '▼';
+  if (isOpen) {
+    const goal = document.getElementById('a0').value.trim();
+    const done = document.getElementById('b2').value.trim();
+    document.getElementById('geGoal').textContent = goal || '(not filled in — go back to Phase 1)';
+    document.getElementById('geDone').textContent = done || '(not filled in — go back to Phase 2)';
+  }
+}
+
+// ── Session checklist ─────────────────────────────────────────────────────
+function buildSessionChecklist() {
+  const container = document.getElementById('checklistItems');
+  container.innerHTML = '';
+  checklistChecked = [false, false, false];
+  const items = [
+    document.getElementById('cl0').value.trim(),
+    document.getElementById('cl1').value.trim(),
+    document.getElementById('cl2').value.trim(),
+  ].filter(Boolean);
+
+  if (items.length === 0) {
+    container.innerHTML = '<div class="checklist-empty">No checklist items set — go back to Phase 2 to add up to 3.</div>';
+    return;
+  }
+
+  items.forEach((text, i) => {
+    const div = document.createElement('div');
+    div.className = 'check-item';
+    div.id = `checkItem${i}`;
+    div.innerHTML = `
+      <input type="checkbox" id="chk${i}" onchange="toggleCheckItem(${i})">
+      <label class="check-item-text" for="chk${i}">${text}</label>`;
+    container.appendChild(div);
+  });
+  updateChecklistCount();
+}
+
+function toggleCheckItem(i) {
+  checklistChecked[i] = document.getElementById(`chk${i}`).checked;
+  const item = document.getElementById(`checkItem${i}`);
+  item.classList.toggle('checked', checklistChecked[i]);
+  updateChecklistCount();
+}
+
+function updateChecklistCount() {
+  const items = document.querySelectorAll('.check-item');
+  const done = checklistChecked.filter(Boolean).length;
+  const total = items.length;
+  const el = document.getElementById('checklistDoneCount');
+  el.textContent = total > 0 ? `${done} / ${total}` : '';
+  el.style.color = done === total && total > 0 ? 'var(--accent2)' : 'var(--muted)';
+}
+
+// ── Phase navigation ──────────────────────────────────────────────────────
 function goPhase(n) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
   const el = document.getElementById('phase' + n);
@@ -647,6 +1094,8 @@ function goPhase(n) {
   });
 
   document.getElementById('progressFill').style.width = Math.min(n / 4 * 100, 100) + '%';
+
+  if (n === 2) buildSessionChecklist();
   if (n === 4) buildSummary();
 }
 
@@ -669,6 +1118,7 @@ function checkZoom(btn, label) {
   reminder.classList.add('show');
 }
 
+// ── Parking lot ───────────────────────────────────────────────────────────
 function addTBD() {
   const input = document.getElementById('tbdInput');
   const text = input.value.trim();
@@ -689,13 +1139,9 @@ function renderTBD() {
   const empty = document.getElementById('tbdEmpty');
   document.getElementById('tbdCount').textContent = tbdItems.length;
 
-  // Remove only item rows — leave #tbdEmpty in the DOM
   list.querySelectorAll('.tbd-item').forEach(el => el.remove());
 
-  if (tbdItems.length === 0) {
-    empty.style.display = '';
-    return;
-  }
+  if (tbdItems.length === 0) { empty.style.display = ''; return; }
 
   empty.style.display = 'none';
   const tagMap = { later: ['badge-later','later'], maybe: ['badge-maybe','maybe'], drop: ['badge-drop','drop'] };
@@ -711,6 +1157,7 @@ function renderTBD() {
   });
 }
 
+// ── Summary ───────────────────────────────────────────────────────────────
 function buildSummary() {
   const v = id => document.getElementById(id).value.trim();
   const or = (s, fb) => s || `<span class="empty-state">${fb}</span>`;
@@ -721,6 +1168,18 @@ function buildSummary() {
     <div class="summary-item"><span class="label">Zoom level</span>${or(v('a1'), 'not selected')}</div>
     <div class="summary-item"><span class="label">Decision made</span>${or(v('d0'), 'not filled in')}</div>
     <div class="summary-item"><span class="label">Done looked like</span>${or(v('b2'), 'not filled in')}</div>`;
+
+  const clItems = ['cl0','cl1','cl2'].map(id => v(id)).filter(Boolean);
+  let clHtml = `<h3>☑ Session Checklist</h3>`;
+  if (!clItems.length) {
+    clHtml += `<div class="empty-state">No checklist items.</div>`;
+  } else {
+    clItems.forEach((text, i) => {
+      const done = checklistChecked[i];
+      clHtml += `<div class="summary-item">${done ? '✓' : '○'} ${text}</div>`;
+    });
+  }
+  document.getElementById('summaryChecklist').innerHTML = clHtml;
 
   document.getElementById('summaryScope').innerHTML = `
     <h3>🚫 Out of scope today</h3>
@@ -744,6 +1203,10 @@ function buildSummary() {
 
 function copySummary() {
   const v = id => document.getElementById(id).value.trim();
+  const clItems = ['cl0','cl1','cl2'].map(v).filter(Boolean);
+  const clText = clItems.length
+    ? clItems.map((t, i) => `  ${checklistChecked[i] ? '✓' : '○'} ${t}`).join('\n')
+    : '  (none)';
   const tbdText = tbdItems.length
     ? tbdItems.map(t => `  - [${t.tag.toUpperCase()}] ${t.text}`).join('\n')
     : '  (none)';
@@ -758,13 +1221,15 @@ function copySummary() {
     '',
     `NEXT: ${v('d1')}`,
     '',
+    `SESSION CHECKLIST:\n${clText}`,
+    '',
     `OUT OF SCOPE TODAY:\n${v('b1')}`,
     '',
     `PARKING LOT:\n${tbdText}`,
   ].join('\n');
 
   navigator.clipboard.writeText(text).then(() => {
-    const btn = document.querySelector('.nav-row .btn:last-child');
+    const btn = document.querySelector('#phase4 .nav-row .btn:last-child');
     const orig = btn.textContent;
     btn.textContent = '✓ Copied!';
     setTimeout(() => btn.textContent = orig, 1800);
@@ -772,12 +1237,25 @@ function copySummary() {
 }
 
 function resetAll() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerRemaining = 25 * 60;
+  timerTotal = 25 * 60;
+  document.getElementById('timerToggleBtn').textContent = 'Start';
+  document.getElementById('timerDisplay').className = 'timer-display';
+  renderTimer();
+
   document.querySelectorAll('textarea').forEach(t => t.value = '');
   document.querySelectorAll('input[type=hidden]').forEach(t => t.value = '');
+  document.querySelectorAll('.checklist-input').forEach(t => t.value = '');
   tbdItems = [];
+  checklistChecked = [false, false, false];
   renderTBD();
   document.querySelectorAll('.zoom-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('zoomReminder').classList.remove('show');
+  const panel = document.getElementById('goodEnoughPanel');
+  panel.classList.remove('open');
+  document.getElementById('geArrow').textContent = '▼';
   goPhase(0);
 }
 </script>
