@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AuDHD Toolkit: Accessibility-First Design — Session Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #0f1117;
+  --surface: #16181f;
+  --border:  #23262f;
+  --text:    #e2e8f0;
+  --muted:   #6b7280;
+  --accent:  #818cf8;
+  --work:    #34d399;
+  --warn:    #fbbf24;
+}
+
+body {
+  font-family: 'DM Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.7;
+}
+
+.wrap { max-width: 740px; margin: 0 auto; padding: 0 1.5rem 6rem; }
+
+/* Back */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 2.5rem 0 0;
+  display: block;
+  margin-bottom: 2.5rem;
+  transition: color 0.15s;
+}
+.back-link:hover { color: var(--text); }
+
+/* Article header */
+.article-meta {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+.article-deck {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.65;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Tags */
+.tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.tag {
+  font-size: 0.56rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 3px 9px;
+  border-radius: 20px;
+  border: 1px solid;
+}
+.tag-audhd   { color: var(--accent); border-color: var(--accent); background: rgba(129,140,248,0.08); }
+.tag-pwa     { color: var(--work);   border-color: var(--work);   background: rgba(52,211,153,0.08); }
+.tag-session { color: var(--warn);   border-color: var(--warn);   background: rgba(251,191,36,0.08); }
+.tag-infra   { color: var(--muted);  border-color: var(--border);  background: transparent; }
+
+/* Body content */
+.section { margin-bottom: 2.5rem; }
+
+h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+h3 {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text);
+  margin: 1.2rem 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+p { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.2rem; margin-bottom: 0.75rem; }
+li { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.3rem; line-height: 1.6; }
+li strong { color: var(--text); font-weight: 500; }
+
+/* Code */
+code {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--work);
+}
+
+pre {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.7rem;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+/* Info boxes */
+.box {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.74rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  border: 1px solid;
+}
+.box-decision { background: rgba(129,140,248,0.07); border-color: rgba(129,140,248,0.3); color: var(--text); }
+.box-fix      { background: rgba(52,211,153,0.07);  border-color: rgba(52,211,153,0.3);  color: var(--text); }
+.box-warn     { background: rgba(251,191,36,0.07);  border-color: rgba(251,191,36,0.3);  color: var(--text); }
+.box-label {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+.box-decision .box-label { color: var(--accent); }
+.box-fix      .box-label { color: var(--work); }
+.box-warn     .box-label { color: var(--warn); }
+
+@media (max-width: 520px) {
+  h1 { font-size: 1.35rem; }
+  h2 { font-size: 0.95rem; }
+  .box { font-size: 0.7rem; }
+  .tag-row { gap: 6px; }
+}
+
+/* Footer */
+footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<a href="/" class="back-link">← All Toolkits</a>
+
+<div class="article-meta">Concepts &amp; Philosophy · adhd-tools.artisticmonk.in</div>
+<h1>The Ideas Behind the Toolkits</h1>
+<p class="article-deck">
+  Every tool on this site rests on a handful of beliefs about neurodivergent brains — about energy, getting stuck, masking, attention, and what "help" should actually feel like. This is the thinking underneath, in plain language. Not a manual for the tools; a map of the ideas they're built from.
+</p>
+
+<div class="tag-row">
+  <span class="tag tag-audhd">Neurodivergence</span>
+  <span class="tag tag-pwa">Self-Affirming</span>
+  <span class="tag tag-session">Philosophy</span>
+  <span class="tag tag-infra">Concepts</span>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<div class="section">
+<h2>The one belief underneath all of it</h2>
+
+<p>Most productivity and self-help advice quietly assumes a particular kind of brain — one that starts things easily, holds attention by choice, reads social cues for free, and remembers what it meant to do. If that's not your brain, the advice doesn't just fail; it leaves you feeling broken for needing something else.</p>
+
+<p>These toolkits start from the opposite assumption. <strong>You build for the brain you actually have, not the brain you were told to have.</strong> The goal is never to fix you into someone more "normal." It's to take the parts of how your mind works that the world treats as flaws — and arrange your environment so they cost you less.</p>
+
+<div class="box box-decision">
+  <div class="box-label">Principle</div>
+  <strong>Affirming, not corrective.</strong><br>
+  Distraction, intense focus, the need to stim, energy that runs out fast, a mind that wants every option at once — these are treated as the shape of a real nervous system, not bad habits to discipline away. The tools work <em>with</em> the wiring instead of against it.
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<div class="section">
+<h2>Spoons: energy is the real budget</h2>
+
+<p>"Spoon theory" started as a way to explain chronic illness, and it fits neurodivergent life closely. The idea: you wake up with a limited number of spoons — units of mental and physical energy — and every task spends some. For a lot of people, ordinary things (a shower, a phone call, a noisy room) come almost free. When you're neurodivergent, those same things can cost several spoons each, and you can't always predict which.</p>
+
+<p>The trouble is that energy is invisible, so we plan as if we have unlimited amounts and then crash without understanding why. Naming the budget out loud — <em>how many spoons do I have, and what is this about to cost?</em> — turns an invisible limit into something you can actually plan around.</p>
+
+<div class="box box-fix">
+  <div class="box-label">In the toolkits</div>
+  The <strong>AuDHD Comfort Zone</strong> tool asks you to set your spoon level before a social situation, estimates what the situation will cost, and warns you when you're about to go into deficit — then it plans recovery <em>before</em> you go in, not as an afterthought. Counting recovery as part of the cost is the whole point.
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<div class="section">
+<h2>Two kinds of stuck</h2>
+
+<p>"I can't get started" is not one problem. It's at least two, and they need opposite responses.</p>
+
+<ul>
+  <li><strong>Autistic inertia</strong> is being stuck in your current state. You know exactly what to do; your brain just won't shift gears into doing it — and once you <em>are</em> moving, stopping is just as hard. The block is the transition itself.</li>
+  <li><strong>ADHD paralysis</strong> is the task being unclear, too big, or emotionally loaded. You can't find the first step because the whole thing is a fog. The block is the lack of a small, concrete entry point.</li>
+</ul>
+
+<p>Push through inertia with a movement ritual and you get unstuck. Try the same on paralysis and you just spin, because the fog was never about momentum. Telling them apart is most of the work.</p>
+
+<div class="box box-fix">
+  <div class="box-label">In the toolkits</div>
+  The <strong>Work Ramp</strong> mode asks which freeze you're in first, then routes you differently — a transition ritual for inertia, shrinking the task to one sentence for paralysis. Either way it ends in the same place: a three-step ramp where each step is smaller than it sounds. <em>Open it. Read the first line. Do the one smallest thing.</em> Starting is the hard part, so the tool makes starting almost nothing.
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<div class="section">
+<h2>Masking, and the bill that comes later</h2>
+
+<p>Masking is the effort of performing "normal" — managing your face, suppressing stims, scripting small talk, holding eye contact that doesn't come naturally. It often works in the moment. What it does is move the cost to later: the exhaustion, the shutdown, the shame spiral after a social thing that "went fine."</p>
+
+<p>You can't always avoid masking — sometimes it's genuinely the safer choice. But you can stop being ambushed by the bill. If you know a situation will demand high masking, you can budget more recovery for it, choose a shorter version, or plan a soft exit before you're already overloaded.</p>
+
+<div class="box box-fix">
+  <div class="box-label">In the toolkits</div>
+  Naming the expected masking level feeds directly into the recovery the tool plans for you — high masking simply costs more, and the math reflects that. Unmasking afterward is framed as the recovery itself, not as laziness you have to apologise for.
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<div class="section">
+<h2>Wide before deep</h2>
+
+<p>An ADHD mind tends to think depth-first: the first interesting thread grabbed gets followed all the way down, and three hours later you've built something elaborate on top of the option you happened to notice first — not the best one, the <em>first</em> one. The pull toward depth is strong, immediate, and hard to resist mid-flow.</p>
+
+<p>The counter-move is to force a breadth scan before any depth. Map every direction at the surface, without judging or building, until you can see the whole field. Only then do you go deep — on purpose, into a direction you actually chose. Distracting "let me just check…" thoughts get parked as fuel for later instead of derailing the survey.</p>
+
+<div class="box box-fix">
+  <div class="box-label">In the toolkits</div>
+  <strong>Wide First</strong> won't let you score or commit until you've listed several directions, and it scores them on things ADHD brains routinely under-weight — especially reversibility, <em>"if this is wrong, how easily can I undo it?"</em> Reversible choices deserve less agonising; one-way doors deserve more. The tool makes that asymmetry visible.
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<div class="section">
+<h2>Good enough for now</h2>
+
+<p>Perfectionism and an interest-driven brain make a brutal pair: every task sprouts sub-tasks, every design session wants to solve everything at once, and nothing feels finishable because "finished" keeps moving. Scope isn't a project-management detail here — it's self-protection.</p>
+
+<p>The reframe is that an incomplete-but-decided answer beats a perfect-but-endless one. You anchor to one decision the session must produce, fence off everything you are explicitly <em>not</em> deciding today, and when a tempting tangent appears you park it rather than chase it. "TBD" stops being failure and becomes the thing that lets you actually finish.</p>
+
+<div class="box box-fix">
+  <div class="box-label">In the toolkits</div>
+  <strong>Good Enough for Now</strong> walks an architecture or planning session through anchor → fence → work → close, with a parking lot for tangents and a timer for time-blindness. It ends by forcing the decision into a single sentence — because if you can't say it in one sentence, you haven't decided yet.
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<div class="section">
+<h2>Grounding: turning the volume down</h2>
+
+<p>Some moments aren't about planning at all. They're floods — panic rising, sensory overload, an emotional sting that takes over, a thought-spiral that won't quit. In those moments the thinking brain is offline, and advice to "just reframe it" is useless. What helps is the body.</p>
+
+<p>Grounding is a set of fast, physical ways to tell an alarmed nervous system that you're here and the wave will pass: slow the breath (a long exhale does most of the work), name what your five senses can reach, press your feet into the floor. It's not about doing it "right" — it's about turning the volume down enough to choose your next move. And like getting stuck, different brains flood in different ways, so the right grounding move differs too.</p>
+
+<div class="box box-fix">
+  <div class="box-label">In the toolkits</div>
+  <strong>Grounding Anchor</strong> opens with a breathing pacer and a 5-4-3-2-1 senses pass that work for anyone, then offers grounding menus tuned per brain — including an ERP-informed track for OCD that practises sitting <em>with</em> uncertainty instead of chasing certainty. It's built for the moment you're in, not a routine to keep up.
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<div class="section">
+<h2>Accessibility is not an add-on</h2>
+
+<p>If a tool meant to reduce friction adds friction to use, it has failed at its own job. So the toolkits assume people read, type, and process differently, and offer more than one way in: speak instead of type, have a section read aloud instead of read, switch to a dyslexia-friendly typeface, scale the text up. None of this is a special mode for "other" users — it's just acknowledging that the people who most need these tools are exactly the ones standard interfaces serve worst.</p>
+
+<div class="box box-decision">
+  <div class="box-label">Principle</div>
+  <strong>Meet the brain where it is.</strong><br>
+  A page you can't comfortably read, in a moment when reading is already hard, isn't neutral — it's another demand. Multiple input and output modes lower that demand instead of adding to it.
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<div class="section">
+<h2>Why everything is saved</h2>
+
+<p>Neurodivergent attention gets interrupted — constantly, and often not by choice. A tool that loses everything the moment you switch tabs or get pulled away is quietly punishing you for how your attention works. So these tools remember: your half-finished session, the branches you mapped, the steps you'd ticked, the plan you built. Come back an hour or a day later and it's still there.</p>
+
+<p>This is small to build and large in effect. It treats an interrupted session as normal, not as a mistake to start over from — which is exactly the respect the rest of the world tends to withhold.</p>
+
+<div class="box box-warn">
+  <div class="box-label">A gentle note</div>
+  None of this is medical advice or a diagnosis, and no tool here replaces a therapist, doctor, or your own judgement. These are scaffolding — external structure for a brain that does better with structure outside its own head. Take what helps, leave what doesn't, and change anything that nearly fits. That's the whole spirit of it.
+</div>
+</div>
+
+<footer>adhd-tools.artisticmonk.in · concepts &amp; philosophy</footer>
+
+<button id="readAloudBtn" type="button" aria-label="Read this article aloud">▶ Read aloud</button>
+
+<style>
+#readAloudBtn {
+  position: fixed; bottom: 18px; right: 18px; z-index: 100;
+  font-family: 'DM Mono', monospace; font-size: 0.66rem;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 10px 16px; border-radius: 24px; cursor: pointer;
+  background: var(--accent); color: #0f1117; border: 1px solid var(--accent);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.5); transition: all 0.15s;
+}
+#readAloudBtn:hover { filter: brightness(1.1); }
+#readAloudBtn.reading { background: var(--warn); border-color: var(--warn); }
+@media (max-width: 520px) { #readAloudBtn { bottom: 14px; right: 14px; font-size: 0.6rem; padding: 9px 13px; } }
+</style>
+
+<script>
+(function () {
+  const btn = document.getElementById('readAloudBtn');
+  const synth = window.speechSynthesis;
+  if (!synth) { btn.style.display = 'none'; return; }
+
+  let reading = false;
+  let voice = null;
+
+  // Pick the most natural-sounding English voice available. Browsers expose
+  // cloud/"natural"/"neural" voices that sound far less robotic than the
+  // default local one — prefer those, falling back gracefully.
+  function pickVoice() {
+    const voices = synth.getVoices();
+    if (!voices.length) return null;
+    const en = voices.filter(v => /^en(-|_|$)/i.test(v.lang));
+    const pool = en.length ? en : voices;
+    const score = v => {
+      const n = (v.name + ' ' + (v.voiceURI || '')).toLowerCase();
+      let s = 0;
+      if (/natural|neural|online|premium|enhanced/.test(n)) s += 100;
+      if (/google/.test(n)) s += 60;            // Google voices are smooth
+      if (/microsoft/.test(n)) s += 40;
+      if (/aria|jenny|guy|libby|sonia|emma|ava|samantha/.test(n)) s += 30;
+      if (!v.localService) s += 50;             // cloud voices > local robotic
+      if (/en-us|en_us/i.test(v.lang)) s += 10;
+      if (/zira|david|fred|albert|espeak/.test(n)) s -= 40; // known robotic
+      return s;
+    };
+    return pool.slice().sort((a, b) => score(b) - score(a))[0] || null;
+  }
+
+  voice = pickVoice();
+  if (synth.onvoiceschanged !== undefined) {
+    synth.addEventListener('voiceschanged', () => { voice = pickVoice(); });
+  }
+
+  // Split into sentence-sized chunks so pacing sounds natural and the engine
+  // doesn't choke on one giant utterance (a common cause of flat delivery).
+  function collectChunks() {
+    const parts = [];
+    const h1 = document.querySelector('h1');
+    if (h1) parts.push(h1.textContent.trim());
+    const deck = document.querySelector('.article-deck');
+    if (deck) parts.push(deck.textContent.trim());
+    document.querySelectorAll('.section').forEach(sec => {
+      sec.querySelectorAll('h2, h3, p, li, .box').forEach(el => {
+        const t = el.textContent.replace(/\s+/g, ' ').trim();
+        if (t) parts.push(t);
+      });
+    });
+    const chunks = [];
+    parts.forEach(p => {
+      (p.match(/[^.!?]+[.!?]*\s*/g) || [p]).forEach(s => {
+        const t = s.trim();
+        if (t) chunks.push(t);
+      });
+    });
+    return chunks;
+  }
+
+  let queue = [];
+
+  function speakNext() {
+    if (!reading || !queue.length) { stop(); return; }
+    const u = new SpeechSynthesisUtterance(queue.shift());
+    if (voice) u.voice = voice;
+    u.lang = (voice && voice.lang) || 'en-US';
+    u.rate = 1.0;
+    u.pitch = 1.05;   // a touch above flat reads warmer
+    u.onend = speakNext;
+    u.onerror = speakNext;
+    synth.speak(u);
+  }
+
+  function stop() {
+    reading = false;
+    queue = [];
+    synth.cancel();
+    btn.textContent = '▶ Read aloud';
+    btn.classList.remove('reading');
+  }
+
+  function start() {
+    synth.cancel();
+    queue = collectChunks();
+    reading = true;
+    btn.textContent = '■ Stop';
+    btn.classList.add('reading');
+    speakNext();
+  }
+
+  btn.addEventListener('click', () => reading ? stop() : start());
+  window.addEventListener('beforeunload', () => synth.cancel());
+})();
+</script>
+
+</div>
+</body>
+</html>

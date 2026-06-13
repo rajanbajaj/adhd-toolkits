@@ -512,6 +512,21 @@ textarea::placeholder { color: var(--muted); }
 .zoom-btn[data-tip]:hover::after,
 .zoom-btn[data-tip]:hover::before { opacity: 1; }
 
+@media (max-width: 600px) {
+  .app { padding: 20px 16px 80px; }
+
+  /* Disable off-screen CSS tooltips; zoom-reminder text handles context on mobile */
+  .zoom-btn[data-tip]::after,
+  .zoom-btn[data-tip]::before { display: none; }
+
+  .logo { font-size: 1.6rem; }
+  .section-title { font-size: 1.3rem; }
+  .timer-display { font-size: 2.2rem; min-width: 90px; }
+  .timer-body { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .phase-track { overflow-x: auto; }
+  .phase-step { min-width: 64px; font-size: 0.5rem; padding: 6px 4px; }
+}
+
 .zoom-reminder {
   margin-top: 10px;
   font-size: 0.67rem;
@@ -963,6 +978,55 @@ let currentPhase = 0;
 let tbdItems = [];
 let checklistChecked = [false, false, false];
 
+// ── Autosave: the session survives a refresh / tab close ──────────────────
+const STORE_KEY = 'goodenough-v1';
+const FIELD_IDS = ['brainDump','a0','a2','b0','b1','b2','d0','d1','cl0','cl1','cl2'];
+
+function saveState() {
+  const fields = {};
+  FIELD_IDS.forEach(id => fields[id] = document.getElementById(id).value);
+  localStorage.setItem(STORE_KEY, JSON.stringify({
+    fields,
+    zoom: document.getElementById('a1').value,
+    tbdItems, checklistChecked,
+    phase: currentPhase,
+  }));
+}
+
+function restoreState() {
+  const raw = localStorage.getItem(STORE_KEY);
+  if (!raw) return;
+  try {
+    const s = JSON.parse(raw);
+    FIELD_IDS.forEach(id => { if (s.fields && s.fields[id] != null) document.getElementById(id).value = s.fields[id]; });
+    if (s.zoom) {
+      document.getElementById('a1').value = s.zoom;
+      document.querySelectorAll('#phase0 .zoom-btn').forEach(b => {
+        if (b.textContent.includes(s.zoom)) b.classList.add('active');
+      });
+    }
+    tbdItems = s.tbdItems || [];
+    renderTBD();
+    const phase = s.phase || 0;
+    goPhase(phase);
+    // goPhase(2) rebuilds the checklist and clears checks — re-apply them after.
+    // At phases 3-4 the checkbox DOM doesn't exist, so restore the array directly.
+    if (phase >= 2 && Array.isArray(s.checklistChecked)) {
+      if (phase === 2) {
+        s.checklistChecked.forEach((val, i) => {
+          const cb = document.getElementById(`chk${i}`);
+          if (cb && val) { cb.checked = true; toggleCheckItem(i); }
+        });
+      } else {
+        checklistChecked = s.checklistChecked;
+        if (phase === 4) buildSummary();
+      }
+    }
+  } catch (_) { localStorage.removeItem(STORE_KEY); }
+}
+
+document.addEventListener('input', () => saveState());
+
 // ── Timer ─────────────────────────────────────────────────────────────────
 let timerTotal = 25 * 60;
 let timerRemaining = 25 * 60;
@@ -1068,6 +1132,7 @@ function toggleCheckItem(i) {
   const item = document.getElementById(`checkItem${i}`);
   item.classList.toggle('checked', checklistChecked[i]);
   updateChecklistCount();
+  saveState();
 }
 
 function updateChecklistCount() {
@@ -1097,12 +1162,14 @@ function goPhase(n) {
 
   if (n === 2) buildSessionChecklist();
   if (n === 4) buildSummary();
+  saveState();
 }
 
 function selectZoom(btn, label) {
   document.querySelectorAll('#phase0 .zoom-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   document.getElementById('a1').value = label;
+  saveState();
 }
 
 function checkZoom(btn, label) {
@@ -1127,11 +1194,13 @@ function addTBD() {
   input.value = '';
   input.focus();
   renderTBD();
+  saveState();
 }
 
 function removeTBD(i) {
   tbdItems.splice(i, 1);
   renderTBD();
+  saveState();
 }
 
 function renderTBD() {
@@ -1257,7 +1326,10 @@ function resetAll() {
   panel.classList.remove('open');
   document.getElementById('geArrow').textContent = '▼';
   goPhase(0);
+  localStorage.removeItem(STORE_KEY); // goPhase autosaves — clear after so reset sticks
 }
+
+restoreState();
 </script>
 </body>
 </html>

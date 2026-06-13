@@ -85,6 +85,44 @@
       font-weight: 500;
     }
 
+    /* ── Start-here router ── */
+    .router {
+      margin-bottom: 2.5rem;
+    }
+
+    .router-title {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .router-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .router-btn {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: border-color 0.15s, background 0.15s;
+      line-height: 1.4;
+    }
+
+    .router-btn:hover { background: #1c1f2a; border-color: var(--rb-color, var(--accent)); }
+    .router-btn .rb-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--rb-color, var(--accent)); flex-shrink: 0; }
+
     /* ── Grid ── */
     main { padding-bottom: 5rem; }
 
@@ -157,6 +195,100 @@
 
     .card:hover .card-link { gap: 10px; }
 
+    /* ── Research section ── */
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      margin: 3.5rem 0 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+    }
+
+    .section-count {
+      font-size: 0.58rem;
+      color: var(--muted);
+    }
+
+    .section-count strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .research-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .rcard {
+      background: var(--surface);
+      padding: 1.4rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      transition: background 0.15s;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+    }
+
+    .rcard:hover { background: #1c1f2a; }
+
+    .rcard-date {
+      font-size: 0.56rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      margin-bottom: 0.55rem;
+    }
+
+    .rcard-tag {
+      font-size: 0.56rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.45rem;
+    }
+
+    .rcard h2 {
+      font-size: 0.9rem;
+      font-weight: 500;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.45rem;
+    }
+
+    .rcard p {
+      color: var(--muted);
+      font-size: 0.72rem;
+      line-height: 1.6;
+      flex: 1;
+      margin-bottom: 1.1rem;
+      font-weight: 300;
+    }
+
+    .rcard-link {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: gap 0.15s, color 0.15s;
+    }
+
+    .rcard:hover .rcard-link { gap: 10px; color: var(--text); }
+
     /* ── Footer ── */
     footer {
       border-top: 1px solid var(--border);
@@ -168,7 +300,9 @@
 
     @media (max-width: 500px) {
       .grid { grid-template-columns: 1fr; }
+      .research-grid { grid-template-columns: 1fr; }
       header h1 { font-size: 1.5rem; }
+      .rcard { padding: 1.2rem 1.25rem; }
     }
   </style>
 </head>
@@ -183,18 +317,49 @@
     </header>
 
     <main>
+      <div class="router">
+        <div class="router-title">Start here — what's happening right now?</div>
+        <div class="router-grid">
+          <a class="router-btn" style="--rb-color:#34d399" href="toolkits/audhd_comfort_zone.html#work"><span class="rb-dot"></span>I can't start working</a>
+          <a class="router-btn" style="--rb-color:#818cf8" href="toolkits/audhd_comfort_zone.html#social"><span class="rb-dot"></span>I have a social thing coming up</a>
+          <a class="router-btn" style="--rb-color:#f59e0b" href="toolkits/wide_first.html"><span class="rb-dot"></span>Too many options — can't pick one</a>
+          <a class="router-btn" style="--rb-color:#c84b2f" href="toolkits/good_enough_now.html"><span class="rb-dot"></span>Design session about to sprawl</a>
+          <a class="router-btn" style="--rb-color:#ff6b35" href="toolkits/adhd_sde_toolkit.html"><span class="rb-dot"></span>How do I tackle this work task?</a>
+          <a class="router-btn" style="--rb-color:#5ec08a" href="toolkits/grounding_anchor.html"><span class="rb-dot"></span>I'm flooded / spiralling right now</a>
+        </div>
+      </div>
+
       <div class="grid" id="grid"></div>
+
+      <div class="section-header">
+        <div class="section-title">Research &amp; Session Notes</div>
+        <div class="section-count"><strong id="researchCountEl">0</strong> articles</div>
+      </div>
+      <div class="research-grid" id="researchGrid"></div>
     </main>
 
     <footer>built for my brain · updated as needed</footer>
   </div>
 
   <script>
+    // ── ADD NEW RESEARCH ARTICLES HERE ────────────────────────────────────
+    const research = [
+      {
+        title: "The Ideas Behind the Toolkits",
+        date: "2026-06-04",
+        excerpt: "The philosophy underneath every tool here — spoons and energy budgets, the two kinds of stuck, masking, breadth-first thinking, grounding, and why a tool should meet your brain where it is. In plain language.",
+        file: "research/2026-06-04-audhd-toolkit-accessibility.html",
+        tag: "Concepts & Philosophy",
+        color: "#818cf8",
+      },
+    ];
+    // ──────────────────────────────────────────────────────────────────────
+
     // ── ADD NEW TOOLKITS HERE ──────────────────────────────────────────────
     const toolkits = [
       {
         title: "ADHD SDE Toolkit",
-        desc: "Task taxonomy and strategies for every brain mode — deep focus, async, collaboration, ops.",
+        desc: "Pick the task you're about to do, hit Start — get a step checklist, focus timer, and saved progress. Strategies for every brain mode.",
         file: "toolkits/adhd_sde_toolkit.html",
         tag: "ADHD",
         color: "#ff6b35",
@@ -206,12 +371,53 @@
         tag: "Architecture",
         color: "#c84b2f",
       },
+      {
+        title: "Wide First",
+        desc: "Breadth-first thinking for ADHD brains. Map all directions, score for reversibility and fit, then dive — so you pick the best path, not just the first interesting one.",
+        file: "toolkits/wide_first.html",
+        tag: "Thinking",
+        color: "#f59e0b",
+      },
+      {
+        title: "AuDHD Comfort Zone",
+        desc: "Two modes: Social Entry (spoon budget, soft exit, recovery) and Work Ramp (sensory setup, micro-commitments, unblock).",
+        file: "toolkits/audhd_comfort_zone.html",
+        tag: "AuDHD",
+        color: "#818cf8",
+      },
+      {
+        title: "Grounding Anchor",
+        desc: "In-the-moment regulation for when you're flooded, frozen, or spiralling. A breathing pacer, 5-4-3-2-1 senses, and grounding menus tuned per brain — ADHD, Autism, AuDHD, OCD, Anxiety & Sensory.",
+        file: "toolkits/grounding_anchor.html",
+        tag: "Grounding",
+        color: "#5ec08a",
+      },
     ];
     // ──────────────────────────────────────────────────────────────────────
 
     const grid = document.getElementById("grid");
     document.getElementById("countEl").textContent = toolkits.length;
 
+    // Render research
+    const researchGrid = document.getElementById("researchGrid");
+    document.getElementById("researchCountEl").textContent = research.length;
+    research.forEach(({ title, date, excerpt, file, tag, color }) => {
+      const c = color || "#6366f1";
+      const card = document.createElement("a");
+      card.className = "rcard";
+      card.href = file;
+      card.target = "_blank";
+      card.rel = "noopener";
+      card.innerHTML = `
+        <div class="rcard-date">${date}</div>
+        <div class="rcard-tag" style="color:${c}">${tag}</div>
+        <h2>${title}</h2>
+        <p>${excerpt}</p>
+        <div class="rcard-link" style="color:${c}">Read <span>→</span></div>`;
+      researchGrid.appendChild(card);
+    });
+
+    // Render toolkits
     toolkits.forEach(({ title, desc, file, tag, color }) => {
       const c = color || "#6366f1";
       const card = document.createElement("a");

@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grounding Anchor — In-the-moment regulation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#0e130f">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QN3P3HSD90"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-QN3P3HSD90');
+</script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #0e130f;
+  --surface: #161c17;
+  --card:    #1b231d;
+  --border:  #28322a;
+  --text:    #e4ece4;
+  --muted:   #7c8a7e;
+  --ground:  #5ec08a;   /* sage — calm, rooted */
+  --adhd:    #ff6b35;
+  --autism:  #4ecdc4;
+  --audhd:   #818cf8;
+  --ocd:     #c084fc;
+  --anx:     #34d399;
+}
+
+body {
+  font-family: 'DM Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+.app { max-width: 660px; margin: 0 auto; padding: 28px 20px 90px; }
+
+/* Back */
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--muted); text-decoration: none; margin-bottom: 26px;
+  transition: color 0.15s;
+}
+.back-link:hover { color: var(--text); }
+
+/* Header */
+.header { margin-bottom: 24px; }
+.header-eyebrow {
+  font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--ground); margin-bottom: 8px;
+}
+.header h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.7rem; font-weight: 600; letter-spacing: -0.025em; line-height: 1.15;
+}
+.header-sub { margin-top: 8px; font-size: 0.7rem; color: var(--muted); line-height: 1.6; }
+
+/* ── Breathing pacer ── */
+.breath {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px 18px 18px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.breath-label {
+  font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--muted); margin-bottom: 16px;
+}
+.breath-stage {
+  position: relative;
+  width: 160px; height: 160px;
+  margin: 0 auto 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+.breath-ring {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--ground);
+  background: radial-gradient(circle, rgba(94,192,138,0.18) 0%, rgba(94,192,138,0.02) 70%);
+  transform: scale(0.55);
+  transition: transform 4s ease-in-out;
+}
+.breath-ring.inhale { transform: scale(1); }
+.breath-ring.exhale { transform: scale(0.55); }
+.breath-cue {
+  position: relative; z-index: 2;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem; font-weight: 500; color: var(--text);
+}
+.breath-count { font-size: 0.66rem; color: var(--muted); margin-top: 3px; }
+.breath-controls { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.breath-btn {
+  font-family: 'DM Mono', monospace; font-size: 0.64rem; text-transform: uppercase;
+  letter-spacing: 0.08em; padding: 8px 18px; border-radius: 7px; cursor: pointer;
+  border: 1px solid var(--ground); background: rgba(94,192,138,0.1); color: var(--ground);
+  transition: all 0.15s;
+}
+.breath-btn:hover { background: var(--ground); color: #0e130f; }
+.breath-pattern { display: flex; gap: 6px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
+.pattern-chip {
+  font-family: 'DM Mono', monospace; font-size: 0.58rem; padding: 4px 11px;
+  border: 1px solid var(--border); border-radius: 20px; background: transparent;
+  color: var(--muted); cursor: pointer; transition: all 0.15s;
+}
+.pattern-chip.active { border-color: var(--ground); color: var(--ground); background: rgba(94,192,138,0.1); }
+
+/* ── 5-4-3-2-1 senses ── */
+.senses {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; margin-bottom: 24px; overflow: hidden;
+}
+.senses-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 16px; cursor: pointer; transition: background 0.15s;
+}
+.senses-head:hover { background: var(--card); }
+.senses-title { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ground); }
+.senses-chev { font-size: 0.7rem; color: var(--muted); transition: transform 0.2s; }
+.senses-chev.open { transform: rotate(90deg); }
+.senses-body { display: none; padding: 0 16px 16px; }
+.senses-body.open { display: block; }
+.sense-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 9px 0; border-top: 1px solid var(--border);
+}
+.sense-n {
+  font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700;
+  color: var(--ground); min-width: 18px; line-height: 1.3;
+}
+.sense-txt { font-size: 0.74rem; color: var(--muted); line-height: 1.55; }
+.sense-txt strong { color: var(--text); font-weight: 500; }
+
+/* ── Track selector ── */
+.section-label {
+  font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--muted); margin-bottom: 10px;
+}
+.track-grid {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;
+}
+.track-btn {
+  font-family: 'DM Mono', monospace; font-size: 0.68rem;
+  padding: 9px 15px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+  display: inline-flex; align-items: center; gap: 7px; transition: all 0.15s;
+}
+.track-btn .td { width: 7px; height: 7px; border-radius: 50%; background: var(--tc); flex-shrink: 0; }
+.track-btn:hover { color: var(--text); border-color: var(--tc); }
+.track-btn.active { color: var(--text); border-color: var(--tc); background: color-mix(in srgb, var(--tc) 12%, transparent); }
+
+/* ── Track intro ── */
+.track-intro {
+  border-left: 2px solid var(--tc, var(--ground));
+  padding: 4px 0 4px 14px; margin-bottom: 18px;
+  display: none;
+}
+.track-intro.show { display: block; animation: fade 0.2s ease; }
+.track-intro-name {
+  font-family: 'Space Grotesk', sans-serif; font-size: 1.05rem; font-weight: 600;
+  color: var(--tc, var(--ground)); margin-bottom: 3px;
+}
+.track-intro-blurb { font-size: 0.72rem; color: var(--muted); line-height: 1.6; }
+
+@keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── Situation cards ── */
+.sit-list { display: flex; flex-direction: column; gap: 8px; }
+.sit-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden; transition: border-color 0.15s;
+}
+.sit-card.open { border-color: var(--tc, var(--ground)); }
+.sit-head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; cursor: pointer;
+}
+.sit-icon { font-size: 1.1rem; flex-shrink: 0; }
+.sit-title { font-size: 0.82rem; color: var(--text); font-weight: 500; flex: 1; line-height: 1.4; }
+.sit-chev { font-size: 0.7rem; color: var(--muted); transition: transform 0.2s; flex-shrink: 0; }
+.sit-card.open .sit-chev { transform: rotate(90deg); color: var(--tc, var(--ground)); }
+.sit-body { display: none; padding: 0 16px 16px; }
+.sit-card.open .sit-body { display: block; animation: fade 0.2s ease; }
+.sit-steps { list-style: none; display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
+.sit-step {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; cursor: pointer; transition: all 0.15s;
+}
+.sit-step:hover { border-color: var(--tc, var(--ground)); }
+.sit-step input { width: 15px; height: 15px; accent-color: var(--tc, var(--ground)); cursor: pointer; flex-shrink: 0; margin-top: 2px; }
+.sit-step-txt { font-size: 0.75rem; color: #c4ccc4; line-height: 1.5; }
+.sit-step.done .sit-step-txt { text-decoration: line-through; color: var(--muted); }
+.sit-why {
+  font-size: 0.68rem; color: var(--muted); line-height: 1.55; font-style: italic;
+  padding-left: 12px; border-left: 2px solid var(--border);
+}
+.sit-why strong { color: var(--tc, var(--ground)); font-style: normal; }
+
+.empty-track {
+  padding: 30px 16px; text-align: center; font-size: 0.72rem; color: var(--muted);
+  border: 1px dashed var(--border); border-radius: 10px; line-height: 1.7;
+}
+
+/* ── Disclaimer ── */
+.disclaimer {
+  margin-top: 22px; padding: 12px 14px; border-radius: 8px;
+  background: rgba(192,132,252,0.05); border: 1px solid rgba(192,132,252,0.22);
+  font-size: 0.66rem; color: var(--muted); line-height: 1.6; display: none;
+}
+.disclaimer.show { display: block; }
+.disclaimer strong { color: var(--ocd); font-weight: 500; }
+
+.foot-note {
+  margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);
+  font-size: 0.64rem; color: var(--muted); line-height: 1.65;
+}
+
+@media (max-width: 480px) {
+  .app { padding: 22px 14px 90px; }
+  .header h1 { font-size: 1.4rem; }
+  .track-btn { font-size: 0.64rem; padding: 8px 12px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="/" class="back-link">← All Toolkits</a>
+
+<div class="header">
+  <div class="header-eyebrow">Grounding Anchor</div>
+  <h1>When the moment is too much —<br>land back in your body.</h1>
+  <p class="header-sub">Grounding isn't a daily routine you keep up. It's what you reach for <em>right now</em>, when you're flooded, frozen, overstimulated, or spiralling. Start with breath, then pick the track that fits your brain.</p>
+</div>
+
+<!-- ── Breathing pacer ── -->
+<div class="breath">
+  <div class="breath-label">Breathe with the circle</div>
+  <div class="breath-pattern" id="breathPattern">
+    <button class="pattern-chip active" data-pat="box" onclick="setPattern('box',this)">Box · 4-4-4-4</button>
+    <button class="pattern-chip" data-pat="calm" onclick="setPattern('calm',this)">Calming · 4-7-8</button>
+    <button class="pattern-chip" data-pat="long" onclick="setPattern('long',this)">Long exhale · 4-6</button>
+  </div>
+  <div class="breath-stage">
+    <div class="breath-ring" id="breathRing"></div>
+    <div>
+      <div class="breath-cue" id="breathCue">Ready</div>
+      <div class="breath-count" id="breathCount">tap start</div>
+    </div>
+  </div>
+  <div class="breath-controls">
+    <button class="breath-btn" id="breathToggle" onclick="toggleBreath()">Start</button>
+  </div>
+</div>
+
+<!-- ── 5-4-3-2-1 senses ── -->
+<div class="senses">
+  <div class="senses-head" onclick="toggleSenses()">
+    <span class="senses-title">5-4-3-2-1 · pull yourself into the room</span>
+    <span class="senses-chev" id="sensesChev">▶</span>
+  </div>
+  <div class="senses-body" id="sensesBody">
+    <div class="sense-row"><span class="sense-n">5</span><span class="sense-txt"><strong>See.</strong> Name five things you can see right now. Say them, out loud or in your head.</span></div>
+    <div class="sense-row"><span class="sense-n">4</span><span class="sense-txt"><strong>Feel.</strong> Four things you can physically feel — the chair, your feet, fabric, air.</span></div>
+    <div class="sense-row"><span class="sense-n">3</span><span class="sense-txt"><strong>Hear.</strong> Three sounds, near or far. Let them just be sounds.</span></div>
+    <div class="sense-row"><span class="sense-n">2</span><span class="sense-txt"><strong>Smell.</strong> Two things you can smell — or two you like and can picture.</span></div>
+    <div class="sense-row"><span class="sense-n">1</span><span class="sense-txt"><strong>Taste.</strong> One thing you can taste, or one you'd want to. You're here. It's now.</span></div>
+  </div>
+</div>
+
+<!-- ── Track selector ── -->
+<div class="section-label">Which brain are you grounding today?</div>
+<div class="track-grid" id="trackGrid"></div>
+
+<div class="track-intro" id="trackIntro">
+  <div class="track-intro-name" id="trackName"></div>
+  <div class="track-intro-blurb" id="trackBlurb"></div>
+</div>
+
+<div class="sit-list" id="sitList">
+  <div class="empty-track">Pick a track above. Each one lists the moments that knock <em>that</em> brain off balance — tap the one that matches and you'll get grounding steps that actually fit.</div>
+</div>
+
+<div class="disclaimer" id="disclaimer">
+  <strong>A note on the OCD track:</strong> these steps are informed by exposure-and-response-prevention (ERP) — the front-line approach for OCD — but this is a self-help anchor, not therapy. The aim is to sit with uncertainty rather than chase certainty. If compulsions are running your days, working with an ERP-trained therapist is worth far more than any page.
+</div>
+
+<div class="foot-note">
+  Nothing here is medical advice, and you don't have to do all of it. Grounding is about turning the volume down enough to choose your next move — not about doing it "right." Take the one step that helps and leave the rest.
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ════════════════════════════════════════════════════════════════════
+//  DATA — anytime grounding menus per neurotype
+// ════════════════════════════════════════════════════════════════════
+const TRACKS = {
+  adhd: {
+    name: 'ADHD', color: 'var(--adhd)', dot: '#ff6b35',
+    blurb: 'An ADHD nervous system grounds best after it has discharged — give the body its movement, then ask the mind to settle. Stillness first usually backfires.',
+    situations: [
+      { icon: '⚡', title: "Wired, restless — can't sit still", why: "A revved-up body won't calm on command. <strong>Spend the energy first</strong>, then breath and stillness land.", steps: [
+        "Do 60 seconds of big movement — shake out your limbs, 10 jumping jacks, run up the stairs.",
+        "Now sit and run one round of box breathing above. The body is ready to listen now.",
+        "Put one hand flat on your chest, one on your belly. Feel them move. That's the anchor." ] },
+      { icon: '🌪️', title: "Scattered, overstimulated, ten tabs open", why: "Grounding here means <strong>cutting inputs</strong>, not adding willpower. One channel at a time.", steps: [
+        "Close everything but one tab. Turn the music to no-lyrics or off.",
+        "Say the ONE next thing out loud: \"Right now I am ___.\" Just that sentence.",
+        "Set a 10-minute timer for only that thing. The rest can wait behind the timer." ] },
+      { icon: '💔', title: "Rejection sting / emotional flood (RSD)", why: "<strong>Name it as RSD</strong> and you create a gap between the feeling (real) and the story (often not).", steps: [
+        "Say it plainly: \"This is rejection sensitivity. The hurt is real, the story might not be.\"",
+        "Cold water on your wrists or face — it interrupts the spiral fast.",
+        "Do not send the reply yet. Park it for 20 minutes. The urge will shrink." ] },
+      { icon: '🥱', title: "Bored, flat, sliding toward the doomscroll", why: "Understimulation is dysregulation too. <strong>Feed it something better</strong> than the infinite feed.", steps: [
+        "Stand up and step outside or to a window for two minutes. New input, no screen.",
+        "Pick a real dopamine hit: a song + movement, a snack, a cold drink, a quick message to a friend.",
+        "Then choose the smallest interesting piece of what you were avoiding and start there." ] },
+    ],
+  },
+  autism: {
+    name: 'Autism', color: 'var(--autism)', dot: '#4ecdc4',
+    blurb: 'Autistic grounding is mostly subtraction — fewer demands, less input, more predictability. Deep pressure and sameness do the regulating.',
+    situations: [
+      { icon: '🔊', title: "Sensory overload building", why: "<strong>Remove the loudest input first.</strong> You don't have to tolerate it to be okay.", steps: [
+        "Cut the biggest source now — dim or kill the light, earplugs in, leave the room.",
+        "Add deep pressure: press your palms together hard, a tight self-hug, or a weighted blanket.",
+        "Let your eyes rest on one still, plain surface. Nothing to scan." ] },
+      { icon: '🪫', title: "Sliding toward shutdown", why: "Shutdown is the brain protecting itself. <strong>Lower the demands</strong>, don't push through.", steps: [
+        "Give yourself permission: no decisions, no talking, nothing new for now.",
+        "Cancel or postpone whatever can wait. Send a short \"need to step back\" if needed.",
+        "Go dark, quiet, and still. Let the system idle. This passes faster when you allow it." ] },
+      { icon: '🔀', title: "A change got sprung on me", why: "Unexpected change hits hard. <strong>Anchor to what didn't change</strong> to steady the ground.", steps: [
+        "Name it: \"___ changed. These things are still the same: ___, ___.\"",
+        "Pick one anchor that survived the change and put your attention on it.",
+        "Give yourself a countdown before the switch — even \"three more minutes\" helps the brain re-aim." ] },
+      { icon: '🌀', title: "I need to stim and feel like I shouldn't", why: "Stimming <strong>is</strong> regulation, not a problem to suppress. Masking it costs more than doing it.", steps: [
+        "Stim freely. Rock, flap, pace, hum, chew, squeeze — whatever your body asks for.",
+        "Pick the stim that matches the need: movement to discharge, pressure to calm, sound or visual to focus.",
+        "If you're around others, find a private 5 minutes rather than holding it in." ] },
+    ],
+  },
+  audhd: {
+    name: 'AuDHD', color: 'var(--audhd)', dot: '#818cf8',
+    blurb: 'The AuDHD bind is two nervous systems asking for opposite things at once — stimulation and quiet. The trick is to give them in sequence, not to split the difference.',
+    situations: [
+      { icon: '↔️', title: "Pulled both ways — need to move AND need quiet", why: "Doing both at once satisfies neither. <strong>Sequence them:</strong> discharge first, then calm.", steps: [
+        "First, give the ADHD side its movement — 1–2 minutes of shaking out or pacing.",
+        "Then give the autistic side its quiet — low light, low sound, deep pressure.",
+        "One long-exhale breath cycle to seal the switch from spent to settled." ] },
+      { icon: '🎭', title: "Masking burnout — emptied out after people", why: "Masking drains a hidden battery. <strong>Unmasking is the recovery</strong>, not a treat you didn't earn.", steps: [
+        "Drop the performance fully — no facial management, no scripts, no eye-contact effort.",
+        "Stim, go non-verbal, move how you want. Let the held tension out.",
+        "Name it as recovery, not laziness: \"I'm refilling what masking spent.\"" ] },
+      { icon: '🥵', title: "Everything is too much AND too boring", why: "Mixed over- and under-stimulation is classic AuDHD. <strong>Strip inputs, add one stim.</strong>", steps: [
+        "Cut the environment down to a single input — one screen, one sound, or silence.",
+        "Add exactly one regulating stim: chew gum, a fidget, pacing, a textured object.",
+        "Pick one tiny anchor task and let that be the whole world for ten minutes." ] },
+      { icon: '🧊', title: "Can't start and can't stop", why: "Name which freeze it is — <strong>inertia and paralysis need different keys.</strong>", steps: [
+        "Stuck leaving the last thing (inertia)? Use a transition ritual: stand, water, say \"switching to ___\" out loud.",
+        "Stuck because the task's a fog (paralysis)? Shrink it to one sentence; if you can't, halve it.",
+        "Then do only the first physical step — open it, don't read it. Momentum is the goal." ] },
+    ],
+  },
+  ocd: {
+    name: 'OCD', color: 'var(--ocd)', dot: '#c084fc',
+    blurb: 'Grounding with OCD means dropping out of the certainty-chase and back into the present — letting the urge and the doubt exist without feeding them. (ERP-informed; see the note below.)',
+    situations: [
+      { icon: '🌊', title: "Urge to do the compulsion", why: "Urges <strong>rise and fall like waves</strong> — you can ride one out without acting. It always passes.", steps: [
+        "Name it: \"This is an urge, not an instruction.\" You're allowed to not act on it.",
+        "Delay 10 minutes. Set a timer. Notice the urge crest and start to drop on its own.",
+        "While you wait, drop into your senses (5-4-3-2-1 above) instead of into the ritual." ] },
+      { icon: '❓', title: "Spiralling on a 'what if'", why: "OCD frames doubt as a problem to solve. <strong>It isn't — it's a feeling to allow.</strong>", steps: [
+        "Label the thought: \"That's the OCD talking, not a fact I have to figure out.\"",
+        "Don't argue with it or seek the answer — both feed it. Let the question hang there, unsolved.",
+        "Return to what you were doing, carrying the uncertainty with you. That's the rep that heals." ] },
+      { icon: '🔁', title: "Reaching for reassurance (asking, checking, googling)", why: "Reassurance soothes for a minute and <strong>strengthens the loop</strong> for next time.", steps: [
+        "Catch the pull: \"I want to check / ask / search to feel sure.\"",
+        "Name the cost: certainty now buys a stronger urge later. You can choose not to pay it.",
+        "Practice sitting with not-knowing for the next few minutes. Hands on something textured, breathe." ] },
+      { icon: '🌙', title: "Bedtime mental review / checking creep", why: "Replaying the day is a covert compulsion. <strong>Uncertainty can wait till morning.</strong>", steps: [
+        "Notice the review starting and label it: \"This is mental checking, not problem-solving.\"",
+        "Move attention to the body — feet under the blanket, the weight of you on the bed, slow breath.",
+        "Let the open questions stay open overnight. You don't have to resolve them to sleep." ] },
+    ],
+  },
+  anx: {
+    name: 'Anxiety & Sensory', color: 'var(--anx)', dot: '#34d399',
+    blurb: 'When the alarm system is firing — racing thoughts, tight body, too much coming in — grounding tells your nervous system the threat is survivable and the wave will pass.',
+    situations: [
+      { icon: '🫁', title: "Racing / panic rising", why: "A <strong>longer exhale than inhale</strong> flips on the calming branch of your nervous system.", steps: [
+        "Breathe in for 4, out for 6–8. Use the \"Long exhale\" pattern above. A few rounds is enough.",
+        "Name the wave: \"This is anxiety. It peaks, then it always comes back down.\"",
+        "Feet flat on the floor, press them down. Feel the ground take your weight." ] },
+      { icon: '🪢', title: "Body wound tight", why: "<strong>Tense-then-release</strong> discharges held stress the body can't think its way out of.", steps: [
+        "Clench your shoulders to your ears for 5 seconds, then drop them. Repeat with fists, then jaw.",
+        "Put something warm or cold on your chest — a mug, a cold glass — and just hold it.",
+        "Roll your neck slowly once each way. Let the breath out with a sigh." ] },
+      { icon: '🌃', title: "Sensory overwhelm — sound, light, crowd", why: "You don't have to endure it. <strong>Reduce one input</strong> and your whole system downshifts.", steps: [
+        "Cut the worst input now: sunglasses or a cap, earplugs or headphones, step to an edge of the room.",
+        "Find a wall or corner to put your back to, and lower your gaze. Less to track.",
+        "One slow breath. You're allowed to leave the situation entirely if you need to." ] },
+      { icon: '💭', title: "Can't stop the thoughts", why: "You can't argue thoughts away, but you can <strong>change what you're attending to.</strong>", steps: [
+        "Run the full 5-4-3-2-1 senses pass above — slowly, actually naming each thing.",
+        "Hold one object and describe it in detail — weight, texture, temperature, edges.",
+        "Give the worry a \"window\" later today; tell it you'll think then, not now." ] },
+    ],
+  },
+};
+
+const TRACK_ORDER = ['adhd', 'autism', 'audhd', 'ocd', 'anx'];
+
+// ════════════════════════════════════════════════════════════════════
+//  STATE + persistence (remembers your last track)
+// ════════════════════════════════════════════════════════════════════
+const STORE_KEY = 'grounding-v1';
+let activeTrack = null;
+
+function save() { localStorage.setItem(STORE_KEY, JSON.stringify({ track: activeTrack })); }
+
+// ── Track selector ──
+function buildTracks() {
+  const grid = document.getElementById('trackGrid');
+  TRACK_ORDER.forEach(key => {
+    const t = TRACKS[key];
+    const btn = document.createElement('button');
+    btn.className = 'track-btn';
+    btn.style.setProperty('--tc', t.color);
+    btn.dataset.key = key;
+    btn.innerHTML = `<span class="td"></span>${t.name}`;
+    btn.onclick = () => selectTrack(key);
+    grid.appendChild(btn);
+  });
+}
+
+function selectTrack(key) {
+  activeTrack = key;
+  const t = TRACKS[key];
+  document.querySelectorAll('.track-btn').forEach(b => b.classList.toggle('active', b.dataset.key === key));
+
+  document.documentElement.style.setProperty('--tc', t.color);
+  const intro = document.getElementById('trackIntro');
+  intro.style.setProperty('--tc', t.color);
+  document.getElementById('trackName').textContent = t.name + ' grounding';
+  document.getElementById('trackBlurb').innerHTML = t.blurb;
+  intro.classList.add('show');
+
+  document.getElementById('disclaimer').classList.toggle('show', key === 'ocd');
+
+  renderSituations(t);
+  save();
+}
+
+function renderSituations(t) {
+  const list = document.getElementById('sitList');
+  list.innerHTML = '';
+  t.situations.forEach((sit, i) => {
+    const card = document.createElement('div');
+    card.className = 'sit-card';
+    card.style.setProperty('--tc', t.color);
+    card.innerHTML = `
+      <div class="sit-head">
+        <span class="sit-icon">${sit.icon}</span>
+        <span class="sit-title">${sit.title}</span>
+        <span class="sit-chev">▶</span>
+      </div>
+      <div class="sit-body">
+        <ul class="sit-steps">
+          ${sit.steps.map(s => `<li class="sit-step"><input type="checkbox"><span class="sit-step-txt">${s}</span></li>`).join('')}
+        </ul>
+        <div class="sit-why">${sit.why}</div>
+      </div>`;
+
+    card.querySelector('.sit-head').addEventListener('click', () => card.classList.toggle('open'));
+    card.querySelectorAll('.sit-step').forEach(step => {
+      step.addEventListener('click', e => {
+        const cb = step.querySelector('input');
+        if (e.target !== cb) cb.checked = !cb.checked;
+        step.classList.toggle('done', cb.checked);
+      });
+    });
+    list.appendChild(card);
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  Breathing pacer
+// ════════════════════════════════════════════════════════════════════
+const PATTERNS = {
+  box:  { name: 'Box', phases: [['Breathe in',4,'inhale'], ['Hold',4,'hold'], ['Breathe out',4,'exhale'], ['Hold',4,'hold']] },
+  calm: { name: '4-7-8', phases: [['Breathe in',4,'inhale'], ['Hold',7,'hold'], ['Breathe out',8,'exhale']] },
+  long: { name: 'Long exhale', phases: [['Breathe in',4,'inhale'], ['Breathe out',6,'exhale']] },
+};
+let pattern = 'box';
+let breathOn = false;
+let breathTimer = null;
+let phaseIdx = 0;
+let phaseLeft = 0;
+
+function setPattern(p, btn) {
+  pattern = p;
+  document.querySelectorAll('.pattern-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  if (breathOn) { stopBreath(); startBreath(); }
+}
+
+function toggleBreath() { breathOn ? stopBreath() : startBreath(); }
+
+function startBreath() {
+  breathOn = true;
+  phaseIdx = 0;
+  document.getElementById('breathToggle').textContent = 'Stop';
+  enterPhase();
+  breathTimer = setInterval(tickBreath, 1000);
+}
+
+function enterPhase() {
+  const ph = PATTERNS[pattern].phases[phaseIdx];
+  phaseLeft = ph[1];
+  document.getElementById('breathCue').textContent = ph[0];
+  document.getElementById('breathCount').textContent = phaseLeft + 's';
+  const ring = document.getElementById('breathRing');
+  ring.classList.remove('inhale', 'exhale');
+  // drive the CSS transition duration to match the phase length
+  ring.style.transitionDuration = ph[1] + 's';
+  if (ph[2] === 'inhale') ring.classList.add('inhale');
+  else if (ph[2] === 'exhale') ring.classList.add('exhale');
+  // 'hold' keeps whatever scale it currently has
+}
+
+function tickBreath() {
+  phaseLeft--;
+  if (phaseLeft <= 0) {
+    phaseIdx = (phaseIdx + 1) % PATTERNS[pattern].phases.length;
+    enterPhase();
+  } else {
+    document.getElementById('breathCount').textContent = phaseLeft + 's';
+  }
+}
+
+function stopBreath() {
+  breathOn = false;
+  clearInterval(breathTimer);
+  document.getElementById('breathToggle').textContent = 'Start';
+  document.getElementById('breathCue').textContent = 'Ready';
+  document.getElementById('breathCount').textContent = 'tap start';
+  const ring = document.getElementById('breathRing');
+  ring.classList.remove('inhale', 'exhale');
+  ring.style.transitionDuration = '1.5s';
+}
+
+// ── 5-4-3-2-1 toggle ──
+function toggleSenses() {
+  const body = document.getElementById('sensesBody');
+  const chev = document.getElementById('sensesChev');
+  const open = body.classList.toggle('open');
+  chev.classList.toggle('open', open);
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  Init
+// ════════════════════════════════════════════════════════════════════
+buildTracks();
+(function restore() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+    if (s && s.track && TRACKS[s.track]) selectTrack(s.track);
+  } catch (_) {}
+})();
+</script>
+</body>
+</html>

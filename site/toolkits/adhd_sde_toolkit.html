@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap">
@@ -64,33 +65,119 @@
   .adhd-tip { margin-top: 10px; padding: 8px 10px; background: rgba(255,107,53,0.06); border-left: 2px solid var(--card-color, var(--focus)); border-radius: 0 6px 6px 0; font-size: 0.74rem; color: #c4bfb9; line-height: 1.45; }
   .adhd-tip strong { color: var(--card-color, var(--focus)); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 2px; }
 
-  /* How-to trigger */
-  .howto-trigger { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
-  .howto-btn { width: 100%; background: none; border: none; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: color 0.2s; }
-  .howto-btn:hover { color: var(--card-color, var(--focus)); }
-  .howto-btn .arrow { font-size: 0.55rem; display: inline-block; }
+  /* Run trigger */
+  .run-trigger { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px; }
+  .run-btn { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--card-color, var(--focus)); border-radius: 6px; padding: 8px 12px; color: var(--card-color, var(--focus)); font-family: 'DM Mono', monospace; font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
+  .run-btn:hover { background: var(--card-color, var(--focus)); color: #111; }
 
-  /* Floating tooltip */
-  #howto-tooltip {
+  /* Resume bar */
+  #resume-bar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--focus);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    flex-wrap: wrap;
+  }
+  #resume-bar.show { display: flex; }
+  #resume-bar .resume-text { color: #c4bfb9; line-height: 1.5; }
+  #resume-bar .resume-text strong { color: var(--focus); }
+  #resume-bar .resume-actions { display: flex; gap: 8px; }
+  #resume-bar button { font-family: 'DM Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 6px 14px; border-radius: 6px; cursor: pointer; border: 1px solid var(--focus); }
+  #resume-bar .resume-go { background: var(--focus); color: #111; }
+  #resume-bar .resume-drop { background: transparent; color: var(--muted); border-color: var(--border); }
+
+  /* Run overlay */
+  #run-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 9998;
+  }
+  #run-backdrop.show { display: block; }
+
+  #run-panel {
+    display: none;
     position: fixed;
     z-index: 9999;
-    background: #1c1c1c;
-    border: 1px solid #333;
-    border-radius: 10px;
-    padding: 14px 16px;
-    max-width: 320px;
-    min-width: 240px;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.7);
-    pointer-events: auto;
-    display: none;
-    opacity: 0;
-    transition: opacity 0.15s ease;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(560px, calc(100vw - 32px));
+    max-height: 85vh;
+    overflow-y: auto;
+    background: #1a1a1a;
+    border: 1px solid var(--run-color, var(--focus));
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 16px 60px rgba(0,0,0,0.8);
   }
-  #howto-tooltip.visible { opacity: 1; }
-  #howto-tooltip .tt-title { font-family: 'DM Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
-  #howto-tooltip .tt-list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
-  #howto-tooltip .tt-list li { font-size: 0.75rem; color: #b0aaa4; line-height: 1.45; padding-left: 16px; position: relative; }
-  #howto-tooltip .tt-list li::before { content: '→'; position: absolute; left: 0; font-size: 0.65rem; top: 1px; }
+  #run-panel.show { display: block; }
+
+  .run-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 4px; }
+  .run-title { font-size: 1.1rem; font-weight: 700; line-height: 1.3; }
+  .run-close { background: none; border: none; color: var(--muted); font-size: 1.2rem; cursor: pointer; line-height: 1; padding: 2px; }
+  .run-close:hover { color: var(--text); }
+  .run-type { font-family: 'DM Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--run-color, var(--focus)); margin-bottom: 14px; }
+
+  .run-timer { display: flex; align-items: center; gap: 14px; background: #111; border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; flex-wrap: wrap; }
+  .run-timer-display { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em; min-width: 104px; }
+  .run-timer-display.warn { color: var(--run-color, var(--focus)); }
+  .run-timer-display.up { color: #4ecdc4; }
+  .run-timer-controls { display: flex; flex-direction: column; gap: 6px; }
+  .run-presets { display: flex; gap: 6px; flex-wrap: wrap; }
+  .run-preset { font-family: 'DM Mono', monospace; font-size: 0.6rem; padding: 4px 10px; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+  .run-preset.active, .run-preset:hover { background: var(--run-color, var(--focus)); color: #111; border-color: var(--run-color, var(--focus)); }
+  .run-timer-btns { display: flex; gap: 6px; }
+  .run-timer-btns button { font-family: 'DM Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 6px 14px; border-radius: 5px; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text); transition: all 0.15s; }
+  .run-timer-btns button:hover { border-color: var(--run-color, var(--focus)); }
+  .run-timer-btns .primary { background: var(--run-color, var(--focus)); color: #111; border-color: var(--run-color, var(--focus)); }
+
+  .run-progress { font-family: 'DM Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 8px; display: flex; justify-content: space-between; }
+  .run-progress strong { color: var(--run-color, var(--focus)); }
+
+  .run-steps { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .run-step { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: #111; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.15s; }
+  .run-step:hover { border-color: var(--run-color, var(--focus)); }
+  .run-step input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--run-color, var(--focus)); cursor: pointer; flex-shrink: 0; margin-top: 2px; }
+  .run-step-text { font-size: 0.78rem; color: #c4bfb9; line-height: 1.5; }
+  .run-step.done { opacity: 0.55; }
+  .run-step.done .run-step-text { text-decoration: line-through; color: var(--muted); }
+
+  .run-tip { padding: 10px 12px; background: rgba(255,107,53,0.06); border-left: 2px solid var(--run-color, var(--focus)); border-radius: 0 6px 6px 0; font-size: 0.72rem; color: #c4bfb9; line-height: 1.5; margin-bottom: 16px; }
+
+  .run-finish { display: none; text-align: center; padding: 18px; background: rgba(78,205,196,0.07); border: 1px solid #4ecdc4; border-radius: 10px; margin-bottom: 12px; }
+  .run-finish.show { display: block; }
+  .run-finish .rf-title { font-size: 1rem; font-weight: 700; color: #4ecdc4; margin-bottom: 4px; }
+  .run-finish .rf-sub { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); line-height: 1.5; }
+
+  .run-foot { display: flex; justify-content: space-between; gap: 8px; }
+  .run-foot button { font-family: 'DM Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; padding: 8px 16px; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+  .run-foot .rf-done { background: #4ecdc4; color: #111; border: 1px solid #4ecdc4; }
+  .run-foot .rf-done:hover { background: #3db8b0; }
+  .run-foot .rf-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  .run-foot .rf-ghost:hover { color: var(--text); border-color: var(--muted); }
+
+  @media (max-width: 640px) {
+    body { padding: 16px; }
+    h1  { font-size: 1.25rem; }
+
+    /* Run panel becomes a bottom sheet on mobile */
+    #run-panel {
+      top: auto; left: 0; right: 0; bottom: 0;
+      transform: none;
+      width: 100%;
+      max-height: 88vh;
+      border-radius: 16px 16px 0 0;
+      padding: 20px 18px 32px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -98,7 +185,15 @@
 <a href="/" style="display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:#6b6660;text-decoration:none;margin-bottom:20px;" onmouseover="this.style.color='#ff6b35'" onmouseout="this.style.color='#6b6660'">← All Toolkits</a>
 
 <h1>Senior SDE × ADHD Toolkit</h1>
-<p class="subtitle">// task taxonomy + tools for every brain mode</p>
+<p class="subtitle">// pick the task you're about to do — then run it, don't just read about it</p>
+
+<div id="resume-bar">
+  <div class="resume-text">⏸ Unfinished run: <strong id="resumeTitle"></strong> — <span id="resumeProgress"></span></div>
+  <div class="resume-actions">
+    <button class="resume-go" onclick="resumeRun()">Resume</button>
+    <button class="resume-drop" onclick="dropRun()">Discard</button>
+  </div>
+</div>
 
 <div class="legend">
   <div class="legend-item"><div class="legend-dot" style="background:#ff6b35"></div>Deep Focus</div>
@@ -139,11 +234,11 @@ function renderCards(filter) {
   const grid = document.getElementById('grid');
   grid.innerHTML = '';
   const filtered = filter === 'all' ? TASKS : TASKS.filter(t => t.cat === filter);
-  filtered.forEach((t, idx) => {
+  filtered.forEach(t => {
+    const taskIdx = TASKS.indexOf(t);
     const card = document.createElement('div');
     card.className = 'card';
     card.style.setProperty('--card-color', t.color);
-    const accId = `acc-${idx}`;
     card.innerHTML = `
       <div class="card-header">
         <div class="card-icon">${t.icon}</div>
@@ -153,72 +248,229 @@ function renderCards(filter) {
       <div class="tools-label">Tools</div>
       <div class="tools">${t.tools.map(tool => `<span class="tool-chip"><span class="dot"></span>${tool}</span>`).join('')}</div>
       <div class="adhd-tip"><strong>⚡ ADHD strategy</strong>${t.tip}</div>
-      <div class="howto-trigger">
-        <button class="howto-btn" data-idx="${idx}">How to tackle this <span class="arrow">▼</span></button>
+      <div class="run-trigger">
+        <button class="run-btn" onclick="startRun(${taskIdx})">▶ Start this task</button>
       </div>
     `;
     grid.appendChild(card);
   });
-
-  // Wire how-to hover tooltips
-  const currentFilter = filter;
-  const filteredTasks = filter === 'all' ? TASKS : TASKS.filter(t => t.cat === filter);
-  document.querySelectorAll('.howto-btn').forEach(btn => {
-    btn.addEventListener('mouseenter', () => showTooltip(btn, filteredTasks[+btn.dataset.idx]));
-    btn.addEventListener('mouseleave', scheduleHide);
-  });
 }
 
-// ── Floating tooltip ─────────────────────────────────────────────────────────
-const tooltip = document.createElement('div');
-tooltip.id = 'howto-tooltip';
-document.body.appendChild(tooltip);
+// ── Run mode: checklist + timer that survives a refresh ───────────────────────
+const RUN_KEY = 'sde-run-v1';
+let run = null;          // { idx, checked: [bool...], secs, total, endAt }
+let runTimerIv = null;
 
-let hideTimer;
+const backdrop = document.createElement('div');
+backdrop.id = 'run-backdrop';
+document.body.appendChild(backdrop);
 
-function showTooltip(btn, task) {
-  if (!task) return;
-  clearTimeout(hideTimer);
+const panel = document.createElement('div');
+panel.id = 'run-panel';
+document.body.appendChild(panel);
 
-  tooltip.innerHTML = `
-    <div class="tt-title" style="color:${task.color || '#ff6b35'}">How to tackle this</div>
-    <ul class="tt-list">
-      ${task.howto.map(s => `<li>${s}</li>`).join('')}
-    </ul>
+function saveRun() {
+  if (run) localStorage.setItem(RUN_KEY, JSON.stringify(run));
+  else localStorage.removeItem(RUN_KEY);
+}
+
+function startRun(idx, saved) {
+  const t = TASKS[idx];
+  run = saved || { idx, checked: t.howto.map(() => false), secs: 25 * 60, total: 25 * 60, endAt: null };
+  buildRunPanel();
+  panel.classList.add('show');
+  backdrop.classList.add('show');
+  document.getElementById('resume-bar').classList.remove('show');
+  if (run.endAt) startRunTicker();
+  saveRun();
+}
+
+function buildRunPanel() {
+  const t = TASKS[run.idx];
+  panel.style.setProperty('--run-color', t.color);
+
+  panel.innerHTML = `
+    <div class="run-head">
+      <div class="run-title">${t.icon} ${t.title}</div>
+      <button class="run-close" onclick="closeRun()" title="Close (progress is saved)">×</button>
+    </div>
+    <div class="run-type">${t.type}</div>
+
+    <div class="run-timer">
+      <div class="run-timer-display" id="runTimerDisplay">25:00</div>
+      <div class="run-timer-controls">
+        <div class="run-presets">
+          <button class="run-preset" data-min="25" onclick="setRunTimer(25, this)">25 min</button>
+          <button class="run-preset" data-min="45" onclick="setRunTimer(45, this)">45 min</button>
+          <button class="run-preset" data-min="90" onclick="setRunTimer(90, this)">90 min</button>
+        </div>
+        <div class="run-timer-btns">
+          <button class="primary" id="runTimerToggle" onclick="toggleRunTimer()">Start</button>
+          <button onclick="resetRunTimer()">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="run-progress"><span>Steps</span><strong id="runStepCount"></strong></div>
+    <ul class="run-steps" id="runSteps"></ul>
+
+    <div class="run-tip"><strong style="color:${t.color};font-size:0.6rem;text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:2px">⚡ While you work</strong>${t.tip}</div>
+
+    <div class="run-finish" id="runFinish">
+      <div class="rf-title">Ritual complete 🎉</div>
+      <div class="rf-sub">Every step done. The loop is closed — note one sentence about what changed, then stop or go again.</div>
+    </div>
+
+    <div class="run-foot">
+      <button class="rf-ghost" onclick="closeRun()">Pause — saved for later</button>
+      <button class="rf-done" onclick="finishRun()">Done — close it out</button>
+    </div>
   `;
-  tooltip.style.borderColor = task.color || '#ff6b35';
 
-  // Make visible off-screen to measure actual size
-  tooltip.style.visibility = 'hidden';
-  tooltip.style.display = 'block';
+  // Steps
+  const ul = document.getElementById('runSteps');
+  t.howto.forEach((step, i) => {
+    const li = document.createElement('li');
+    li.className = 'run-step' + (run.checked[i] ? ' done' : '');
+    li.innerHTML = `<input type="checkbox" ${run.checked[i] ? 'checked' : ''}><span class="run-step-text">${step}</span>`;
+    li.addEventListener('click', e => {
+      const cb = li.querySelector('input');
+      if (e.target !== cb) cb.checked = !cb.checked;
+      run.checked[i] = cb.checked;
+      li.classList.toggle('done', cb.checked);
+      updateRunProgress();
+      saveRun();
+    });
+    ul.appendChild(li);
+  });
 
-  const rect = btn.getBoundingClientRect();
-  const tw = tooltip.offsetWidth;
-  const th = tooltip.offsetHeight;
-  const gap = 10;
-
-  let top = rect.top - th - gap;
-  if (top < 8) top = rect.bottom + gap;  // flip below if no room above
-
-  let left = rect.left;
-  if (left + tw > window.innerWidth - 8) left = window.innerWidth - tw - 8;
-  if (left < 8) left = 8;
-
-  tooltip.style.left = left + 'px';
-  tooltip.style.top = top + 'px';
-  tooltip.style.visibility = '';
-  tooltip.classList.add('visible');
+  // Timer state
+  panel.querySelectorAll('.run-preset').forEach(b => b.classList.toggle('active', +b.dataset.min * 60 === run.total));
+  updateRunProgress();
+  renderRunTimer();
+  if (run.endAt) document.getElementById('runTimerToggle').textContent = 'Pause';
 }
 
-function scheduleHide() {
-  hideTimer = setTimeout(() => {
-    tooltip.classList.remove('visible');
-    setTimeout(() => { tooltip.style.display = 'none'; }, 150);
-  }, 120);
+function updateRunProgress() {
+  const done = run.checked.filter(Boolean).length;
+  const total = run.checked.length;
+  document.getElementById('runStepCount').textContent = `${done} / ${total}`;
+  document.getElementById('runFinish').classList.toggle('show', done === total);
 }
 
-tooltip.addEventListener('mouseenter', () => clearTimeout(hideTimer));
-tooltip.addEventListener('mouseleave', scheduleHide);
+function setRunTimer(min, btn) {
+  if (run.endAt) return; // don't change while running
+  run.total = min * 60;
+  run.secs = run.total;
+  panel.querySelectorAll('.run-preset').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderRunTimer();
+  saveRun();
+}
+
+function toggleRunTimer() {
+  if (run.endAt) {
+    // pause: bank remaining seconds
+    run.secs = Math.max(0, Math.round((run.endAt - Date.now()) / 1000));
+    run.endAt = null;
+    clearInterval(runTimerIv);
+    document.getElementById('runTimerToggle').textContent = 'Resume';
+  } else {
+    if (run.secs <= 0) run.secs = run.total;
+    run.endAt = Date.now() + run.secs * 1000;
+    startRunTicker();
+    document.getElementById('runTimerToggle').textContent = 'Pause';
+  }
+  saveRun();
+}
+
+function startRunTicker() {
+  clearInterval(runTimerIv);
+  runTimerIv = setInterval(() => {
+    renderRunTimer();
+    if (run.endAt && run.endAt - Date.now() <= 0) {
+      run.endAt = null;
+      run.secs = 0;
+      clearInterval(runTimerIv);
+      const tg = document.getElementById('runTimerToggle');
+      if (tg) tg.textContent = 'Start';
+      saveRun();
+    }
+  }, 1000);
+  renderRunTimer();
+}
+
+function resetRunTimer() {
+  clearInterval(runTimerIv);
+  run.endAt = null;
+  run.secs = run.total;
+  const tg = document.getElementById('runTimerToggle');
+  if (tg) tg.textContent = 'Start';
+  renderRunTimer();
+  saveRun();
+}
+
+function renderRunTimer() {
+  const el = document.getElementById('runTimerDisplay');
+  if (!el) return;
+  const remaining = run.endAt ? Math.max(0, Math.round((run.endAt - Date.now()) / 1000)) : run.secs;
+  const m = Math.floor(remaining / 60), s = remaining % 60;
+  el.textContent = remaining <= 0 ? 'Time ✓' : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.classList.toggle('warn', remaining > 0 && remaining <= 300);
+  el.classList.toggle('up', remaining <= 0);
+}
+
+function closeRun() {
+  // Pause-and-keep: progress stays in localStorage
+  if (run && run.endAt) {
+    run.secs = Math.max(0, Math.round((run.endAt - Date.now()) / 1000));
+    run.endAt = null;
+    saveRun();
+  }
+  clearInterval(runTimerIv);
+  panel.classList.remove('show');
+  backdrop.classList.remove('show');
+  showResumeBarIfNeeded();
+}
+
+function finishRun() {
+  clearInterval(runTimerIv);
+  run = null;
+  saveRun();
+  panel.classList.remove('show');
+  backdrop.classList.remove('show');
+  document.getElementById('resume-bar').classList.remove('show');
+}
+
+// ── Resume bar ────────────────────────────────────────────────────────────────
+function showResumeBarIfNeeded() {
+  const saved = localStorage.getItem(RUN_KEY);
+  if (!saved) return;
+  try {
+    const s = JSON.parse(saved);
+    const t = TASKS[s.idx];
+    if (!t) { localStorage.removeItem(RUN_KEY); return; }
+    document.getElementById('resumeTitle').textContent = t.title;
+    document.getElementById('resumeProgress').textContent = `${s.checked.filter(Boolean).length}/${s.checked.length} steps done`;
+    document.getElementById('resume-bar').classList.add('show');
+  } catch (_) { localStorage.removeItem(RUN_KEY); }
+}
+
+function resumeRun() {
+  const saved = localStorage.getItem(RUN_KEY);
+  if (!saved) return;
+  const s = JSON.parse(saved);
+  startRun(s.idx, s);
+}
+
+function dropRun() {
+  localStorage.removeItem(RUN_KEY);
+  run = null;
+  document.getElementById('resume-bar').classList.remove('show');
+}
+
+backdrop.addEventListener('click', closeRun);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && panel.classList.contains('show')) closeRun(); });
 // ─────────────────────────────────────────────────────────────────────────────
 
 document.querySelectorAll('.tab').forEach(tab => {
@@ -230,6 +482,7 @@ document.querySelectorAll('.tab').forEach(tab => {
 });
 
 renderCards('all');
+showResumeBarIfNeeded();
 </script>
 </body>
 </html>

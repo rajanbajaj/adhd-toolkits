@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wide First — Breadth-First Thinking Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QN3P3HSD90"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-QN3P3HSD90');
+</script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0c0f1a;
+  --surface:  #131727;
+  --card:     #1a2035;
+  --border:   #242d45;
+  --text:     #dde4ef;
+  --muted:    #5a6a8a;
+  --accent:   #f59e0b;   /* amber — decision energy */
+  --go:       #34d399;   /* emerald — unlock / proceed */
+  --danger:   #f87171;
+}
+
+body {
+  font-family: 'DM Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.app { max-width: 680px; margin: 0 auto; padding: 32px 20px 100px; }
+
+/* ── Back ── */
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--muted); text-decoration: none; margin-bottom: 28px;
+  transition: color 0.15s;
+}
+.back-link:hover { color: var(--text); }
+
+/* ── Header ── */
+.header { margin-bottom: 28px; }
+.header-eyebrow {
+  font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.16em;
+  color: var(--accent); margin-bottom: 8px;
+}
+.header h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.75rem; font-weight: 600; letter-spacing: -0.025em; line-height: 1.15;
+}
+.header-sub { margin-top: 8px; font-size: 0.68rem; color: var(--muted); line-height: 1.6; }
+
+/* ── Stepper ── */
+.stepper { display: flex; margin-bottom: 28px; }
+.step {
+  flex: 1; padding: 7px 8px; font-size: 0.54rem; text-transform: uppercase;
+  letter-spacing: 0.06em; text-align: center; border: 1px solid var(--border);
+  border-right: none; color: var(--muted); background: transparent; line-height: 1.3;
+  transition: all 0.2s;
+}
+.step:first-child { border-radius: 4px 0 0 4px; }
+.step:last-child  { border-right: 1px solid var(--border); border-radius: 0 4px 4px 0; }
+.step.active { background: var(--accent); color: #111; border-color: var(--accent); font-weight: 500; }
+.step.done   { color: var(--go); background: rgba(52,211,153,0.07); }
+
+/* ── Phase ── */
+.phase { display: none; animation: fadeUp 0.2s ease; }
+.phase.visible { display: block; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Section headings ── */
+.sect-label { font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 4px; }
+.sect-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.25rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px;
+}
+.sect-sub { font-size: 0.67rem; color: var(--muted); line-height: 1.6; margin-bottom: 22px; }
+
+/* ── Card ── */
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px; margin-bottom: 10px;
+}
+.card-label { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 8px; }
+
+/* ── Inputs ── */
+.field-label { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 6px; display: block; }
+input[type="text"] {
+  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 9px 12px; font-family: 'DM Mono', monospace;
+  font-size: 0.72rem; color: var(--text); transition: border-color 0.2s; margin-bottom: 10px;
+}
+input[type="text"]:focus { outline: none; border-color: var(--accent); }
+
+.char-count { font-size: 0.55rem; color: var(--muted); text-align: right; margin-top: -8px; margin-bottom: 10px; }
+.char-count.warn { color: var(--danger); }
+
+/* ── Branch meta row ── */
+.branch-meta {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px; flex-wrap: wrap; gap: 8px;
+}
+.branch-counter { font-size: 0.64rem; color: var(--muted); }
+.branch-counter strong { color: var(--text); }
+.need { color: var(--accent); }
+.ready { color: var(--go); }
+
+/* ── Timer ── */
+.timer-pill {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.62rem; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px;
+}
+.t-display { font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; font-weight: 500; color: var(--text); min-width: 44px; }
+.timer-pill.warn .t-display { color: var(--accent); }
+.timer-pill.done .t-display { color: var(--go); }
+.timer-pill button {
+  font-family: 'DM Mono', monospace; font-size: 0.55rem; text-transform: uppercase;
+  letter-spacing: 0.08em; background: none; border: none; color: var(--muted);
+  cursor: pointer; transition: color 0.15s; padding: 0;
+}
+.timer-pill button:hover { color: var(--text); }
+
+/* ── Branch add row ── */
+.add-row { display: flex; gap: 8px; margin-bottom: 4px; }
+.add-row input { flex: 1; margin-bottom: 0; }
+
+/* ── Branch list ── */
+.branches-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 10px; }
+.branch-card {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 11px 14px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 8px; animation: fadeUp 0.18s ease;
+}
+.branch-num { font-family: 'Space Grotesk', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--accent); min-width: 22px; line-height: 1.2; flex-shrink: 0; }
+.branch-text { font-size: 0.75rem; line-height: 1.5; color: var(--text); flex: 1; }
+.branch-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.9rem; padding: 0; line-height: 1; transition: color 0.15s; flex-shrink: 0; }
+.branch-del:hover { color: var(--danger); }
+
+.branches-empty {
+  padding: 22px; text-align: center; font-size: 0.68rem; color: var(--muted);
+  border: 1px dashed var(--border); border-radius: 8px; line-height: 1.7;
+}
+
+/* ── Alert ── */
+.alert {
+  padding: 10px 13px; border-radius: 7px; font-size: 0.67rem;
+  line-height: 1.55; margin-top: 8px; display: none; border: 1px solid;
+}
+.alert.show { display: block; }
+.alert-nudge { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.35); color: var(--accent); }
+.alert-ok    { background: rgba(52,211,153,0.08); border-color: rgba(52,211,153,0.35); color: var(--go); }
+
+/* ── Parking lot ── */
+.parking-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+.parking-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; background: var(--surface); cursor: pointer; transition: background 0.15s;
+}
+.parking-header:hover { background: var(--card); }
+.parking-hl { display: flex; align-items: center; gap: 10px; }
+.parking-title { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); }
+.parking-badge {
+  font-size: 0.55rem; background: rgba(245,158,11,0.14);
+  border: 1px solid rgba(245,158,11,0.3); color: var(--accent);
+  padding: 1px 7px; border-radius: 10px; display: none;
+}
+.parking-badge.show { display: inline; }
+.parking-chevron { font-size: 0.7rem; color: var(--muted); transition: transform 0.2s; }
+.parking-chevron.open { transform: rotate(90deg); }
+.parking-body {
+  display: none; padding: 12px 16px; background: var(--card);
+  border-top: 1px solid var(--border);
+}
+.parking-body.open { display: block; }
+.parking-hint { font-size: 0.62rem; color: var(--muted); line-height: 1.55; margin-bottom: 10px; font-style: italic; }
+.parking-add { display: flex; gap: 8px; margin-bottom: 10px; }
+.parking-add input { flex: 1; margin-bottom: 0; font-size: 0.68rem; }
+.parking-items { display: flex; flex-direction: column; gap: 6px; }
+.p-item {
+  display: flex; align-items: flex-start; gap: 8px; font-size: 0.68rem; color: var(--muted);
+  padding: 7px 10px; background: var(--surface); border-radius: 6px; border: 1px solid var(--border);
+  line-height: 1.45;
+}
+.p-item::before { content: '↓'; flex-shrink: 0; color: var(--accent); }
+.p-item-text { flex: 1; }
+.p-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.75rem; padding: 0; transition: color 0.15s; flex-shrink: 0; }
+.p-del:hover { color: var(--danger); }
+
+/* ── Nav row ── */
+.nav-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border);
+}
+.lock-hint { font-size: 0.58rem; color: var(--accent); margin-top: 5px; text-align: right; }
+
+/* ── Buttons ── */
+.btn {
+  font-family: 'DM Mono', monospace; font-size: 0.66rem; text-transform: uppercase;
+  letter-spacing: 0.08em; padding: 9px 18px; border-radius: 6px; cursor: pointer;
+  transition: all 0.15s; border: 1px solid transparent; white-space: nowrap;
+}
+.btn-amber { background: var(--accent); color: #111; border-color: var(--accent); }
+.btn-amber:hover { background: #d97706; border-color: #d97706; }
+.btn-go    { background: var(--go);    color: #111; border-color: var(--go); }
+.btn-go:hover    { background: #10b981; border-color: #10b981; }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
+.btn-ghost:hover { border-color: var(--muted); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; background: var(--surface); color: var(--muted); border-color: var(--border); }
+
+/* ── Scoring view ── */
+.score-branch-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px; margin-bottom: 10px; animation: fadeUp 0.2s ease;
+}
+.sbr-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.sbr-num { font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--accent); flex-shrink: 0; }
+.sbr-text { font-size: 0.78rem; line-height: 1.5; flex: 1; }
+.sbr-score { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--muted); min-width: 32px; text-align: right; flex-shrink: 0; transition: color 0.2s; }
+.sbr-score.hi { color: var(--go); }
+.sbr-score.md { color: var(--accent); }
+
+.score-group { margin-bottom: 10px; }
+.score-group:last-child { margin-bottom: 0; }
+.sg-label { font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 6px; }
+.sg-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.sc-chip {
+  font-family: 'DM Mono', monospace; font-size: 0.62rem; padding: 5px 13px;
+  border: 1px solid var(--border); border-radius: 5px; background: transparent;
+  color: var(--muted); cursor: pointer; transition: all 0.15s;
+}
+.sc-chip:hover { border-color: var(--muted); color: var(--text); }
+.sc-chip.active { background: rgba(245,158,11,0.14); border-color: var(--accent); color: var(--accent); }
+
+/* ── Phase 3 ranked ── */
+.ranked-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px; margin-bottom: 10px;
+  display: flex; align-items: flex-start; gap: 14px; animation: fadeUp 0.2s ease;
+}
+.ranked-card.winner { border-color: var(--go); background: rgba(52,211,153,0.05); }
+.r-rank { font-family: 'Space Grotesk', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--muted); min-width: 36px; line-height: 1; flex-shrink: 0; }
+.ranked-card.winner .r-rank { color: var(--go); }
+.r-body { flex: 1; }
+.r-text { font-size: 0.8rem; line-height: 1.5; margin-bottom: 8px; }
+.r-dims { display: flex; gap: 14px; flex-wrap: wrap; }
+.r-dim { font-size: 0.58rem; color: var(--muted); }
+.r-dim strong { color: var(--text); }
+.dive-btn {
+  font-family: 'DM Mono', monospace; font-size: 0.6rem; text-transform: uppercase;
+  letter-spacing: 0.08em; padding: 6px 14px; border: 1px solid var(--go);
+  border-radius: 6px; background: rgba(52,211,153,0.1); color: var(--go);
+  cursor: pointer; transition: all 0.15s; margin-top: 10px; display: inline-block;
+}
+.dive-btn:hover { background: var(--go); color: #111; }
+
+/* ── Dive section ── */
+.dive-chosen {
+  background: rgba(52,211,153,0.07); border: 2px solid var(--go);
+  border-radius: 12px; padding: 20px; margin-bottom: 14px;
+}
+.dive-lbl { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--go); margin-bottom: 6px; }
+.dive-text { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; }
+
+.done-reminder { font-size: 0.72rem; color: var(--muted); line-height: 1.55; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; }
+.done-reminder strong { color: var(--text); display: block; font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+
+.fuel-item {
+  display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; margin-bottom: 6px; font-size: 0.7rem; color: var(--muted); line-height: 1.5;
+}
+.fuel-item::before { content: '→'; flex-shrink: 0; color: var(--accent); }
+
+/* ── Mobile ── */
+@media (max-width: 480px) {
+  .app { padding: 20px 14px 100px; }
+  .header h1 { font-size: 1.4rem; }
+  .nav-row { flex-wrap: wrap; gap: 10px; }
+  .nav-row .btn { flex: 1; text-align: center; }
+  .branch-meta { flex-direction: column; align-items: flex-start; }
+  .sg-chips { gap: 5px; }
+  .sc-chip { font-size: 0.58rem; padding: 5px 10px; }
+  .r-dims { gap: 8px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<a href="/" class="back-link">← All Toolkits</a>
+
+<div class="header">
+  <div class="header-eyebrow">Wide First — Breadth-First Thinking</div>
+  <h1>Survey the whole map<br>before picking a path.</h1>
+  <p class="header-sub">ADHD brains dive depth-first — the first interesting thread wins. This tool forces a breadth scan before any depth, so you choose the <em>best</em> direction, not just the first one.</p>
+</div>
+
+<div class="stepper">
+  <div class="step active" id="st0">① Diverge</div>
+  <div class="step"        id="st1">② Score</div>
+  <div class="step"        id="st2">③ Dive</div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PHASE 1 — DIVERGE                          -->
+<!-- ══════════════════════════════════════════ -->
+<div class="phase visible" id="p1">
+
+  <div class="sect-label">Phase 1 of 3 — Diverge</div>
+  <div class="sect-title">Map every direction first</div>
+  <div class="sect-sub">No judging. No designing. Write the surface of all possible approaches before touching any single one. If you feel pulled to go deep — drop it in the Parking Lot and add another branch instead. Phase 2 unlocks at 3 branches minimum.</div>
+
+  <!-- Setup -->
+  <div class="card">
+    <div class="card-label">Define it before you explore it</div>
+    <label class="field-label" for="qInput">What are you deciding or designing? <span style="color:var(--muted);font-size:0.55rem;text-transform:none;letter-spacing:0">(one sentence)</span></label>
+    <input type="text" id="qInput" placeholder="e.g. How should I design the session storage layer?" maxlength="160">
+    <label class="field-label" for="doneInput">What does done look like?</label>
+    <input type="text" id="doneInput" placeholder="e.g. A chosen approach I can start building today" maxlength="120" style="margin-bottom:0">
+  </div>
+
+  <!-- Branches -->
+  <div class="card">
+    <div class="card-label">Branches — one direction per entry, keep it short</div>
+
+    <div class="branch-meta">
+      <div class="branch-counter" id="bCounter"><strong>0</strong> branches &mdash; <span class="need">add at least 3 to continue</span></div>
+      <div class="timer-pill" id="tPill">
+        <span>⏱</span>
+        <span class="t-display" id="tDisp">10:00</span>
+        <button id="tBtn" onclick="toggleTimer()">Start</button>
+      </div>
+    </div>
+
+    <div class="add-row">
+      <input type="text" id="bInput" placeholder="What's one approach or direction?" maxlength="120" style="margin-bottom:0" onkeydown="if(event.key==='Enter')addBranch()">
+      <button class="btn btn-amber" onclick="addBranch()">Add</button>
+    </div>
+    <div class="char-count" id="bChars">0 / 120</div>
+
+    <div class="branches-list" id="bList">
+      <div class="branches-empty" id="bEmpty">No branches yet — what are <em>all</em> the ways you could approach this?</div>
+    </div>
+
+    <div class="alert alert-nudge" id="depthAlert">
+      ↓ Feels like you're going deep? Drop that thought in the Parking Lot and add another branch instead.
+    </div>
+    <div class="alert alert-ok" id="readyAlert">
+      ✓ Good spread — you can score now, or keep adding to go wider.
+    </div>
+  </div>
+
+  <!-- Parking lot -->
+  <div class="parking-wrap">
+    <div class="parking-header" onclick="toggleParking()">
+      <div class="parking-hl">
+        <span class="parking-title">🅿 Parking Lot — depth thoughts</span>
+        <span class="parking-badge" id="pBadge">0</span>
+      </div>
+      <span class="parking-chevron" id="pChevron">▶</span>
+    </div>
+    <div class="parking-body" id="pBody">
+      <div class="parking-hint">When a branch pulls you into detail — capture that thought here and move on. These become fuel in Phase 3 when you actually dive.</div>
+      <div class="parking-add">
+        <input type="text" id="pInput" placeholder="e.g. Redis TTL edge case, cache invalidation strategy…" maxlength="180" onkeydown="if(event.key==='Enter')addParking()">
+        <button class="btn btn-ghost" style="padding:7px 12px;font-size:0.6rem;" onclick="addParking()">Park it</button>
+      </div>
+      <div class="parking-items" id="pItems"></div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="resetAll()">Start over</button>
+    <div>
+      <button class="btn btn-amber" id="toScoreBtn" onclick="goPhase(2)" disabled>Score branches →</button>
+      <div class="lock-hint" id="lockHint">Add 3 or more branches to unlock</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PHASE 2 — SCORE                            -->
+<!-- ══════════════════════════════════════════ -->
+<div class="phase" id="p2">
+
+  <div class="sect-label">Phase 2 of 3 — Score</div>
+  <div class="sect-title">Rate each branch — no designing yet</div>
+  <div class="sect-sub">Three quick signals per branch. The scores rank which direction to explore first — not which one is correct. ADHD brains under-weight reversibility, so pay attention to that row.</div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-label">The decision</div>
+    <div style="font-size:0.78rem;line-height:1.5;color:var(--text)" id="qDisplay"></div>
+  </div>
+
+  <div id="scoreList"></div>
+
+  <div class="nav-row">
+    <button class="btn btn-ghost" onclick="goPhase(1)">← Back</button>
+    <button class="btn btn-go" onclick="goPhase(3)">Commit →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- PHASE 3 — DIVE                             -->
+<!-- ══════════════════════════════════════════ -->
+<div class="phase" id="p3">
+
+  <div class="sect-label">Phase 3 of 3 — Dive</div>
+  <div class="sect-title">You've surveyed the map.</div>
+  <div class="sect-sub">Now you can go deep — with intention, not by accident. Tap the top-ranked branch to start. Parking Lot items are fuel, not distractions.</div>
+
+  <div id="rankedList"></div>
+
+  <!-- Dive view (shown after clicking dive) -->
+  <div id="diveSection" style="display:none">
+
+    <div class="dive-chosen">
+      <div class="dive-lbl">You chose to explore</div>
+      <div class="dive-text" id="diveText"></div>
+    </div>
+
+    <div class="done-reminder" id="doneReminder">
+      <strong>Done looks like</strong>
+      <span id="doneText"></span>
+    </div>
+
+    <div id="fuelSection" style="display:none">
+      <div class="card-label" style="margin-bottom:8px;margin-top:16px">🅿 Parking lot — now valid fuel</div>
+      <div id="fuelList"></div>
+      <div style="font-size:0.62rem;color:var(--muted);margin-top:8px;line-height:1.5">These were distractions during the survey. They're legitimate depth now — work through them as they come up.</div>
+    </div>
+
+  </div>
+
+  <div class="nav-row" style="margin-top:24px">
+    <button class="btn btn-ghost" onclick="goPhase(2)">← Adjust scores</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-go" id="copySummaryBtn" onclick="copySummary()">⎘ Copy summary</button>
+      <button class="btn btn-ghost" onclick="resetAll()">New decision</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────
+let branches   = [];   // [{id, text}]
+let parkingLot = [];   // [{id, text}]
+let scores     = {};   // {id: {rev, eff, fit}}
+let nextId     = 1;
+let timerSecs  = 600;
+let timerRunning = false;
+let timerIv    = null;
+let parkOpen   = false;
+let chosenId   = null; // branch chosen in the dive phase
+let curPhase   = 1;
+
+// ── Autosave: the session survives a refresh / tab close ──────────────────
+const STORE_KEY = 'widefirst-v1';
+
+function saveState() {
+  localStorage.setItem(STORE_KEY, JSON.stringify({
+    q: document.getElementById('qInput').value,
+    done: document.getElementById('doneInput').value,
+    branches, parkingLot, scores, nextId, chosenId,
+    phase: curPhase,
+  }));
+}
+
+function restoreState() {
+  const raw = localStorage.getItem(STORE_KEY);
+  if (!raw) return;
+  try {
+    const s = JSON.parse(raw);
+    document.getElementById('qInput').value = s.q || '';
+    document.getElementById('doneInput').value = s.done || '';
+    branches   = s.branches   || [];
+    parkingLot = s.parkingLot || [];
+    scores     = s.scores     || {};
+    nextId     = s.nextId     || 1;
+    chosenId   = s.chosenId ?? null;
+    renderBranches();
+    renderParking();
+    const phase = (s.phase >= 2 && branches.length >= 3) ? s.phase : 1;
+    goPhase(phase);
+    if (phase === 3 && chosenId !== null && branches.some(b => b.id === chosenId)) showDive(chosenId);
+  } catch (_) { localStorage.removeItem(STORE_KEY); }
+}
+
+document.addEventListener('input', () => saveState());
+
+// ── Score definitions ──────────────────────────────────────────────────────
+const DIMS = [
+  {
+    key: 'rev', label: 'Reversibility — if wrong, can you undo it?',
+    opts: [
+      { v: 3, label: 'Easy out',     tip: 'Cheap to reverse if it fails' },
+      { v: 2, label: 'Somewhat',     tip: 'Painful but possible to change' },
+      { v: 1, label: 'One-way door', tip: 'Hard to undo once committed' },
+    ]
+  },
+  {
+    key: 'eff', label: 'Effort — how much work to explore or validate?',
+    opts: [
+      { v: 1, label: 'Light',  tip: 'Hours to a day' },
+      { v: 2, label: 'Medium', tip: 'Days to a week' },
+      { v: 3, label: 'Heavy',  tip: 'Weeks or more' },
+    ]
+  },
+  {
+    key: 'fit', label: 'Goal fit — how directly does this solve the problem?',
+    opts: [
+      { v: 1, label: 'Weak',    tip: 'Tangentially related' },
+      { v: 2, label: 'Partial', tip: 'Gets partway there' },
+      { v: 3, label: 'Strong',  tip: 'Directly solves it' },
+    ]
+  },
+];
+
+// ── Score calculation ──────────────────────────────────────────────────────
+// Higher = explore first. Effort inverted: light=3, heavy=1
+function calcScore(id) {
+  const s = scores[id];
+  if (!s) return 0;
+  const rev = s.rev || 0;
+  const eff = s.eff ? (4 - s.eff) : 0;  // invert
+  const fit = s.fit || 0;
+  return rev + eff + fit;                 // max 9
+}
+
+function isComplete(id) {
+  const s = scores[id];
+  return !!(s && s.rev && s.eff && s.fit);
+}
+
+// ── Phase nav ──────────────────────────────────────────────────────────────
+function goPhase(n) {
+  ['p1','p2','p3'].forEach((id, i) => {
+    document.getElementById(id).classList.toggle('visible', i + 1 === n);
+  });
+  ['st0','st1','st2'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.classList.remove('active','done');
+    if (i + 1 === n) el.classList.add('active');
+    else if (i + 1 < n) el.classList.add('done');
+  });
+  if (n === 2) buildScoreView();
+  if (n === 3) buildRankedView();
+  curPhase = n;
+  saveState();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Branches ───────────────────────────────────────────────────────────────
+function addBranch() {
+  const inp = document.getElementById('bInput');
+  const text = inp.value.trim();
+  if (!text) return;
+  branches.push({ id: nextId++, text });
+  inp.value = '';
+  updateCharCount();
+  renderBranches();
+  saveState();
+  inp.focus();
+}
+
+function removeBranch(id) {
+  branches = branches.filter(b => b.id !== id);
+  delete scores[id];
+  if (chosenId === id) chosenId = null;
+  renderBranches();
+  saveState();
+}
+
+function renderBranches() {
+  const list = document.getElementById('bList');
+  list.querySelectorAll('.branch-card').forEach(e => e.remove());
+  const empty = document.getElementById('bEmpty');
+
+  if (branches.length === 0) {
+    empty.style.display = '';
+    updateCounterAndLock();
+    return;
+  }
+  empty.style.display = 'none';
+
+  branches.forEach((b, i) => {
+    const el = document.createElement('div');
+    el.className = 'branch-card';
+    el.innerHTML = `
+      <div class="branch-num">${i + 1}</div>
+      <div class="branch-text">${b.text}</div>
+      <button class="branch-del" onclick="removeBranch(${b.id})" title="Remove">×</button>`;
+    list.appendChild(el);
+  });
+
+  updateCounterAndLock();
+}
+
+function updateCounterAndLock() {
+  const n = branches.length;
+  const need = Math.max(0, 3 - n);
+  const counter = document.getElementById('bCounter');
+  if (need > 0) {
+    counter.innerHTML = `<strong>${n}</strong> branch${n !== 1 ? 'es' : ''} &mdash; <span class="need">add ${need} more to continue</span>`;
+  } else {
+    counter.innerHTML = `<strong>${n}</strong> branches &mdash; <span class="ready">✓ ready to score</span>`;
+  }
+  document.getElementById('toScoreBtn').disabled = n < 3;
+  document.getElementById('lockHint').style.display = n >= 3 ? 'none' : 'block';
+
+  document.getElementById('depthAlert').classList.toggle('show', n >= 2 && n < 3);
+  document.getElementById('readyAlert').classList.toggle('show', n >= 3);
+}
+
+// ── Character count ────────────────────────────────────────────────────────
+function updateCharCount() {
+  const len = document.getElementById('bInput').value.length;
+  const el = document.getElementById('bChars');
+  el.textContent = `${len} / 120`;
+  el.classList.toggle('warn', len > 95);
+  // Depth nudge: typing a lot suggests going into detail
+  if (len > 80) document.getElementById('depthAlert').classList.add('show');
+}
+document.getElementById('bInput').addEventListener('input', updateCharCount);
+
+// ── Parking lot ────────────────────────────────────────────────────────────
+function toggleParking() {
+  parkOpen = !parkOpen;
+  document.getElementById('pBody').classList.toggle('open', parkOpen);
+  document.getElementById('pChevron').classList.toggle('open', parkOpen);
+  if (parkOpen) document.getElementById('pInput').focus();
+}
+
+function addParking() {
+  const inp = document.getElementById('pInput');
+  const text = inp.value.trim();
+  if (!text) return;
+  parkingLot.push({ id: nextId++, text });
+  inp.value = '';
+  renderParking();
+  saveState();
+  inp.focus();
+}
+
+function removeParking(id) {
+  parkingLot = parkingLot.filter(p => p.id !== id);
+  renderParking();
+  saveState();
+}
+
+function renderParking() {
+  const items = document.getElementById('pItems');
+  items.innerHTML = '';
+  parkingLot.forEach(p => {
+    const el = document.createElement('div');
+    el.className = 'p-item';
+    el.innerHTML = `<span class="p-item-text">${p.text}</span><button class="p-del" onclick="removeParking(${p.id})">×</button>`;
+    items.appendChild(el);
+  });
+  const badge = document.getElementById('pBadge');
+  badge.textContent = parkingLot.length;
+  badge.classList.toggle('show', parkingLot.length > 0);
+}
+
+// ── Timer ──────────────────────────────────────────────────────────────────
+function toggleTimer() {
+  if (timerRunning) {
+    clearInterval(timerIv);
+    timerRunning = false;
+    document.getElementById('tBtn').textContent = 'Resume';
+  } else {
+    timerRunning = true;
+    document.getElementById('tBtn').textContent = 'Pause';
+    timerIv = setInterval(tickTimer, 1000);
+  }
+}
+
+function tickTimer() {
+  if (timerSecs <= 0) {
+    clearInterval(timerIv); timerRunning = false;
+    document.getElementById('tDisp').textContent = 'Done ✓';
+    document.getElementById('tBtn').textContent = 'Reset';
+    document.getElementById('tBtn').onclick = resetTimer;
+    document.getElementById('tPill').classList.add('done');
+    return;
+  }
+  timerSecs--;
+  const m = Math.floor(timerSecs / 60), s = timerSecs % 60;
+  document.getElementById('tDisp').textContent = `${m}:${String(s).padStart(2,'0')}`;
+  document.getElementById('tPill').classList.toggle('warn', timerSecs <= 120);
+}
+
+function resetTimer() {
+  clearInterval(timerIv); timerRunning = false; timerSecs = 600;
+  document.getElementById('tDisp').textContent = '10:00';
+  document.getElementById('tBtn').textContent = 'Start';
+  document.getElementById('tBtn').onclick = toggleTimer;
+  document.getElementById('tPill').classList.remove('done','warn');
+}
+
+// ── Score view ─────────────────────────────────────────────────────────────
+function buildScoreView() {
+  const q = document.getElementById('qInput').value.trim() || '(not defined)';
+  document.getElementById('qDisplay').textContent = q;
+
+  const list = document.getElementById('scoreList');
+  list.innerHTML = '';
+
+  branches.forEach((b, i) => {
+    if (!scores[b.id]) scores[b.id] = {};
+    const card = document.createElement('div');
+    card.className = 'score-branch-card';
+    card.id = `sc${b.id}`;
+
+    const dimsHtml = DIMS.map((dim, di) => `
+      <div class="score-group">
+        <div class="sg-label">${dim.label}</div>
+        <div class="sg-chips">
+          ${dim.opts.map(opt => `
+            <button class="sc-chip ${scores[b.id][dim.key] === opt.v ? 'active' : ''}"
+              title="${opt.tip}"
+              onclick="setScore(${b.id},'${dim.key}',${opt.v},this,${di})"
+            >${opt.label}</button>
+          `).join('')}
+        </div>
+      </div>
+    `).join('');
+
+    card.innerHTML = `
+      <div class="sbr-header">
+        <div class="sbr-num">${i + 1}</div>
+        <div class="sbr-text">${b.text}</div>
+        <div class="sbr-score" id="badge${b.id}">—</div>
+      </div>
+      ${dimsHtml}`;
+    list.appendChild(card);
+    refreshBadge(b.id);
+  });
+}
+
+function setScore(id, key, val, clickedBtn, dimIdx) {
+  if (!scores[id]) scores[id] = {};
+  scores[id][key] = val;
+  // Update chips for this dimension
+  const card = document.getElementById(`sc${id}`);
+  const groups = card.querySelectorAll('.score-group');
+  groups[dimIdx].querySelectorAll('.sc-chip').forEach((chip, i) => {
+    chip.classList.toggle('active', DIMS[dimIdx].opts[i].v === val);
+  });
+  refreshBadge(id);
+  saveState();
+}
+
+function refreshBadge(id) {
+  const sc = calcScore(id);
+  const badge = document.getElementById(`badge${id}`);
+  if (!badge) return;
+  if (sc === 0) { badge.textContent = '—'; badge.className = 'sbr-score'; return; }
+  badge.textContent = `${sc}/9`;
+  badge.className = `sbr-score ${sc >= 7 ? 'hi' : sc >= 5 ? 'md' : ''}`;
+}
+
+// ── Ranked view ────────────────────────────────────────────────────────────
+function buildRankedView() {
+  const sorted = [...branches].sort((a, b) => calcScore(b.id) - calcScore(a.id));
+  const list = document.getElementById('rankedList');
+  list.innerHTML = '';
+  document.getElementById('diveSection').style.display = 'none';
+
+  sorted.forEach((b, i) => {
+    const sc = calcScore(b.id);
+    const s  = scores[b.id] || {};
+    const revL = DIMS[0].opts.find(o => o.v === s.rev)?.label || '—';
+    const effL = DIMS[1].opts.find(o => o.v === s.eff)?.label || '—';
+    const fitL = DIMS[2].opts.find(o => o.v === s.fit)?.label || '—';
+
+    const card = document.createElement('div');
+    card.className = `ranked-card${i === 0 ? ' winner' : ''}`;
+    card.innerHTML = `
+      <div class="r-rank">#${i + 1}</div>
+      <div class="r-body">
+        <div class="r-text">${b.text}</div>
+        <div class="r-dims">
+          <div class="r-dim">Reversibility: <strong>${revL}</strong></div>
+          <div class="r-dim">Effort: <strong>${effL}</strong></div>
+          <div class="r-dim">Fit: <strong>${fitL}</strong></div>
+          ${sc > 0 ? `<div class="r-dim">Score: <strong>${sc}/9</strong></div>` : ''}
+        </div>
+        <button class="dive-btn" ${i !== 0 ? 'style="border-color:var(--border);background:transparent;color:var(--muted)"' : ''} onclick="showDive(${b.id})">${i === 0 ? 'Dive into this →' : 'Dive here instead →'}</button>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+function showDive(id) {
+  const branch = branches.find(b => b.id === id);
+  if (!branch) return;
+  chosenId = id;
+  saveState();
+  const done   = document.getElementById('doneInput').value.trim() || '(not defined)';
+
+  document.getElementById('diveText').textContent = branch.text;
+  document.getElementById('doneText').textContent = done;
+
+  if (parkingLot.length > 0) {
+    document.getElementById('fuelSection').style.display = 'block';
+    const fuel = document.getElementById('fuelList');
+    fuel.innerHTML = '';
+    parkingLot.forEach(p => {
+      const el = document.createElement('div');
+      el.className = 'fuel-item';
+      el.textContent = p.text;
+      fuel.appendChild(el);
+    });
+  }
+
+  const sec = document.getElementById('diveSection');
+  sec.style.display = 'block';
+  sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Copy summary ───────────────────────────────────────────────────────────
+function copySummary() {
+  const q    = document.getElementById('qInput').value.trim() || '(not defined)';
+  const done = document.getElementById('doneInput').value.trim() || '(not defined)';
+  const sorted = [...branches].sort((a, b) => calcScore(b.id) - calcScore(a.id));
+  const chosen = branches.find(b => b.id === chosenId);
+
+  const branchLines = sorted.map((b, i) => {
+    const s = scores[b.id] || {};
+    const revL = DIMS[0].opts.find(o => o.v === s.rev)?.label || '—';
+    const effL = DIMS[1].opts.find(o => o.v === s.eff)?.label || '—';
+    const fitL = DIMS[2].opts.find(o => o.v === s.fit)?.label || '—';
+    const mark = chosen && b.id === chosen.id ? ' ← CHOSEN' : '';
+    return `  #${i + 1} (${calcScore(b.id)}/9) ${b.text} [rev: ${revL} / effort: ${effL} / fit: ${fitL}]${mark}`;
+  }).join('\n');
+
+  const parkText = parkingLot.length
+    ? parkingLot.map(p => `  - ${p.text}`).join('\n')
+    : '  (none)';
+
+  const text = [
+    'WIDE FIRST — DECISION SUMMARY',
+    '=============================',
+    `Question: ${q}`,
+    `Done looks like: ${done}`,
+    '',
+    `CHOSEN DIRECTION: ${chosen ? chosen.text : '(not chosen yet)'}`,
+    '',
+    `ALL BRANCHES (ranked):\n${branchLines || '  (none)'}`,
+    '',
+    `PARKING LOT — depth fuel for the dive:\n${parkText}`,
+  ].join('\n');
+
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copySummaryBtn');
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = orig, 1800);
+  });
+}
+
+// ── Reset ──────────────────────────────────────────────────────────────────
+function resetAll() {
+  branches = []; parkingLot = []; scores = {}; chosenId = null;
+  document.getElementById('qInput').value = '';
+  document.getElementById('doneInput').value = '';
+  document.getElementById('bInput').value = '';
+  document.getElementById('pItems').innerHTML = '';
+  document.getElementById('pBadge').classList.remove('show');
+  resetTimer();
+  renderBranches();
+  updateCounterAndLock();
+  goPhase(1);
+  localStorage.removeItem(STORE_KEY); // goPhase autosaves — clear again so reset sticks
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+updateCounterAndLock();
+restoreState();
+</script>
+</body>
+</html>

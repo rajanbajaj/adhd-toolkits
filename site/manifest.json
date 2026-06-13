@@ -1,0 +1,19 @@
+{
+  "name": "AuDHD Comfort Zone",
+  "short_name": "AuDHD",
+  "description": "Two modes, one brain. Social entry prep and work ramp toolkit.",
+  "start_url": "/toolkits/audhd_comfort_zone.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e1521",
+  "theme_color": "#0e1521",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

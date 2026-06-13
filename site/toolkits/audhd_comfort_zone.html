@@ -1,0 +1,1974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AuDHD Comfort Zone Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="manifest" href="/manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AuDHD">
+<meta name="theme-color" content="#0e1521">
+<link rel="apple-touch-icon" href="/icon.svg">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:      #0e1521;
+  --surface: #162032;
+  --card:    #1c2a3e;
+  --border:  #253448;
+  --text:    #dde4ef;
+  --muted:   #6b82a0;
+  --social:  #818cf8;   /* indigo — calm, connection */
+  --work:    #34d399;   /* emerald — growth, start */
+  --spoon:   #fbbf24;   /* amber — energy */
+  --warn:    #fb923c;   /* orange — low energy */
+  --danger:  #f87171;   /* red — very low */
+}
+
+body {
+  font-family: 'DM Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.app { max-width: 640px; margin: 0 auto; padding: 32px 20px 80px; }
+
+/* Back link */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-decoration: none;
+  margin-bottom: 28px;
+  transition: color 0.15s;
+}
+.back-link:hover { color: var(--text); }
+
+/* Header */
+.header { margin-bottom: 32px; }
+
+.header-label {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.header h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.header h1 .au   { color: var(--social); }
+.header h1 .dhd  { color: var(--work); }
+
+.header-sub {
+  margin-top: 8px;
+  font-size: 0.68rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* Mode selector */
+.mode-select {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.mode-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.mode-card:hover { border-color: var(--muted); transform: translateY(-1px); }
+.mode-card.social:hover, .mode-card.social.active { border-color: var(--social); }
+.mode-card.work:hover,   .mode-card.work.active   { border-color: var(--work); }
+
+.mode-icon { font-size: 1.6rem; margin-bottom: 10px; }
+.mode-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.mode-card.social .mode-name { color: var(--social); }
+.mode-card.work   .mode-name { color: var(--work); }
+.mode-desc { font-size: 0.64rem; color: var(--muted); line-height: 1.5; }
+
+/* Flow container */
+.flow { display: none; }
+.flow.active { display: block; animation: fadeUp 0.25s ease; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Progress bar */
+.progress-wrap { margin-bottom: 28px; }
+
+.progress-steps {
+  display: flex;
+  gap: 0;
+  margin-bottom: 8px;
+}
+
+.progress-step {
+  flex: 1;
+  padding: 6px 4px;
+  font-size: 0.54rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-right: none;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1.3;
+}
+.progress-step:first-child { border-radius: 4px 0 0 4px; }
+.progress-step:last-child  { border-right: 1px solid var(--border); border-radius: 0 4px 4px 0; }
+.progress-step.active.social { background: var(--social); color: #fff; border-color: var(--social); }
+.progress-step.active.work   { background: var(--work);   color: #111; border-color: var(--work); }
+.progress-step.done   { color: var(--work); text-decoration: line-through; background: rgba(52,211,153,0.06); }
+
+.progress-bar { height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+.progress-fill.social { background: var(--social); }
+.progress-fill.work   { background: var(--work); }
+
+/* Phase */
+.phase { display: none; }
+.phase.visible { display: block; animation: fadeUp 0.2s ease; }
+
+.phase-label {
+  font-size: 0.56rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.phase-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+
+.phase-sub {
+  font-size: 0.68rem;
+  color: var(--muted);
+  margin-bottom: 22px;
+  line-height: 1.55;
+}
+
+/* Cards */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 10px;
+}
+
+.card-label {
+  font-size: 0.56rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+/* Spoons */
+.spoon-track {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.spoon-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  color: var(--muted);
+}
+
+.spoon-dot:hover { border-color: var(--spoon); }
+.spoon-dot.filled { background: var(--spoon); border-color: var(--spoon); color: #111; }
+.spoon-dot.filled.warn   { background: var(--warn);   border-color: var(--warn); }
+.spoon-dot.filled.danger { background: var(--danger); border-color: var(--danger); }
+
+.spoon-status {
+  font-size: 0.7rem;
+  margin-top: 6px;
+  line-height: 1.4;
+  min-height: 20px;
+}
+
+/* Drain tags */
+.drain-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+
+.drain-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  padding: 5px 11px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.drain-tag.active { background: rgba(251,191,36,0.12); border-color: var(--spoon); color: var(--spoon); }
+
+/* Chips (type/size/duration/sensory) */
+.chip-group { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.chip {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  padding: 6px 13px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.chip:hover { border-color: var(--text); color: var(--text); }
+.chip.active.social { background: rgba(129,140,248,0.12); border-color: var(--social); color: var(--social); }
+.chip.active.work   { background: rgba(52,211,153,0.12);  border-color: var(--work);   color: var(--work); }
+
+/* Spoon cost estimate */
+.cost-estimate {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-top: 12px;
+}
+
+.cost-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  min-width: 36px;
+}
+
+.cost-label { font-size: 0.62rem; color: var(--muted); line-height: 1.5; }
+.cost-warning { font-size: 0.62rem; color: var(--warn); margin-top: 2px; }
+
+/* Text inputs */
+.field-label {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 6px;
+  display: block;
+}
+
+input[type="text"],
+textarea {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 12px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--text);
+  transition: border-color 0.2s;
+  margin-bottom: 10px;
+}
+
+input[type="text"]:focus,
+textarea:focus { outline: none; border-color: var(--social); }
+
+textarea { resize: vertical; min-height: 52px; line-height: 1.5; }
+
+.input-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+@media (max-width: 480px) {
+  .input-pair { grid-template-columns: 1fr; }
+  .block-type-grid { grid-template-columns: 1fr 1fr; } /* keep 2-col, cards are small */
+  .mode-select { grid-template-columns: 1fr; }
+  .nav-row { flex-wrap: wrap; gap: 10px; }
+  .nav-row .btn { flex: 1; text-align: center; justify-content: center; }
+  .a11y-bar { bottom: 80px; } /* clear the nav row */
+  .app { padding-bottom: 100px; }
+}
+
+/* Sensory checklist */
+.sense-list { display: flex; flex-direction: column; gap: 6px; }
+
+.sense-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 13px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.sense-item:hover { border-color: var(--muted); }
+.sense-item.checked { border-color: var(--work); background: rgba(52,211,153,0.06); }
+
+.sense-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--work);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.sense-text { font-size: 0.72rem; color: var(--text); flex: 1; }
+.sense-text .sense-hint { display: block; font-size: 0.6rem; color: var(--muted); margin-top: 1px; }
+
+.sense-progress {
+  font-size: 0.62rem;
+  color: var(--muted);
+  margin-top: 10px;
+  text-align: right;
+}
+
+/* Ramp steps */
+.ramp-steps { display: flex; flex-direction: column; gap: 8px; }
+
+.ramp-step {
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: all 0.2s;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.ramp-step.current { opacity: 1; border-color: var(--work); pointer-events: auto; }
+.ramp-step.done-step { opacity: 0.6; }
+.ramp-step.done-step .ramp-text { text-decoration: line-through; color: var(--muted); }
+
+.ramp-num {
+  font-size: 0.56rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.ramp-step.current .ramp-num { color: var(--work); }
+
+.ramp-text {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.ramp-hint { font-size: 0.62rem; color: var(--muted); margin-bottom: 12px; }
+
+.ramp-done-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 7px 16px;
+  border: 1px solid var(--work);
+  border-radius: 6px;
+  background: rgba(52,211,153,0.1);
+  color: var(--work);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ramp-done-btn:hover { background: var(--work); color: #111; }
+
+.ramp-complete {
+  display: none;
+  padding: 16px;
+  background: rgba(52,211,153,0.08);
+  border: 1px solid var(--work);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.ramp-complete.show { display: block; animation: fadeUp 0.3s ease; }
+.ramp-complete-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--work);
+  margin-bottom: 6px;
+}
+.ramp-complete-sub { font-size: 0.66rem; color: var(--muted); }
+
+/* Soft exit options */
+.exit-options { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+
+.exit-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.exit-option:hover { border-color: var(--muted); }
+.exit-option.active { border-color: var(--social); background: rgba(129,140,248,0.08); }
+.exit-option input[type="radio"] { accent-color: var(--social); margin: 0; flex-shrink: 0; }
+.exit-option-text { font-size: 0.7rem; }
+
+/* Recovery tags */
+.recovery-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+
+.recovery-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.recovery-tag.active { background: rgba(129,140,248,0.12); border-color: var(--social); color: var(--social); }
+
+/* Block type */
+.block-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.block-type-card {
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+}
+.block-type-card:hover { border-color: var(--muted); }
+.block-type-card.active { border-color: var(--work); background: rgba(52,211,153,0.08); }
+.block-type-icon { font-size: 1.1rem; margin-bottom: 6px; }
+.block-type-name { font-size: 0.72rem; font-weight: 500; margin-bottom: 2px; color: var(--text); }
+.block-type-desc { font-size: 0.6rem; color: var(--muted); line-height: 1.4; }
+
+/* Energy level */
+.energy-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+
+.energy-btn {
+  padding: 10px 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  font-family: 'DM Mono', monospace;
+}
+.energy-btn:hover { border-color: var(--muted); }
+.energy-btn.active { border-color: var(--work); background: rgba(52,211,153,0.1); }
+.energy-icon { font-size: 1.2rem; display: block; margin-bottom: 4px; }
+.energy-label { font-size: 0.58rem; color: var(--muted); }
+
+/* Summary */
+.summary-section { margin-bottom: 12px; }
+
+.summary-section h4 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.summary-row {
+  display: flex;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.7rem;
+  align-items: flex-start;
+}
+.summary-row:last-child { border-bottom: none; }
+.summary-key { color: var(--muted); min-width: 100px; flex-shrink: 0; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em; padding-top: 1px; }
+.summary-val { color: var(--text); }
+
+/* Recovery time */
+.recovery-time-display {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: var(--social);
+  letter-spacing: -0.02em;
+}
+
+.recovery-advice {
+  font-size: 0.66rem;
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+/* Buttons */
+.btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 9px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.btn-social { background: var(--social); color: #fff; border-color: var(--social); }
+.btn-social:hover { background: #6875f5; border-color: #6875f5; }
+.btn-work { background: var(--work); color: #111; border-color: var(--work); }
+.btn-work:hover { background: #10b981; border-color: #10b981; }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
+.btn-ghost:hover { border-color: var(--muted); }
+
+.nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+/* Mode badge */
+.mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 3px 9px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  border: 1px solid;
+}
+.mode-badge.social { color: var(--social); border-color: var(--social); background: rgba(129,140,248,0.08); }
+.mode-badge.work   { color: var(--work);   border-color: var(--work);   background: rgba(52,211,153,0.08); }
+
+/* Inline alert */
+.alert {
+  padding: 10px 13px;
+  border-radius: 7px;
+  font-size: 0.68rem;
+  line-height: 1.5;
+  margin-top: 10px;
+  display: none;
+}
+.alert.show { display: block; }
+.alert-warn { background: rgba(251,146,60,0.1); border: 1px solid var(--warn); color: var(--warn); }
+.alert-ok   { background: rgba(52,211,153,0.08); border: 1px solid var(--work); color: var(--work); }
+
+/* ── Install banner ── */
+.install-banner {
+  display: none;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(129,140,248,0.08);
+  border: 1px solid rgba(129,140,248,0.3);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  animation: fadeUp 0.3s ease;
+}
+.install-banner.show { display: flex; }
+.install-banner-icon { font-size: 1.4rem; flex-shrink: 0; line-height: 1; }
+.install-banner-body { flex: 1; }
+.install-banner-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--social);
+  margin-bottom: 3px;
+}
+.install-banner-sub { font-size: 0.64rem; color: var(--muted); line-height: 1.5; }
+.install-banner-ios { font-size: 0.64rem; color: var(--muted); line-height: 1.7; margin-top: 4px; }
+.install-banner-ios strong { color: var(--text); }
+.install-banner-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.install-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid;
+}
+.install-btn-primary { background: var(--social); color: #fff; border-color: var(--social); }
+.install-btn-primary:hover { background: #6875f5; }
+.install-btn-ghost { background: transparent; color: var(--muted); border-color: var(--border); }
+.install-btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+
+/* Reminder strip */
+.reminder-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(52,211,153,0.06);
+  border: 1px solid rgba(52,211,153,0.2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  font-size: 0.64rem;
+  color: var(--muted);
+}
+.reminder-strip a {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--work);
+  text-decoration: none;
+  border: 1px solid rgba(52,211,153,0.4);
+  padding: 4px 10px;
+  border-radius: 5px;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.reminder-strip a:hover { background: rgba(52,211,153,0.1); }
+
+/* ── Accessibility ── */
+body.dyslexic-mode,
+body.dyslexic-mode * {
+  font-family: 'OpenDyslexic', sans-serif !important;
+  line-height: 1.6 !important;
+  letter-spacing: 0.01em !important;
+}
+
+.a11y-bar {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 200;
+}
+
+.a11y-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  font-family: 'DM Mono', monospace;
+}
+.a11y-btn:hover { border-color: var(--text); color: var(--text); }
+.a11y-btn.active { border-color: var(--social); color: var(--social); background: rgba(129,140,248,0.14); }
+
+/* Font size levels via root scaling — all rem values scale with it */
+html.font-lg { font-size: 19px; }
+html.font-xl { font-size: 22px; }
+
+/* Mic button */
+.input-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.input-wrap input[type="text"] { flex: 1; min-width: 0; margin-bottom: 0; }
+
+.mic-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  touch-action: manipulation;
+}
+.mic-btn:hover { border-color: var(--social); color: var(--social); }
+.mic-btn.active { border-color: var(--danger); color: var(--danger); background: rgba(248,113,113,0.12); animation: mic-pulse 1s infinite; }
+@keyframes mic-pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.7; transform:scale(0.93); } }
+
+.mic-status {
+  width: 100%;
+  font-size: 0.6rem;
+  line-height: 1.4;
+  min-height: 0;
+  padding: 0 2px;
+  transition: color 0.2s;
+}
+
+/* Read button */
+.read-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.54rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  margin-left: 10px;
+  transition: all 0.15s;
+  vertical-align: middle;
+}
+.read-btn:hover { border-color: var(--muted); color: var(--text); }
+.read-btn.reading { border-color: var(--social); color: var(--social); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <a href="/" class="back-link">← All Toolkits</a>
+
+  <!-- Install banner -->
+  <div class="install-banner" id="installBanner">
+    <div class="install-banner-icon">📱</div>
+    <div class="install-banner-body">
+      <div class="install-banner-title">Add to home screen</div>
+      <div class="install-banner-sub" id="installSub">One tap away next time — works offline too.</div>
+      <div class="install-banner-ios" id="iosInstructions" style="display:none">
+        Tap <strong>Share ↑</strong> at the bottom of Safari, then tap <strong>Add to Home Screen</strong>. Done.
+      </div>
+      <div class="install-banner-actions">
+        <button class="install-btn install-btn-primary" id="installBtn" onclick="doInstall()" style="display:none">Install app</button>
+        <button class="install-btn install-btn-ghost" onclick="dismissInstall()">Not now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reminder strip -->
+  <div class="reminder-strip" id="reminderStrip">
+    <span>📅 Forget to open this? Set a daily reminder.</span>
+    <a href id="reminderLink" target="_blank" rel="noopener">Add to calendar</a>
+  </div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-label">AuDHD Comfort Zone Toolkit</div>
+    <h1><span class="au">Au</span><span class="dhd">DHD</span> — two modes, one brain</h1>
+    <p class="header-sub">Autism + ADHD pull in opposite directions. Pick what you need right now.</p>
+  </div>
+
+  <!-- Mode selector -->
+  <div class="mode-select" id="modeSelect">
+    <div class="mode-card social" onclick="selectMode('social')">
+      <div class="mode-icon">🫂</div>
+      <div class="mode-name">Social Entry</div>
+      <div class="mode-desc">Before people interactions. Check your energy, prep a soft exit, plan recovery.</div>
+    </div>
+    <div class="mode-card work" onclick="selectMode('work')">
+      <div class="mode-icon">🚀</div>
+      <div class="mode-name">Work Ramp</div>
+      <div class="mode-desc">Stuck starting. Sensory setup → micro-commitments → you're in.</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SOCIAL FLOW                                                 -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="flow" id="socialFlow">
+
+    <div class="mode-badge social">🫂 Social Entry</div>
+
+    <div class="progress-wrap">
+      <div class="progress-steps" id="socialSteps">
+        <div class="progress-step social active" data-p="0">① Tank</div>
+        <div class="progress-step" data-p="1">② Situation</div>
+        <div class="progress-step" data-p="2">③ Prep</div>
+        <div class="progress-step" data-p="3">④ Recovery</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill social" id="socialFill" style="width:0%"></div></div>
+    </div>
+
+    <!-- S-PHASE 0: Tank check -->
+    <div class="phase visible" id="s0">
+      <div class="phase-label">Phase 1 of 4</div>
+      <div class="phase-title">Check your tank</div>
+      <div class="phase-sub">Before you commit to any social situation, know how much you have. Social costs 5–8× more spoons for AuDHD.</div>
+
+      <div class="card">
+        <div class="card-label">Spoons right now — click to set your level</div>
+        <div class="spoon-track" id="spoonTrack"></div>
+        <div class="spoon-status" id="spoonStatus"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">What's already spent today?</div>
+        <div class="drain-tags" id="drainTags">
+          <button class="drain-tag" onclick="toggleDrain(this)">Work / meetings</button>
+          <button class="drain-tag" onclick="toggleDrain(this)">Commute / travel</button>
+          <button class="drain-tag" onclick="toggleDrain(this)">Masking earlier</button>
+          <button class="drain-tag" onclick="toggleDrain(this)">Sensory overload</button>
+          <button class="drain-tag" onclick="toggleDrain(this)">Emotional event</button>
+          <button class="drain-tag" onclick="toggleDrain(this)">Poor sleep</button>
+          <button class="drain-tag" onclick="toggleDrain(this)">Physical pain</button>
+        </div>
+      </div>
+
+      <div class="alert alert-warn" id="lowSpoonAlert">
+        ⚠ Low energy detected. Consider: async alternative (text/email), shorter version, or reschedule. If you must go — plan a shorter stay and a hard exit time.
+      </div>
+
+      <div class="nav-row">
+        <button class="btn btn-ghost" onclick="resetAll()">← Change mode</button>
+        <button class="btn btn-social" onclick="sGoPhase(1)">Next →</button>
+      </div>
+    </div>
+
+    <!-- S-PHASE 1: Situation -->
+    <div class="phase" id="s1">
+      <div class="phase-label">Phase 2 of 4</div>
+      <div class="phase-title">Profile the situation</div>
+      <div class="phase-sub">So you can budget, not just guess. Spoon cost auto-calculates below.</div>
+
+      <div class="card">
+        <div class="card-label">Type of interaction</div>
+        <div class="chip-group" id="siType">
+          <button class="chip" onclick="setSiChip('type',this,2)">Work meeting</button>
+          <button class="chip" onclick="setSiChip('type',this,3)">Social event</button>
+          <button class="chip" onclick="setSiChip('type',this,1)">1-on-1</button>
+          <button class="chip" onclick="setSiChip('type',this,2)">Phone / video</button>
+          <button class="chip" onclick="setSiChip('type',this,1)">Online chat</button>
+          <button class="chip" onclick="setSiChip('type',this,4)">Party / crowd</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">How many people?</div>
+        <div class="chip-group" id="siSize">
+          <button class="chip" onclick="setSiChip('size',this,0)">Just 1</button>
+          <button class="chip" onclick="setSiChip('size',this,1)">2–5</button>
+          <button class="chip" onclick="setSiChip('size',this,2)">6–15</button>
+          <button class="chip" onclick="setSiChip('size',this,3)">15+</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">How long?</div>
+        <div class="chip-group" id="siDuration">
+          <button class="chip" onclick="setSiChip('duration',this,1)">15 min</button>
+          <button class="chip" onclick="setSiChip('duration',this,1)">30 min</button>
+          <button class="chip" onclick="setSiChip('duration',this,2)">1 hour</button>
+          <button class="chip" onclick="setSiChip('duration',this,3)">2+ hours</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Sensory environment</div>
+        <div class="chip-group" id="siSensory">
+          <button class="chip" onclick="setSiChip('sensory',this,0)">Quiet / controlled</button>
+          <button class="chip" onclick="setSiChip('sensory',this,1)">Moderate noise</button>
+          <button class="chip" onclick="setSiChip('sensory',this,3)">Loud / unpredictable</button>
+        </div>
+      </div>
+
+      <div class="cost-estimate">
+        <div class="cost-number" id="costNumber" style="color: var(--spoon)">—</div>
+        <div>
+          <div class="cost-label">Estimated spoon cost<br>You have <strong id="costHave">?</strong> available</div>
+          <div class="cost-warning" id="costWarning" style="display:none"></div>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn btn-ghost" onclick="sGoPhase(0)">← Back</button>
+        <button class="btn btn-social" onclick="sGoPhase(2)">Next →</button>
+      </div>
+    </div>
+
+    <!-- S-PHASE 2: Prep -->
+    <div class="phase" id="s2">
+      <div class="phase-label">Phase 3 of 4</div>
+      <div class="phase-title">Prep the entry</div>
+      <div class="phase-sub">Three minutes now saves hours of post-shame spiral later.</div>
+
+      <div class="card">
+        <label class="field-label">Interest anchor — what shared topic can you lean on?</label>
+        <input type="text" id="interestAnchor" placeholder="e.g. Databases, the project we're both on, coffee, a show...">
+        <div style="font-size:0.6rem;color:var(--muted)">If conversation stalls, redirect here. No interest anchor = higher masking cost.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Pre-script 2 conversation starters</div>
+        <div style="font-size:0.6rem;color:var(--muted);margin-bottom:8px">Write them out so ADHD impulsivity doesn't run the show.</div>
+        <input type="text" id="script1" placeholder="1. e.g. "How's [project] going for you?"">
+        <input type="text" id="script2" placeholder="2. e.g. "Did you see [thing we both follow]?"">
+      </div>
+
+      <div class="card">
+        <div class="card-label">Masking level expected</div>
+        <div class="chip-group">
+          <button class="chip" onclick="setMasking(this, 0)">Low — safe people</button>
+          <button class="chip" onclick="setMasking(this, 1)">Medium — professional</button>
+          <button class="chip" onclick="setMasking(this, 2)">High — full performance</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Soft exit plan — how will you leave when you need to?</div>
+        <div class="exit-options" id="exitOptions">
+          <label class="exit-option">
+            <input type="radio" name="exit" value="early">
+            <span class="exit-option-text">Leave early — arrive with a fixed end time in mind</span>
+          </label>
+          <label class="exit-option">
+            <input type="radio" name="exit" value="signal">
+            <span class="exit-option-text">Signal to a trusted person (code word, text)</span>
+          </label>
+          <label class="exit-option">
+            <input type="radio" name="exit" value="excuse">
+            <span class="exit-option-text">Prepared excuse ready ("early start tomorrow")</span>
+          </label>
+          <label class="exit-option">
+            <input type="radio" name="exit" value="break">
+            <span class="exit-option-text">Bathroom break reset — 5 min alone when overloaded</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn btn-ghost" onclick="sGoPhase(1)">← Back</button>
+        <button class="btn btn-social" onclick="sGoPhase(3)">Next →</button>
+      </div>
+    </div>
+
+    <!-- S-PHASE 3: Recovery -->
+    <div class="phase" id="s3">
+      <div class="phase-label">Phase 4 of 4</div>
+      <div class="phase-title">Plan the recovery</div>
+      <div class="phase-sub">Schedule it <em>before</em> you go in — not as an afterthought. This is what makes the interaction sustainable.</div>
+
+      <div class="card">
+        <div class="card-label">Suggested recovery time</div>
+        <div class="recovery-time-display" id="recoveryTime">—</div>
+        <div class="recovery-advice" id="recoveryAdvice"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">What does your recovery look like?</div>
+        <div class="recovery-tags">
+          <button class="recovery-tag" onclick="this.classList.toggle('active')">Alone time</button>
+          <button class="recovery-tag" onclick="this.classList.toggle('active')">Special interest</button>
+          <button class="recovery-tag" onclick="this.classList.toggle('active')">Sensory reset</button>
+          <button class="recovery-tag" onclick="this.classList.toggle('active')">Nap / rest</button>
+          <button class="recovery-tag" onclick="this.classList.toggle('active')">Nature / walk</button>
+          <button class="recovery-tag" onclick="this.classList.toggle('active')">Stim activity</button>
+          <button class="recovery-tag" onclick="this.classList.toggle('active')">Screen time</button>
+          <button class="recovery-tag" onclick="this.classList.toggle('active')">Quiet music</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Summary — what you're walking in with</div>
+        <div id="socialSummary"></div>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn btn-ghost" onclick="sGoPhase(2)">← Back</button>
+        <button class="btn btn-social" id="copyPlanBtn" onclick="copySocialPlan()">⎘ Copy plan — take it with you</button>
+        <button class="btn btn-ghost" onclick="resetAll()">Start over</button>
+      </div>
+    </div>
+
+  </div><!-- /socialFlow -->
+
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- WORK FLOW                                                   -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <div class="flow" id="workFlow">
+
+    <div class="mode-badge work">🚀 Work Ramp</div>
+
+    <div class="progress-wrap">
+      <div class="progress-steps">
+        <div class="progress-step work active" data-p="0">① Block</div>
+        <div class="progress-step" data-p="1">② Senses</div>
+        <div class="progress-step" data-p="2">③ Ramp</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill work" id="workFill" style="width:0%"></div></div>
+    </div>
+
+    <!-- W-PHASE 0: What's blocking -->
+    <div class="phase visible" id="w0">
+      <div class="phase-label">Phase 1 of 3</div>
+      <div class="phase-title">What's blocking you?</div>
+      <div class="phase-sub">AuDHD has two freeze types. Knowing which helps pick the right unblock.</div>
+
+      <div class="card">
+        <div class="card-label">Pick what feels closest right now</div>
+        <div class="block-type-grid">
+          <div class="block-type-card" onclick="selectBlock(this,'inertia')">
+            <div class="block-type-icon">🧱</div>
+            <div class="block-type-name">Autistic Inertia</div>
+            <div class="block-type-desc">I know what to do. My brain won't shift into that state. I'm stuck in the previous thing.</div>
+          </div>
+          <div class="block-type-card" onclick="selectBlock(this,'paralysis')">
+            <div class="block-type-icon">🌀</div>
+            <div class="block-type-name">ADHD Paralysis</div>
+            <div class="block-type-desc">Task feels unclear, too big, or emotionally loaded. I don't know where to start.</div>
+          </div>
+          <div class="block-type-card" onclick="selectBlock(this,'both')">
+            <div class="block-type-icon">🔥</div>
+            <div class="block-type-name">Both at once</div>
+            <div class="block-type-desc">Stuck transitioning AND the task itself is overwhelming. Double freeze.</div>
+          </div>
+          <div class="block-type-card" onclick="selectBlock(this,'sensory')">
+            <div class="block-type-icon">📡</div>
+            <div class="block-type-name">Sensory / environment</div>
+            <div class="block-type-desc">The space is wrong. I can't settle into work until this is fixed first.</div>
+          </div>
+        </div>
+        <div class="alert alert-ok show" id="blockAdvice" style="display:none!important"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Current energy for focused work</div>
+        <div class="energy-grid">
+          <button class="energy-btn" onclick="selectEnergy(this,'high')">
+            <span class="energy-icon">⚡</span>
+            <span class="energy-label">High</span>
+          </button>
+          <button class="energy-btn" onclick="selectEnergy(this,'medium')">
+            <span class="energy-icon">🔋</span>
+            <span class="energy-label">Medium</span>
+          </button>
+          <button class="energy-btn" onclick="selectEnergy(this,'low')">
+            <span class="energy-icon">🪫</span>
+            <span class="energy-label">Low</span>
+          </button>
+          <button class="energy-btn" onclick="selectEnergy(this,'fumes')">
+            <span class="energy-icon">😶</span>
+            <span class="energy-label">Fumes</span>
+          </button>
+        </div>
+        <div class="alert alert-warn" id="fumeAlert" style="display:none">
+          Running on fumes → try body doubling (another person nearby), a 10-min walk first, or a 20-min nap before the ramp.
+        </div>
+      </div>
+
+      <div class="card">
+        <label class="field-label">What do you need to start? (one line)</label>
+        <input type="text" id="taskLine" placeholder="e.g. Write the ClickHouse schema draft" style="margin-bottom:0">
+      </div>
+
+      <div class="nav-row">
+        <button class="btn btn-ghost" onclick="resetAll()">← Change mode</button>
+        <button class="btn btn-work" onclick="wGoPhase(1)">Next →</button>
+      </div>
+    </div>
+
+    <!-- W-PHASE 1: Sensory setup -->
+    <div class="phase" id="w1">
+      <div class="phase-label">Phase 2 of 3</div>
+      <div class="phase-title">Sensory setup</div>
+      <div class="phase-sub">Sensory dysregulation blocks task initiation completely. Get the environment right before touching the work. Don't skip this.</div>
+
+      <div class="card">
+        <div class="card-label">Check each item — your body before the task</div>
+        <div class="sense-list" id="senseList">
+
+          <label class="sense-item" onclick="updateSenseProgress()">
+            <input type="checkbox">
+            <div class="sense-text">
+              Noise is handled
+              <span class="sense-hint">Headphones on, white noise, earplugs — whatever works for you</span>
+            </div>
+          </label>
+
+          <label class="sense-item" onclick="updateSenseProgress()">
+            <input type="checkbox">
+            <div class="sense-text">
+              Lighting feels okay
+              <span class="sense-hint">Not too bright, no flicker, no harsh overhead if possible</span>
+            </div>
+          </label>
+
+          <label class="sense-item" onclick="updateSenseProgress()">
+            <input type="checkbox">
+            <div class="sense-text">
+              Hunger / thirst addressed
+              <span class="sense-hint">Get the drink or snack now, before starting</span>
+            </div>
+          </label>
+
+          <label class="sense-item" onclick="updateSenseProgress()">
+            <input type="checkbox">
+            <div class="sense-text">
+              Temperature okay
+              <span class="sense-hint">Too cold or too warm both break focus faster for sensory brains</span>
+            </div>
+          </label>
+
+          <label class="sense-item" onclick="updateSenseProgress()">
+            <input type="checkbox">
+            <div class="sense-text">
+              Stim item nearby (if helpful)
+              <span class="sense-hint">Fidget, stress ball, textured object — reduces background sensory seeking</span>
+            </div>
+          </label>
+
+          <label class="sense-item" onclick="updateSenseProgress()">
+            <input type="checkbox">
+            <div class="sense-text">
+              Phone / notifications off or on focus mode
+              <span class="sense-hint">AuDHD brains take much longer to return to task after interruption</span>
+            </div>
+          </label>
+
+          <label class="sense-item" onclick="updateSenseProgress()">
+            <input type="checkbox">
+            <div class="sense-text">
+              The space feels safe enough to work
+              <span class="sense-hint">Autism needs a sense of safety before the brain will switch modes</span>
+            </div>
+          </label>
+
+        </div>
+        <div class="sense-progress" id="senseProgress">0 / 7 checked</div>
+      </div>
+
+      <div class="alert alert-ok" id="senseOkAlert">
+        ✓ Environment is set. Your brain has a better chance of switching into work mode now.
+      </div>
+
+      <div class="nav-row">
+        <button class="btn btn-ghost" onclick="wGoPhase(0)">← Back</button>
+        <button class="btn btn-work" onclick="wGoPhase(2)">Start the ramp →</button>
+      </div>
+    </div>
+
+    <!-- W-PHASE 2: The ramp -->
+    <div class="phase" id="w2">
+      <div class="phase-label">Phase 3 of 3</div>
+      <div class="phase-title">The ramp</div>
+      <div class="phase-sub">Three micro-commitments. Each one smaller than it sounds. Don't jump ahead.</div>
+
+      <div class="ramp-steps" id="rampSteps">
+
+        <div class="ramp-step current" id="ramp0">
+          <div class="ramp-num">Step 1 of 3</div>
+          <div class="ramp-text" id="ramp0text">Just open it</div>
+          <div class="ramp-hint" id="ramp0hint">Open the file, doc, or tool. Don't read it yet. Don't touch it. Just open it.</div>
+          <button class="ramp-done-btn" onclick="completeRamp(0)">Done ✓</button>
+        </div>
+
+        <div class="ramp-step" id="ramp1">
+          <div class="ramp-num">Step 2 of 3</div>
+          <div class="ramp-text">Just read the first thing</div>
+          <div class="ramp-hint">Scroll to the top. Read the first line, the first comment, the first heading. That's it.</div>
+          <button class="ramp-done-btn" onclick="completeRamp(1)">Done ✓</button>
+        </div>
+
+        <div class="ramp-step" id="ramp2">
+          <div class="ramp-num">Step 3 of 3</div>
+          <div class="ramp-text">Do the one smallest thing</div>
+          <div class="ramp-hint" id="ramp2hint">One line of code. One sentence. One row in the schema. Just one.</div>
+          <button class="ramp-done-btn" onclick="completeRamp(2)">Done ✓</button>
+        </div>
+
+      </div>
+
+      <div class="ramp-complete" id="rampComplete">
+        <div class="ramp-complete-title">You're in. 🎯</div>
+        <div class="ramp-complete-sub">The inertia is broken. Keep going — don't stop to celebrate too long or you'll lose the state.</div>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn btn-ghost" onclick="wGoPhase(1)">← Back</button>
+        <button class="btn btn-ghost" onclick="resetAll()">Start over</button>
+      </div>
+    </div>
+
+  </div><!-- /workFlow -->
+
+</div><!-- /app -->
+
+<!-- Accessibility bar -->
+<div class="a11y-bar">
+  <button class="a11y-btn" id="fontSizeBtn" onclick="cycleFontSize()" title="Text size: Normal">A</button>
+  <button class="a11y-btn" id="dyslexiaBtn" onclick="toggleDyslexiaFont()" title="Dyslexia-friendly font">Aa</button>
+  <button class="a11y-btn" id="ttsStopBtn" onclick="stopReading()" title="Stop reading" style="display:none">■</button>
+</div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────
+let mode = null;
+let spoons = 0;
+let maskingCost = 0;
+let siCosts = { type: 0, size: 0, duration: 0, sensory: 0 };
+let sPhase = 0;
+let wPhase = 0;
+let blockType = null;
+let energyLevel = null;
+let rampDone = [false, false, false];
+
+// ── Autosave: the session survives a refresh / app close ─────────────────
+const SESSION_KEY = 'audhd-session-v1';
+let restoring = false;
+
+function collectState() {
+  const activeIdx = sel => [...document.querySelectorAll(sel)].map((el, i) => el.classList.contains('active') ? i : -1).filter(i => i >= 0);
+  const texts = {};
+  ['interestAnchor','script1','script2','taskLine'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) texts[id] = el.value;
+  });
+  return {
+    mode, sPhase, wPhase, spoons,
+    drains:   activeIdx('#drainTags .drain-tag'),
+    type:     activeIdx('#siType .chip')[0] ?? -1,
+    size:     activeIdx('#siSize .chip')[0] ?? -1,
+    duration: activeIdx('#siDuration .chip')[0] ?? -1,
+    sensory:  activeIdx('#siSensory .chip')[0] ?? -1,
+    masking:  activeIdx('#s2 .chip-group .chip')[0] ?? -1,
+    exit:     document.querySelector('input[name=exit]:checked')?.value || '',
+    recovery: activeIdx('.recovery-tags .recovery-tag'),
+    block:    activeIdx('.block-type-card')[0] ?? -1,
+    energy:   activeIdx('.energy-btn')[0] ?? -1,
+    senses:   [...document.querySelectorAll('#senseList input[type=checkbox]')].map(c => c.checked),
+    rampDone: [...rampDone],
+    texts,
+  };
+}
+
+function saveState() {
+  if (restoring) return;
+  if (!mode) { localStorage.removeItem(SESSION_KEY); return; }
+  localStorage.setItem(SESSION_KEY, JSON.stringify(collectState()));
+}
+
+function restoreState(s) {
+  restoring = true;
+  try {
+    selectMode(s.mode);
+    const clickIdx = (sel, i) => { if (i >= 0) { const els = document.querySelectorAll(sel); if (els[i]) els[i].click(); } };
+
+    if (s.spoons > 0) clickIdx('.spoon-dot', s.spoons - 1);
+    (s.drains || []).forEach(i => clickIdx('#drainTags .drain-tag', i));
+    clickIdx('#siType .chip', s.type);
+    clickIdx('#siSize .chip', s.size);
+    clickIdx('#siDuration .chip', s.duration);
+    clickIdx('#siSensory .chip', s.sensory);
+    clickIdx('#s2 .chip-group .chip', s.masking);
+    if (s.exit) { const r = document.querySelector(`input[name=exit][value="${s.exit}"]`); if (r) r.checked = true; }
+    (s.recovery || []).forEach(i => clickIdx('.recovery-tags .recovery-tag', i));
+    clickIdx('.block-type-card', s.block);
+    clickIdx('.energy-btn', s.energy);
+    Object.entries(s.texts || {}).forEach(([id, v]) => { const el = document.getElementById(id); if (el) el.value = v; });
+    [...document.querySelectorAll('#senseList input[type=checkbox]')].forEach((c, i) => c.checked = !!(s.senses && s.senses[i]));
+    updateSenseProgress();
+
+    if (s.mode === 'social') {
+      sGoPhase(s.sPhase || 0);
+    } else {
+      wGoPhase(s.wPhase || 0);
+      // wGoPhase(2) resets the ramp — replay completed steps after
+      if ((s.wPhase || 0) === 2 && Array.isArray(s.rampDone)) {
+        s.rampDone.forEach((done, i) => { if (done) completeRamp(i); });
+      }
+    }
+  } finally { restoring = false; }
+  saveState();
+}
+
+function initSession() {
+  const wantMode = location.hash === '#work' ? 'work' : location.hash === '#social' ? 'social' : null;
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch (_) {}
+  if (saved && saved.mode && (!wantMode || saved.mode === wantMode)) restoreState(saved);
+  else if (wantMode) selectMode(wantMode);
+}
+
+// Delegated autosave — runs after the original click/input handlers finish
+document.addEventListener('click',  () => setTimeout(saveState, 30));
+document.addEventListener('input',  () => setTimeout(saveState, 30));
+document.addEventListener('change', () => setTimeout(saveState, 30));
+
+// ── Copy the social plan — take it into the situation ─────────────────────
+function copySocialPlan() {
+  const v = id => document.getElementById(id).value.trim() || '(not set)';
+  const exit = document.querySelector('input[name=exit]:checked');
+  const exitLabels = { early: 'Leave early — fixed end time', signal: 'Signal a trusted person', excuse: 'Prepared excuse ready', break: 'Bathroom break reset' };
+  const masking = ['Low','Medium','High'][maskingCost] || '(not selected)';
+  const cost = siCosts.type + siCosts.size + siCosts.duration + siCosts.sensory;
+  const recoveryTags = [...document.querySelectorAll('.recovery-tags .recovery-tag.active')].map(b => b.textContent).join(', ') || '(not chosen)';
+  const recoveryTime = document.getElementById('recoveryTime').textContent;
+
+  const text = [
+    'SOCIAL ENTRY PLAN',
+    '=================',
+    `Spoons in: ${spoons}/10 · Session cost: ~${cost} spoons · Masking: ${masking}`,
+    '',
+    `Interest anchor: ${v('interestAnchor')}`,
+    `Opener 1: ${v('script1')}`,
+    `Opener 2: ${v('script2')}`,
+    `Exit plan: ${exit ? exitLabels[exit.value] : '(not selected)'}`,
+    '',
+    `RECOVERY AFTER: ${recoveryTime} — ${recoveryTags}`,
+  ].join('\n');
+
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyPlanBtn');
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = orig, 1800);
+  });
+}
+
+// ── Mode select ───────────────────────────────────────────────────────────
+function selectMode(m) {
+  mode = m;
+  document.getElementById('modeSelect').style.display = 'none';
+  document.getElementById('socialFlow').classList.toggle('active', m === 'social');
+  document.getElementById('workFlow').classList.toggle('active', m === 'work');
+}
+
+function resetAll() {
+  localStorage.removeItem(SESSION_KEY);
+  mode = null;
+  spoons = 0; maskingCost = 0; siCosts = {type:0,size:0,duration:0,sensory:0};
+  sPhase = 0; wPhase = 0; blockType = null; energyLevel = null;
+  rampDone = [false, false, false];
+
+  document.getElementById('modeSelect').style.display = 'grid';
+  document.getElementById('socialFlow').classList.remove('active');
+  document.getElementById('workFlow').classList.remove('active');
+
+  // Reset social
+  document.querySelectorAll('.phase').forEach(p => p.classList.remove('visible'));
+  ['s0','w0'].forEach(id => { const el=document.getElementById(id); if(el) el.classList.add('visible'); });
+  document.querySelectorAll('.chip,.drain-tag,.recovery-tag').forEach(e => e.classList.remove('active','social','work'));
+  document.querySelectorAll('.block-type-card,.energy-btn').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('input[type=text],textarea').forEach(e => e.value='');
+  document.querySelectorAll('input[type=radio]').forEach(e => e.checked=false);
+  document.querySelectorAll('.sense-item input[type=checkbox]').forEach(e => e.checked=false);
+  document.querySelectorAll('.sense-item').forEach(e => e.classList.remove('checked'));
+
+  spoons = 0; renderSpoons();
+  updateCost();
+  updateSenseProgress();
+  resetRamp();
+
+  // Progress bars
+  document.getElementById('socialFill').style.width = '0%';
+  document.getElementById('workFill').style.width = '0%';
+  document.querySelectorAll('.progress-step').forEach(s => { s.classList.remove('active','done','social','work'); });
+  const sSteps = document.querySelectorAll('#socialFlow .progress-step');
+  const wSteps = document.querySelectorAll('#workFlow .progress-step');
+  if (sSteps[0]) sSteps[0].classList.add('active','social');
+  if (wSteps[0]) wSteps[0].classList.add('active','work');
+}
+
+// ── Spoons ────────────────────────────────────────────────────────────────
+function buildSpoons() {
+  const track = document.getElementById('spoonTrack');
+  track.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'spoon-dot';
+    dot.textContent = i + 1;
+    dot.addEventListener('click', () => { spoons = i + 1; renderSpoons(); updateCost(); });
+    track.appendChild(dot);
+  }
+}
+
+function renderSpoons() {
+  document.querySelectorAll('.spoon-dot').forEach((d, i) => {
+    d.classList.remove('filled','warn','danger');
+    if (i < spoons) {
+      d.classList.add('filled');
+      if (spoons <= 3) d.classList.add('danger');
+      else if (spoons <= 5) d.classList.add('warn');
+    }
+  });
+  const status = document.getElementById('spoonStatus');
+  const alert  = document.getElementById('lowSpoonAlert');
+  if (spoons === 0) {
+    status.textContent = '';
+    alert.classList.remove('show');
+  } else if (spoons <= 3) {
+    status.innerHTML = `<span style="color:var(--danger)">⚠ ${spoons}/10 — critically low. Social will empty you. Consider rescheduling or going async.</span>`;
+    alert.classList.add('show');
+  } else if (spoons <= 5) {
+    status.innerHTML = `<span style="color:var(--warn)">⚠ ${spoons}/10 — low. Budget carefully. Plan a firm exit time.</span>`;
+    alert.classList.add('show');
+  } else {
+    status.innerHTML = `<span style="color:var(--work)">✓ ${spoons}/10 — enough to proceed with a plan.</span>`;
+    alert.classList.remove('show');
+  }
+  document.getElementById('costHave').textContent = spoons || '?';
+}
+
+function toggleDrain(btn) {
+  btn.classList.toggle('active');
+  // Each drain tag costs 0.5 spoon equivalent — just visual feedback
+}
+
+// ── Situation chips ───────────────────────────────────────────────────────
+function setSiChip(group, btn, cost) {
+  document.querySelectorAll(`#si${group.charAt(0).toUpperCase()+group.slice(1)} .chip`).forEach(c => c.classList.remove('active','social'));
+  btn.classList.add('active','social');
+  siCosts[group] = cost;
+  updateCost();
+}
+
+function updateCost() {
+  const total = siCosts.type + siCosts.size + siCosts.duration + siCosts.sensory;
+  const el = document.getElementById('costNumber');
+  const warn = document.getElementById('costWarning');
+  if (Object.values(siCosts).every(v => v === 0)) {
+    el.textContent = '—';
+    el.style.color = 'var(--spoon)';
+    warn.style.display = 'none';
+    return;
+  }
+  el.textContent = total;
+  el.style.color = total > spoons ? 'var(--danger)' : total >= spoons - 1 ? 'var(--warn)' : 'var(--work)';
+  if (spoons > 0 && total > spoons) {
+    warn.textContent = `This costs more than you have (${spoons} spoons). You'll be in deficit.`;
+    warn.style.display = 'block';
+  } else if (spoons > 0 && total >= spoons - 1) {
+    warn.textContent = `This will nearly empty your tank. Plan recovery immediately after.`;
+    warn.style.display = 'block';
+  } else {
+    warn.style.display = 'none';
+  }
+}
+
+function setMasking(btn, cost) {
+  document.querySelectorAll('#s2 .chip-group .chip').forEach(c => c.classList.remove('active','social'));
+  btn.classList.add('active','social');
+  maskingCost = cost;
+}
+
+// ── Recovery calculation ──────────────────────────────────────────────────
+function calcRecovery() {
+  const totalCost = siCosts.type + siCosts.size + siCosts.duration + siCosts.sensory + maskingCost;
+  let mins = totalCost * 20;
+  if (spoons <= 4) mins = Math.round(mins * 1.5);
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  const time = h > 0 ? `${h}h ${m > 0 ? m + 'm' : ''}` : `${m}m`;
+  document.getElementById('recoveryTime').textContent = time;
+  let advice = `Based on your spoon level (${spoons}/10) and session profile. `;
+  if (maskingCost >= 2) advice += 'High masking adds significant recovery cost — be strict about this time.';
+  else if (totalCost >= 7) advice += 'Heavy session — guard this recovery time, don\'t let it get eaten by other tasks.';
+  else advice += 'Schedule this block now, before the event.';
+  document.getElementById('recoveryAdvice').textContent = advice;
+}
+
+function buildSocialSummary() {
+  const anchor = document.getElementById('interestAnchor').value.trim() || '(not set)';
+  const s1 = document.getElementById('script1').value.trim() || '(not set)';
+  const s2 = document.getElementById('script2').value.trim() || '(not set)';
+  const exit = document.querySelector('input[name=exit]:checked');
+  const exitText = exit ? exit.value : '(not selected)';
+  const masking = ['Low','Medium','High'][maskingCost] || '(not selected)';
+  const cost = siCosts.type + siCosts.size + siCosts.duration + siCosts.sensory;
+
+  document.getElementById('socialSummary').innerHTML = `
+    <div class="summary-section">
+      <div class="summary-row"><div class="summary-key">Spoons in</div><div class="summary-val">${spoons}/10</div></div>
+      <div class="summary-row"><div class="summary-key">Session cost</div><div class="summary-val">~${cost} spoons</div></div>
+      <div class="summary-row"><div class="summary-key">Masking level</div><div class="summary-val">${masking}</div></div>
+      <div class="summary-row"><div class="summary-key">Interest anchor</div><div class="summary-val">${anchor}</div></div>
+      <div class="summary-row"><div class="summary-key">Opener 1</div><div class="summary-val">${s1}</div></div>
+      <div class="summary-row"><div class="summary-key">Opener 2</div><div class="summary-val">${s2}</div></div>
+      <div class="summary-row"><div class="summary-key">Exit plan</div><div class="summary-val">${exitText}</div></div>
+    </div>`;
+}
+
+// ── Social phases ─────────────────────────────────────────────────────────
+function sGoPhase(n) {
+  document.querySelectorAll('#socialFlow .phase').forEach(p => p.classList.remove('visible'));
+  document.getElementById('s' + n).classList.add('visible');
+  sPhase = n;
+
+  const steps = document.querySelectorAll('#socialFlow .progress-step');
+  steps.forEach((s, i) => {
+    s.classList.remove('active','done','social');
+    if (i === n) s.classList.add('active','social');
+    else if (i < n) s.classList.add('done');
+  });
+  document.getElementById('socialFill').style.width = (n / 3 * 100) + '%';
+
+  if (n === 3) { calcRecovery(); buildSocialSummary(); }
+}
+
+// ── Work: block type ──────────────────────────────────────────────────────
+const blockMessages = {
+  inertia:   'Inertia fix: use a physical transition ritual — stand up, drink water, say "switching to [task]" out loud. Then open without reading.',
+  paralysis: 'Paralysis fix: write the task in one sentence. If you can\'t, it\'s too big — break it in half. Then do step 1 only.',
+  both:      'Double freeze: start with the sensory setup and body doubling. Then use the ramp. Don\'t force — ease in.',
+  sensory:   'Sensory first: don\'t touch the work until the environment feels right. Go to Phase 2 now.',
+};
+
+function selectBlock(card, type) {
+  document.querySelectorAll('.block-type-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  blockType = type;
+  const advice = document.getElementById('blockAdvice');
+  advice.textContent = blockMessages[type];
+  advice.style.display = 'block';
+}
+
+function selectEnergy(btn, level) {
+  document.querySelectorAll('.energy-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  energyLevel = level;
+  const alert = document.getElementById('fumeAlert');
+  alert.style.display = level === 'fumes' ? 'block' : 'none';
+}
+
+// ── Work: sensory ─────────────────────────────────────────────────────────
+function updateSenseProgress() {
+  setTimeout(() => {
+    const items = document.querySelectorAll('#senseList .sense-item');
+    let checked = 0;
+    items.forEach(item => {
+      const cb = item.querySelector('input[type=checkbox]');
+      item.classList.toggle('checked', cb.checked);
+      if (cb.checked) checked++;
+    });
+    document.getElementById('senseProgress').textContent = `${checked} / ${items.length} checked`;
+    const okAlert = document.getElementById('senseOkAlert');
+    okAlert.classList.toggle('show', checked >= 5);
+  }, 10);
+}
+
+// ── Work: ramp ────────────────────────────────────────────────────────────
+function resetRamp() {
+  rampDone = [false, false, false];
+  for (let i = 0; i < 3; i++) {
+    const step = document.getElementById('ramp' + i);
+    step.classList.remove('done-step');
+    if (i === 0) step.classList.add('current');
+    else step.classList.remove('current');
+    step.style.opacity = i === 0 ? '1' : '0.4';
+    step.style.pointerEvents = i === 0 ? 'auto' : 'none';
+    step.style.borderColor = i === 0 ? 'var(--work)' : 'var(--border)';
+  }
+  document.getElementById('rampComplete').classList.remove('show');
+
+  // Personalise step 1 with task name
+  const task = document.getElementById('taskLine') ? document.getElementById('taskLine').value.trim() : '';
+  if (task) {
+    document.getElementById('ramp0text').textContent = `Just open: "${task}"`;
+    document.getElementById('ramp0hint').textContent = `Open the file, doc, or tool for "${task}". Don't read it. Don't touch it. Just open it.`;
+    document.getElementById('ramp2hint').textContent = `For "${task}": one line, one row, one sentence. Literally the smallest possible thing.`;
+  }
+}
+
+function completeRamp(i) {
+  rampDone[i] = true;
+  const step = document.getElementById('ramp' + i);
+  step.classList.add('done-step');
+  step.classList.remove('current');
+  step.style.borderColor = 'var(--border)';
+
+  const next = document.getElementById('ramp' + (i + 1));
+  if (next) {
+    next.classList.add('current');
+    next.style.opacity = '1';
+    next.style.pointerEvents = 'auto';
+    next.style.borderColor = 'var(--work)';
+  } else {
+    document.getElementById('rampComplete').classList.add('show');
+  }
+}
+
+// ── Work phases ───────────────────────────────────────────────────────────
+function wGoPhase(n) {
+  document.querySelectorAll('#workFlow .phase').forEach(p => p.classList.remove('visible'));
+  document.getElementById('w' + n).classList.add('visible');
+  wPhase = n;
+
+  const steps = document.querySelectorAll('#workFlow .progress-step');
+  steps.forEach((s, i) => {
+    s.classList.remove('active','done','work');
+    if (i === n) s.classList.add('active','work');
+    else if (i < n) s.classList.add('done');
+  });
+  document.getElementById('workFill').style.width = (n / 2 * 100) + '%';
+
+  if (n === 2) resetRamp();
+}
+
+// ── PWA: Service worker ───────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+// ── PWA: Install prompt ───────────────────────────────────────────────────
+let deferredInstallPrompt = null;
+const INSTALL_DISMISSED_KEY = 'audhd-install-dismissed';
+
+function initInstallPrompt() {
+  // Already installed (standalone mode) — hide everything
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+  if (isStandalone) return;
+
+  // User already dismissed — don't show again
+  if (localStorage.getItem(INSTALL_DISMISSED_KEY)) return;
+
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+
+  if (isIOS) {
+    // iOS Safari: no beforeinstallprompt, show manual instructions
+    document.getElementById('iosInstructions').style.display = 'block';
+    document.getElementById('installSub').textContent = 'Install in 2 taps — no App Store needed.';
+    document.getElementById('installBanner').classList.add('show');
+    return;
+  }
+
+  // Chrome / Edge / Android: wait for browser prompt
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    document.getElementById('installBtn').style.display = 'inline-flex';
+    document.getElementById('installBanner').classList.add('show');
+  });
+}
+
+function doInstall() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.then(choice => {
+    if (choice.outcome === 'accepted') dismissInstall();
+    deferredInstallPrompt = null;
+  });
+}
+
+function dismissInstall() {
+  localStorage.setItem(INSTALL_DISMISSED_KEY, '1');
+  document.getElementById('installBanner').classList.remove('show');
+}
+
+// ── PWA: Calendar reminder link ───────────────────────────────────────────
+function initReminderLink() {
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+  if (isStandalone) {
+    // Already installed — hide the reminder strip
+    const strip = document.getElementById('reminderStrip');
+    if (strip) strip.style.display = 'none';
+    return;
+  }
+
+  const url = window.location.href;
+  const text = encodeURIComponent('AuDHD Toolkit check-in');
+  const details = encodeURIComponent('Open your toolkit before social situations or when stuck starting work.\n\n' + url);
+  const calUrl = `https://calendar.google.com/calendar/r/eventedit?text=${text}&details=${details}&recur=RRULE:FREQ=DAILY&sf=true`;
+  document.getElementById('reminderLink').href = calUrl;
+}
+
+// ── Accessibility: Speech-to-Text ─────────────────────────────────────────
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let activeMic = null;
+
+function initMicButtons() {
+  document.querySelectorAll('input[type="text"]').forEach(input => {
+    const wrap = document.createElement('div');
+    wrap.className = 'input-wrap';
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+
+    const btn = document.createElement('button');
+    btn.className = 'mic-btn';
+    btn.title = 'Speak to fill';
+    btn.innerHTML = '🎤';
+    btn.type = 'button';
+    btn.addEventListener('click', () => toggleMic(input, btn));
+    wrap.appendChild(btn);
+
+    const status = document.createElement('div');
+    status.className = 'mic-status';
+    wrap.appendChild(status);
+  });
+}
+
+function setMicStatus(btnEl, msg, color) {
+  const status = btnEl.parentElement.querySelector('.mic-status');
+  if (!status) return;
+  status.textContent = msg;
+  status.style.color = color || '';
+}
+
+function toggleMic(inputEl, btnEl) {
+  if (!SpeechRecognition) {
+    setMicStatus(btnEl, '⌨️ Use the 🎤 mic key on your keyboard instead', 'var(--muted)');
+    return;
+  }
+
+  if (activeMic && activeMic.btn === btnEl) {
+    activeMic.recognition.stop();
+    return;
+  }
+  if (activeMic) activeMic.recognition.stop();
+
+  const recognition = new SpeechRecognition();
+  recognition.continuous = true;      // keep listening until user taps stop
+  recognition.interimResults = true;  // show text as it's spoken
+  recognition.lang = 'en-US';
+
+  const prefix = inputEl.value ? inputEl.value + ' ' : '';
+  let committed = '';  // final chunks accumulated this session
+
+  recognition.onstart = () => {
+    btnEl.classList.add('active');
+    setMicStatus(btnEl, '🔴 Listening…', 'var(--danger)');
+  };
+
+  recognition.onresult = (e) => {
+    // Only process new results from resultIndex onwards
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) committed += e.results[i][0].transcript + ' ';
+    }
+    const last = e.results[e.results.length - 1];
+    const interim = last.isFinal ? '' : last[0].transcript;
+    inputEl.value = prefix + committed + interim;
+  };
+
+  recognition.onend = () => {
+    btnEl.classList.remove('active');
+    activeMic = null;
+    setMicStatus(btnEl, '');
+  };
+
+  recognition.onerror = (e) => {
+    btnEl.classList.remove('active');
+    activeMic = null;
+    const msgs = {
+      'not-allowed': '🚫 Mic blocked — tap browser address bar → allow microphone',
+      'no-speech':   'Nothing heard — tap mic again and speak',
+      'audio-capture': '🎤 No microphone detected',
+      'network':     '⚠ Network error — try again',
+    };
+    const msg = msgs[e.error] || '⌨️ Not working here — use the 🎤 key on your keyboard';
+    setMicStatus(btnEl, msg, 'var(--warn)');
+    setTimeout(() => setMicStatus(btnEl, ''), 6000);
+  };
+
+  activeMic = { recognition, btn: btnEl };
+  try {
+    recognition.start();
+  } catch (_) {
+    btnEl.classList.remove('active');
+    activeMic = null;
+    setMicStatus(btnEl, '⌨️ Use the 🎤 mic key on your keyboard instead', 'var(--muted)');
+  }
+}
+
+// ── Accessibility: Text-to-Speech ─────────────────────────────────────────
+let ttsReading = false;
+
+function initReadButtons() {
+  document.querySelectorAll('.phase').forEach(phase => {
+    const title = phase.querySelector('.phase-title');
+    if (!title) return;
+
+    const btn = document.createElement('button');
+    btn.className = 'read-btn';
+    btn.innerHTML = '▶ Read';
+    btn.title = 'Read this section aloud';
+    btn.type = 'button';
+    btn.addEventListener('click', () => readPhase(phase, btn));
+    title.appendChild(btn);
+  });
+}
+
+function readPhase(phase, btn) {
+  if (ttsReading) { stopReading(); return; }
+
+  const parts = [];
+  const label = phase.querySelector('.phase-label');
+  if (label) parts.push(label.textContent.trim());
+
+  const title = phase.querySelector('.phase-title');
+  if (title) {
+    const clone = title.cloneNode(true);
+    clone.querySelectorAll('.read-btn').forEach(b => b.remove());
+    parts.push(clone.textContent.trim());
+  }
+
+  const sub = phase.querySelector('.phase-sub');
+  if (sub) parts.push(sub.textContent.trim());
+
+  phase.querySelectorAll('.card-label, .field-label, .block-type-name, .block-type-desc, .ramp-text, .ramp-hint, .sense-text').forEach(el => {
+    const t = el.textContent.trim();
+    if (t) parts.push(t);
+  });
+
+  const utterance = new SpeechSynthesisUtterance(parts.join('. '));
+  utterance.rate = 0.88;
+  utterance.pitch = 1;
+  utterance.lang = 'en-US';
+
+  utterance.onend = () => {
+    ttsReading = false;
+    btn.classList.remove('reading');
+    btn.innerHTML = '▶ Read';
+    document.getElementById('ttsStopBtn').style.display = 'none';
+  };
+
+  ttsReading = true;
+  btn.classList.add('reading');
+  btn.innerHTML = '■ Stop';
+  document.getElementById('ttsStopBtn').style.display = 'flex';
+  speechSynthesis.speak(utterance);
+}
+
+function stopReading() {
+  speechSynthesis.cancel();
+  ttsReading = false;
+  document.querySelectorAll('.read-btn').forEach(b => { b.classList.remove('reading'); b.innerHTML = '▶ Read'; });
+  document.getElementById('ttsStopBtn').style.display = 'none';
+}
+
+// ── Accessibility: Font size ──────────────────────────────────────────────
+const fontSizes = [
+  { key: 'normal', label: 'A',   cls: '',        title: 'Text size: Normal' },
+  { key: 'lg',     label: 'A+',  cls: 'font-lg', title: 'Text size: Large'  },
+  { key: 'xl',     label: 'A++', cls: 'font-xl', title: 'Text size: Extra large' },
+];
+let fontSizeIdx = +(localStorage.getItem('audhd-fontsize') || 0);
+
+function initFontSize() {
+  applyFontSize(fontSizeIdx);
+}
+
+function cycleFontSize() {
+  fontSizeIdx = (fontSizeIdx + 1) % fontSizes.length;
+  localStorage.setItem('audhd-fontsize', fontSizeIdx);
+  applyFontSize(fontSizeIdx);
+}
+
+function applyFontSize(idx) {
+  const html = document.documentElement;
+  fontSizes.forEach(s => { if (s.cls) html.classList.remove(s.cls); });
+  const size = fontSizes[idx];
+  if (size.cls) html.classList.add(size.cls);
+  const btn = document.getElementById('fontSizeBtn');
+  btn.textContent = size.label;
+  btn.title = size.title;
+  btn.classList.toggle('active', idx > 0);
+}
+
+// ── Accessibility: Dyslexia font toggle ───────────────────────────────────
+let dyslexicFont = localStorage.getItem('audhd-dyslexic') === '1';
+
+function initDyslexiaToggle() {
+  const btn = document.getElementById('dyslexiaBtn');
+  if (dyslexicFont) { applyDyslexicFont(true); btn.classList.add('active'); }
+  btn.title = dyslexicFont ? 'Standard font' : 'Dyslexia-friendly font';
+}
+
+function toggleDyslexiaFont() {
+  dyslexicFont = !dyslexicFont;
+  localStorage.setItem('audhd-dyslexic', dyslexicFont ? '1' : '0');
+  applyDyslexicFont(dyslexicFont);
+  const btn = document.getElementById('dyslexiaBtn');
+  btn.classList.toggle('active', dyslexicFont);
+  btn.title = dyslexicFont ? 'Standard font' : 'Dyslexia-friendly font';
+}
+
+function applyDyslexicFont(on) {
+  if (on && !document.getElementById('opendyslexic-css')) {
+    const link = document.createElement('link');
+    link.id = 'opendyslexic-css';
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.cdnfonts.com/css/opendyslexic';
+    document.head.appendChild(link);
+  }
+  document.body.classList.toggle('dyslexic-mode', on);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+buildSpoons();
+updateSenseProgress();
+initInstallPrompt();
+initReminderLink();
+initMicButtons();
+initReadButtons();
+initFontSize();
+initDyslexiaToggle();
+initSession();
+</script>
+</body>
+</html>
