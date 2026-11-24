@@ -128,6 +128,22 @@ footer {
   color: var(--muted);
   letter-spacing: 0.05em;
 }
+.theme-btn { background: none; border: none; color: var(--muted); font: inherit; letter-spacing: 0.05em; cursor: pointer; padding: 8px 4px; min-height: 44px; text-transform: uppercase; }
+.theme-btn:hover { color: var(--text); }
+
+html { font-size: 20px; }
+
+/* ── Light theme ── */
+html[data-theme="light"] {
+  --bg: #f5f0e8;
+  --surface: #ede8de;
+  --border: #d4cbbe;
+  --text: #1a1510;
+  --muted: #6f6355;
+  --accent: #1e7959;
+  --warn: #886713;
+}
+html[data-theme="light"] .skip-link { color: #faf7f2; }
 
 /* ── Accessibility baseline ── */
 .skip-link {
@@ -197,8 +213,45 @@ footer {
 </div>
 </div>
 
-<footer>adhd-tools.artisticmonk.in · privacy &amp; local data</footer>
+<footer>adhd-tools.artisticmonk.in · privacy &amp; local data · <button type="button" id="themeBtn" class="theme-btn">◑ System</button></footer>
 
 </div>
+<script>
+/* Theme v1 (shared pattern — see AGENTS.md §6). System / dark / light. */
+(function themeCtl() {
+  function get() { try { return localStorage.getItem('comfort-theme') || 'system'; } catch (_) { return 'system'; } }
+  function set(v) { try { localStorage.setItem('comfort-theme', v); } catch (_) {} }
+  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+  var meta = document.querySelector('meta[name="theme-color"]');
+  var nativeMeta = meta ? meta.getAttribute('content') : '#0f1117';
+  function effective() {
+    var t = get();
+    if (t === 'light') return 'light';
+    if (t === 'dark') return 'dark';
+    return (mq && mq.matches) ? 'light' : 'dark';
+  }
+  function paint() {
+    var btn = document.getElementById('themeBtn');
+    if (!btn) return;
+    var t = get();
+    btn.textContent = t === 'system' ? '◑ System' : t === 'dark' ? '◑ Dark' : '◑ Light';
+    btn.setAttribute('aria-pressed', t === 'dark' || t === 'light' ? 'true' : 'false');
+  }
+  function apply() {
+    var mode = effective();
+    document.documentElement.setAttribute('data-theme', mode);
+    if (meta) meta.setAttribute('content', mode === 'light' ? '#f5f0e8' : (meta.getAttribute('data-dark') || nativeMeta));
+    paint();
+  }
+  if (mq && mq.addEventListener) mq.addEventListener('change', function () { if (get() === 'system') apply(); });
+  var btn = document.getElementById('themeBtn');
+  if (btn) btn.addEventListener('click', function () {
+    var t = get();
+    set(t === 'system' ? 'dark' : t === 'dark' ? 'light' : 'system');
+    apply();
+  });
+  apply();
+})();
+</script>
 </body>
 </html>

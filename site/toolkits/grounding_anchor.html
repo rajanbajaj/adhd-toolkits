@@ -199,7 +199,7 @@ body {
   border-radius: 8px; cursor: pointer; transition: all 0.15s;
 }
 .sit-step:hover { border-color: var(--tc, var(--ground)); }
-.sit-step input { width: 15px; height: 15px; accent-color: var(--tc, var(--ground)); cursor: pointer; flex-shrink: 0; margin-top: 2px; }
+.sit-step input { width: 20px; height: 20px; accent-color: var(--tc, var(--ground)); cursor: pointer; flex-shrink: 0; margin-top: 2px; }
 .sit-step-txt { font-size: 0.75rem; color: #c4ccc4; line-height: 1.5; }
 .sit-step.done .sit-step-txt { text-decoration: line-through; color: var(--muted); }
 .sit-why {
@@ -232,6 +232,37 @@ body {
   .header h1 { font-size: 1.4rem; }
   .track-btn { font-size: 0.64rem; padding: 8px 12px; }
 }
+html { font-size: 20px; }
+
+/* ── Light theme ── */
+html[data-theme="light"] {
+  --bg: #f5f0e8;
+  --surface: #ede8de;
+  --card: #e7e0d3;
+  --border: #d4cbbe;
+  --text: #1a1510;
+  --muted: #6f6355;
+  --ground: #3a7756;
+  --adhd: #b24b25;
+  --autism: #2d7772;
+  --audhd: #5d65b3;
+  --ocd: #835aab;
+  --anx: #1e7959;
+}
+html[data-theme="light"] .skip-link { color: #faf7f2; }
+html[data-theme="light"] .breath-btn:hover { color: #faf7f2; }
+
+/* ── First-visit coach ── */
+.coach {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px; margin-bottom: 24px;
+}
+.coach-title { font-size: 0.85rem; font-weight: 500; margin-bottom: 10px; }
+.coach ul { list-style: none; padding: 0; margin: 0 0 14px; display: flex; flex-direction: column; gap: 8px; }
+.coach li { font-size: 0.8rem; color: var(--muted); line-height: 1.6; padding-left: 18px; position: relative; }
+.coach li::before { content: '→'; position: absolute; left: 0; color: var(--accent, #818cf8); }
+.coach-btn { font-family: inherit; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 12px 20px; min-height: 44px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text); }
+.coach-btn:hover { border-color: var(--text); }
 /* ── Accessibility baseline ── */
 .skip-link {
   position: absolute; left: 1rem; top: -100px; z-index: 200;
@@ -264,8 +295,8 @@ body.dyslexic-mode * {
   line-height: 1.6 !important;
   letter-spacing: 0.01em !important;
 }
-html.font-lg { font-size: 19px; }
-html.font-xl { font-size: 22px; }
+html.font-lg { font-size: 23px; }
+html.font-xl { font-size: 26px; }
 .a11y-bar {
   position: fixed; bottom: 20px; right: 20px; z-index: 200;
   display: flex; flex-direction: column; gap: 8px;
@@ -298,6 +329,14 @@ html.font-xl { font-size: 22px; }
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 <div class="app" id="main">
+<div class="coach" id="coach" hidden>
+  <p class="coach-title">First time here?</p>
+  <ul>
+    <li>Start with the breathing circle.</li>
+    <li>Then pick the track that matches your brain right now.</li>
+  </ul>
+  <button class="coach-btn" id="coachOk" type="button">Got it — don't show again</button>
+</div>
 
 <a href="/" class="back-link">← All Toolkits</a>
 
@@ -367,10 +406,11 @@ html.font-xl { font-size: 22px; }
 
 <!-- Comfort Settings v1 (shared pattern — see AGENTS.md §6). Preferences persist in localStorage on this device only. -->
 <div class="a11y-bar" role="toolbar" aria-label="Comfort settings — saved only in this browser">
-  <button class="a11y-btn" id="comfortFontBtn" type="button" aria-pressed="false" title="Text size: Normal">A</button>
-  <button class="a11y-btn" id="comfortDyslexiaBtn" type="button" aria-pressed="false" title="Dyslexia-friendly font">Aa</button>
-  <button class="a11y-btn" id="comfortMotionBtn" type="button" aria-pressed="false" title="Reduce motion: off">◐</button>
-  <button class="a11y-btn" id="comfortReadBtn" type="button" aria-pressed="false" title="Read this page aloud">▶</button>
+  <button class="a11y-btn" id="comfortFontBtn" type="button" aria-pressed="false" aria-label="Text size" title="Text size: Normal">A</button>
+  <button class="a11y-btn" id="comfortDyslexiaBtn" type="button" aria-pressed="false" aria-label="Dyslexia-friendly font" title="Dyslexia-friendly font">Aa</button>
+  <button class="a11y-btn" id="comfortMotionBtn" type="button" aria-pressed="false" aria-label="Reduce motion" title="Reduce motion: off">◐</button>
+  <button class="a11y-btn" id="comfortReadBtn" type="button" aria-pressed="false" aria-label="Read this page aloud" title="Read this page aloud">▶</button>
+  <button class="a11y-btn" id="comfortThemeBtn" type="button" aria-pressed="false" aria-label="Color theme" title="Theme: system">◑</button>
 </div>
 
 <script>
@@ -865,6 +905,41 @@ buildTracks();
     });
   }
 
+  /* Theme v1 (shared pattern — see AGENTS.md §6). System / dark / light. */
+  var themeCtl = (function () {
+    function get() { try { return localStorage.getItem('comfort-theme') || 'system'; } catch (_) { return 'system'; } }
+    function set(v) { try { localStorage.setItem('comfort-theme', v); } catch (_) {} }
+    var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+    var meta = document.querySelector('meta[name="theme-color"]');
+    var nativeMeta = meta ? meta.getAttribute('content') : '#0f1117';
+    function effective() {
+      var t = get();
+      if (t === 'light') return 'light';
+      if (t === 'dark') return 'dark';
+      return (mq && mq.matches) ? 'light' : 'dark';
+    }
+    function paint() {
+      var btn = document.getElementById('comfortThemeBtn');
+      if (!btn) return;
+      var t = get();
+      var labels = { system: 'Theme: system', dark: 'Theme: dark', light: 'Theme: light' };
+      btn.title = (labels[t] || labels.system) + ' — tap to change';
+      btn.setAttribute('aria-pressed', t === 'dark' || t === 'light' ? 'true' : 'false');
+      btn.classList.toggle('active', t !== 'system');
+    }
+    function apply() {
+      var mode = effective();
+      document.documentElement.setAttribute('data-theme', mode);
+      if (meta) meta.setAttribute('content', mode === 'light' ? '#f5f0e8' : (meta.getAttribute('data-dark') || nativeMeta));
+      paint();
+    }
+    if (mq && mq.addEventListener) mq.addEventListener('change', function () { if (get() === 'system') apply(); });
+    return { apply: apply, cycle: function () {
+      var t = get();
+      set(t === 'system' ? 'dark' : t === 'dark' ? 'light' : 'system');
+      apply();
+    } };
+  })();
   document.getElementById('comfortFontBtn').addEventListener('click', function () {
     sizeIdx = (sizeIdx + 1) % SIZES.length;
     store.set('comfort-fontsize', String(sizeIdx));
@@ -892,6 +967,23 @@ buildTracks();
   applySize();
   applyDyslexic();
   applyMotion();
+  document.getElementById('comfortThemeBtn').addEventListener('click', function () { themeCtl.cycle(); });
+  themeCtl.apply();
+})();
+/* First-visit coach — shows once, remembers dismissal on this device. */
+(function coach() {
+  var KEY = 'seen-grounding';
+  var seen = false;
+  try { seen = localStorage.getItem(KEY) === '1'; } catch (_) { seen = true; }
+  var box = document.getElementById('coach');
+  if (!box || seen) return;
+  box.hidden = false;
+  var ok = document.getElementById('coachOk');
+  function dismiss() {
+    box.hidden = true;
+    try { localStorage.setItem(KEY, '1'); } catch (_) {}
+  }
+  if (ok) { ok.addEventListener('click', dismiss); ok.focus(); }
 })();
 </script>
 </body>

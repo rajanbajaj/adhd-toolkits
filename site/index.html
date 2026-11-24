@@ -37,7 +37,7 @@
     }
 
     .wrap {
-      max-width: 860px;
+      max-width: 680px;
       margin: 0 auto;
       padding: 0 1.5rem;
     }
@@ -130,7 +130,7 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      grid-template-columns: 1fr;
       gap: 1px;
       border: 1px solid var(--border);
       border-radius: 10px;
@@ -226,7 +226,7 @@
 
     .research-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      grid-template-columns: 1fr;
       gap: 1px;
       border: 1px solid var(--border);
       border-radius: 10px;
@@ -301,7 +301,37 @@
     }
     footer a { color: var(--muted); }
     footer a:hover { color: var(--text); }
+    .theme-btn { background: none; border: none; color: var(--muted); font: inherit; letter-spacing: 0.05em; cursor: pointer; padding: 8px 4px; min-height: 44px; text-transform: uppercase; }
+    .theme-btn:hover { color: var(--text); }
 
+    html { font-size: 20px; }
+    /* ── Light theme ── */
+    html[data-theme="light"] {
+      --bg: #f5f0e8;
+      --surface: #ede8de;
+      --border: #d4cbbe;
+      --text: #1a1510;
+      --muted: #6f6355;
+      --accent: #595cd9;
+    }
+    html[data-theme="light"] .card:hover,
+    html[data-theme="light"] .rcard:hover,
+    html[data-theme="light"] .router-btn:hover { background: #e2d9c8; }
+    html[data-theme="light"] .card-tag,
+    html[data-theme="light"] .card-link,
+    html[data-theme="light"] .rcard-tag,
+    html[data-theme="light"] .rcard-link { filter: brightness(0.54); }
+    /* ── First-visit coach ── */
+    .coach {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 18px; margin-bottom: 24px;
+    }
+    .coach-title { font-size: 0.85rem; font-weight: 500; margin-bottom: 10px; }
+    .coach ul { list-style: none; padding: 0; margin: 0 0 14px; display: flex; flex-direction: column; gap: 8px; }
+    .coach li { font-size: 0.8rem; color: var(--muted); line-height: 1.6; padding-left: 18px; position: relative; }
+    .coach li::before { content: '→'; position: absolute; left: 0; color: var(--accent, #818cf8); }
+    .coach-btn { font-family: inherit; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 12px 20px; min-height: 44px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text); }
+    .coach-btn:hover { border-color: var(--text); }
     /* ── Accessibility baseline ── */
     .skip-link {
       position: absolute; left: 1rem; top: -100px; z-index: 200;
@@ -346,6 +376,14 @@
     </header>
 
     <main id="main">
+      <div class="coach" id="coach" hidden>
+        <p class="coach-title">First time here?</p>
+        <ul>
+          <li>Start with what's happening right now — not the tool names.</li>
+          <li>Everything here is free, private, and saved only in this browser.</li>
+        </ul>
+        <button class="coach-btn" id="coachOk" type="button">Got it — don't show again</button>
+      </div>
       <div class="router">
         <div class="router-title">Start here — what's happening right now?</div>
         <div class="router-grid">
@@ -369,7 +407,7 @@
       <div class="research-grid" id="researchGrid"></div>
     </main>
 
-    <footer>built for my brain · updated as needed · <a href="/accessibility.html">Accessibility</a> · <a href="/privacy.html">Privacy</a></footer>
+    <footer>built for my brain · updated as needed · <a href="/accessibility.html">Accessibility</a> · <a href="/privacy.html">Privacy</a> · <button type="button" id="themeBtn" class="theme-btn">◑ System</button></footer>
   </div>
 
   <script>
@@ -475,5 +513,59 @@
       grid.appendChild(card);
     });
   </script>
+<script>
+/* First-visit coach — shows once, remembers dismissal on this device. */
+(function coach() {
+  var KEY = 'seen-index';
+  var seen = false;
+  try { seen = localStorage.getItem(KEY) === '1'; } catch (_) { seen = true; }
+  var box = document.getElementById('coach');
+  if (!box || seen) return;
+  box.hidden = false;
+  var ok = document.getElementById('coachOk');
+  function dismiss() {
+    box.hidden = true;
+    try { localStorage.setItem(KEY, '1'); } catch (_) {}
+  }
+  if (ok) { ok.addEventListener('click', dismiss); ok.focus(); }
+})();
+</script>
+<script>
+/* Theme v1 (shared pattern — see AGENTS.md §6). System / dark / light. */
+(function themeCtl() {
+  function get() { try { return localStorage.getItem('comfort-theme') || 'system'; } catch (_) { return 'system'; } }
+  function set(v) { try { localStorage.setItem('comfort-theme', v); } catch (_) {} }
+  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+  var meta = document.querySelector('meta[name="theme-color"]');
+  var nativeMeta = meta ? meta.getAttribute('content') : '#0f1117';
+  function effective() {
+    var t = get();
+    if (t === 'light') return 'light';
+    if (t === 'dark') return 'dark';
+    return (mq && mq.matches) ? 'light' : 'dark';
+  }
+  function paint() {
+    var btn = document.getElementById('themeBtn');
+    if (!btn) return;
+    var t = get();
+    btn.textContent = t === 'system' ? '◑ System' : t === 'dark' ? '◑ Dark' : '◑ Light';
+    btn.setAttribute('aria-pressed', t === 'dark' || t === 'light' ? 'true' : 'false');
+  }
+  function apply() {
+    var mode = effective();
+    document.documentElement.setAttribute('data-theme', mode);
+    if (meta) meta.setAttribute('content', mode === 'light' ? '#f5f0e8' : (meta.getAttribute('data-dark') || nativeMeta));
+    paint();
+  }
+  if (mq && mq.addEventListener) mq.addEventListener('change', function () { if (get() === 'system') apply(); });
+  var btn = document.getElementById('themeBtn');
+  if (btn) btn.addEventListener('click', function () {
+    var t = get();
+    set(t === 'system' ? 'dark' : t === 'dark' ? 'light' : 'system');
+    apply();
+  });
+  apply();
+})();
+</script>
 </body>
 </html>

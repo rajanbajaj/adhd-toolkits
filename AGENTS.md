@@ -56,6 +56,16 @@
 - Motion stays minimal: short fades only; nothing that flashes, jolts, or autoplays.
 - SEO: every page needs a descriptive `<title>`; new public pages get a `sitemap.xml` entry.
 
+### Away alerts (v1)
+
+- Timer pages (transition, focus, session) share the `awayAlert` helper: gentle chime, OS notification when the tab is hidden, wake lock while running (`Away alerts v1` marker). Notification needs one user tap; sound defaults on with a visible toggle. Keep element IDs and key names byte-identical when copying.
+
+### Theme v1 (dark / light / system)
+
+- Every page sets `data-theme` (`light`|`dark`) from the shared `comfort-theme` key (default `system`, follows the OS, live-updates on OS change); `theme-color` meta follows the mode. Toolkits toggle via the ◑ comfort-bar button, static pages via the footer ◑ button.
+- Dark-native pages carry `html[data-theme="light"]` overrides (paper surfaces + darkened accent twins, all ≥4.5:1 on paper); the light-native Good Enough page carries the inverse `html[data-theme="dark"]` block. Accent twins are hue-preserving darkened values — recompute with the contrast script if an accent changes.
+- Never put light-only colors in base rules; keep both modes working when adding pages.
+
 ### Comfort Settings (v1)
 
 - Every toolkit ships the same comfort toolbar (text size, dyslexia-friendly font, reduce motion, read-aloud, plus voice input on text fields). The CSS, bar HTML, and JS IIFE are all marked `Comfort Settings v1`.
@@ -66,6 +76,7 @@
 
 - Every page carries an `Accessibility baseline` CSS block: skip link, `:focus-visible`, 44px minimum buttons, and `prefers-reduced-motion` + `html.reduce-motion` handling. Keep the block when adding pages; the manual motion toggle in Comfort Settings drives the `reduce-motion` class.
 - Timers use `role="timer"` (announces as a clock, not chatter); discrete status changes use `aria-live="polite"`. Never put a live region on an every-second ticking display.
+- Default type is `html { font-size: 20px }` on every page; the comfort toolbar steps to 23/26px. Main content grids stay single-column; keep two dimensions only for small segmented controls.
 
 ### PWA and caching
 

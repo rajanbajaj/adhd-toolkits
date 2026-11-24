@@ -48,7 +48,7 @@
   .legend-item { display: flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); }
   .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+  .grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
 
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; cursor: default; transition: all 0.25s; position: relative; overflow: hidden; }
   .card:hover { transform: translateY(-2px); border-color: var(--card-color, var(--focus)); box-shadow: 0 0 20px -5px var(--card-color, var(--focus)); }
@@ -141,6 +141,10 @@
   .run-timer-btns button { font-family: 'DM Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 6px 14px; border-radius: 5px; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text); transition: all 0.15s; }
   .run-timer-btns button:hover { border-color: var(--run-color, var(--focus)); }
   .run-timer-btns .primary { background: var(--run-color, var(--focus)); color: #111; border-color: var(--run-color, var(--focus)); }
+  .alert-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .alert-mini { font-family: 'DM Mono', monospace; font-size: 0.62rem; padding: 8px 14px; min-height: 44px; border-radius: 6px; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--muted); }
+  .alert-mini:hover { border-color: var(--text); color: var(--text); }
+  .alert-hint { font-size: 0.62rem; color: var(--muted); margin-top: 6px; line-height: 1.6; min-height: 1em; }
 
   .run-progress { font-family: 'DM Mono', monospace; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 8px; display: flex; justify-content: space-between; }
   .run-progress strong { color: var(--run-color, var(--focus)); }
@@ -148,7 +152,7 @@
   .run-steps { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
   .run-step { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: #111; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.15s; }
   .run-step:hover { border-color: var(--run-color, var(--focus)); }
-  .run-step input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--run-color, var(--focus)); cursor: pointer; flex-shrink: 0; margin-top: 2px; }
+  .run-step input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--run-color, var(--focus)); cursor: pointer; flex-shrink: 0; margin-top: 2px; }
   .run-step-text { font-size: 0.78rem; color: #c4bfb9; line-height: 1.5; }
   .run-step.done { opacity: 0.55; }
   .run-step.done .run-step-text { text-decoration: line-through; color: var(--muted); }
@@ -181,6 +185,36 @@
       padding: 20px 18px 32px;
     }
   }
+  html { font-size: 20px; }
+  /* ── Light theme ── */
+  html[data-theme="light"] {
+    --bg: #f5f0e8;
+    --surface: #ede8de;
+    --border: #d4cbbe;
+    --text: #1a1510;
+    --muted: #6f6355;
+    --focus: #b24b25;
+    --async: #2d7772;
+    --collab: #725faa;
+    --ops: #886713;
+  }
+  html[data-theme="light"] .run-step { background: var(--surface); }
+  html[data-theme="light"] .adhd-tip,
+  html[data-theme="light"] .run-step-text,
+  html[data-theme="light"] #resume-bar .resume-text { color: var(--muted); }
+  html[data-theme="light"] .skip-link,
+  html[data-theme="light"] .run-timer-btns .primary { color: #faf7f2; }
+  /* ── First-visit coach ── */
+  .coach {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px; margin-bottom: 24px;
+  }
+  .coach-title { font-size: 0.85rem; font-weight: 500; margin-bottom: 10px; }
+  .coach ul { list-style: none; padding: 0; margin: 0 0 14px; display: flex; flex-direction: column; gap: 8px; }
+  .coach li { font-size: 0.8rem; color: var(--muted); line-height: 1.6; padding-left: 18px; position: relative; }
+  .coach li::before { content: '→'; position: absolute; left: 0; color: var(--accent, #818cf8); }
+  .coach-btn { font-family: inherit; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 12px 20px; min-height: 44px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text); }
+  .coach-btn:hover { border-color: var(--text); }
   /* ── Accessibility baseline ── */
   .skip-link {
     position: absolute; left: 1rem; top: -100px; z-index: 200;
@@ -213,8 +247,8 @@
     line-height: 1.6 !important;
     letter-spacing: 0.01em !important;
   }
-  html.font-lg { font-size: 19px; }
-  html.font-xl { font-size: 22px; }
+  html.font-lg { font-size: 23px; }
+  html.font-xl { font-size: 26px; }
   .a11y-bar {
     position: fixed; bottom: 20px; right: 20px; z-index: 200;
     display: flex; flex-direction: column; gap: 8px;
@@ -250,6 +284,14 @@
 
 <a class="skip-link" href="#main">Skip to content</a>
 <main id="main">
+<div class="coach" id="coach" hidden>
+  <p class="coach-title">First time here?</p>
+  <ul>
+    <li>Pick the task type, hit Start, follow the steps.</li>
+    <li>Pause anytime — progress is saved, and the timer can alert you off-tab.</li>
+  </ul>
+  <button class="coach-btn" id="coachOk" type="button">Got it — don't show again</button>
+</div>
 <h1>Senior SDE × ADHD Toolkit</h1>
 <p class="subtitle">// pick the task you're about to do — then run it, don't just read about it</p>
 
@@ -281,10 +323,11 @@
 
 <!-- Comfort Settings v1 (shared pattern — see AGENTS.md §6). Preferences persist in localStorage on this device only. -->
 <div class="a11y-bar" role="toolbar" aria-label="Comfort settings — saved only in this browser">
-  <button class="a11y-btn" id="comfortFontBtn" type="button" aria-pressed="false" title="Text size: Normal">A</button>
-  <button class="a11y-btn" id="comfortDyslexiaBtn" type="button" aria-pressed="false" title="Dyslexia-friendly font">Aa</button>
-  <button class="a11y-btn" id="comfortMotionBtn" type="button" aria-pressed="false" title="Reduce motion: off">◐</button>
-  <button class="a11y-btn" id="comfortReadBtn" type="button" aria-pressed="false" title="Read this page aloud">▶</button>
+  <button class="a11y-btn" id="comfortFontBtn" type="button" aria-pressed="false" aria-label="Text size" title="Text size: Normal">A</button>
+  <button class="a11y-btn" id="comfortDyslexiaBtn" type="button" aria-pressed="false" aria-label="Dyslexia-friendly font" title="Dyslexia-friendly font">Aa</button>
+  <button class="a11y-btn" id="comfortMotionBtn" type="button" aria-pressed="false" aria-label="Reduce motion" title="Reduce motion: off">◐</button>
+  <button class="a11y-btn" id="comfortReadBtn" type="button" aria-pressed="false" aria-label="Read this page aloud" title="Read this page aloud">▶</button>
+  <button class="a11y-btn" id="comfortThemeBtn" type="button" aria-pressed="false" aria-label="Color theme" title="Theme: system">◑</button>
 </div>
 
 <script>
@@ -355,6 +398,7 @@ function startRun(idx, saved) {
   buildRunPanel();
   panel.classList.add('show');
   backdrop.classList.add('show');
+  paintRunAlerts();
   document.getElementById('resume-bar').classList.remove('show');
   if (run.endAt) startRunTicker();
   saveRun();
@@ -383,6 +427,11 @@ function buildRunPanel() {
           <button class="primary" id="runTimerToggle" onclick="toggleRunTimer()">Start</button>
           <button onclick="resetRunTimer()">Reset</button>
         </div>
+        <div class="alert-row">
+          <button class="alert-mini" id="runAlertsBtn" onclick="toggleRunAlerts()" aria-pressed="false">🔔 Alerts off</button>
+          <button class="alert-mini" id="runSoundBtn" onclick="toggleRunSound()" aria-pressed="true">🔊 Sound on</button>
+        </div>
+        <p class="alert-hint" id="runAlertsHint" aria-live="polite"></p>
       </div>
     </div>
 
@@ -457,7 +506,122 @@ function toggleRunTimer() {
     document.getElementById('runTimerToggle').textContent = 'Pause';
   }
   saveRun();
+  awayAlert.unlockAudio();
+  awayAlert.setLock(!!run.endAt);
 }
+
+/* Away alerts v1 (shared pattern — see AGENTS.md §6).
+   Sound + OS notification + wake lock so the timer reaches you off-tab.
+   Tap "Alerts" once to grant notification permission. */
+var awayAlert = (function () {
+  var TAG = 'focus-timer';
+  function get(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (_) { return d; } }
+  function set(k, v) { try { localStorage.setItem(k, v); } catch (_) {} }
+  var soundOn = get('aa-sound', '1') === '1';
+  var wantNotify = get('aa-notify', '0') === '1';
+  var ctx = null, lock = null, lockWanted = false;
+  function ensureAudio() {
+    try {
+      if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (ctx.state === 'suspended') ctx.resume();
+    } catch (_) {}
+  }
+  function tone(freq, delay, dur) {
+    var t = ctx.currentTime + delay;
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.14, t + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+  function chime(n) {
+    try {
+      ensureAudio();
+      if (!ctx) return;
+      for (var i = 0; i < n; i++) { tone(523.25, i * 0.9, 0.4); tone(784.00, i * 0.9 + 0.35, 0.55); }
+    } catch (_) {}
+  }
+  function notify(title, body) {
+    try {
+      if (!wantNotify || !('Notification' in window)) return;
+      if (Notification.permission !== 'granted') return;
+      if (!document.hidden) return;
+      new Notification(title, { body: body, tag: TAG });
+    } catch (_) {}
+  }
+  function buzz(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (_) {} }
+  function requestLock() {
+    if (!lockWanted) return;
+    try {
+      if (!('wakeLock' in navigator)) return;
+      navigator.wakeLock.request('screen').then(function (l) {
+        lock = l;
+        lock.addEventListener('release', function () { lock = null; });
+      }).catch(function () { lock = null; });
+    } catch (_) {}
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) {
+      if (typeof window.__alertsVisible === 'function') { try { window.__alertsVisible(); } catch (_) {} }
+      requestLock();
+    }
+  });
+  return {
+    fire: function (title, body, urgent) {
+      if (soundOn) chime(urgent ? 2 : 1);
+      notify(title, body);
+      buzz(urgent ? [200, 100, 200, 100, 400] : [200, 100, 200]);
+    },
+    unlockAudio: ensureAudio,
+    setLock: function (on) {
+      lockWanted = on;
+      if (!on) { try { if (lock) lock.release(); } catch (_) {} lock = null; return; }
+      requestLock();
+    },
+    isSoundOn: function () { return soundOn; },
+    toggleSound: function () { soundOn = !soundOn; set('aa-sound', soundOn ? '1' : '0'); return soundOn; },
+    notifyState: function () {
+      if (!('Notification' in window)) return 'unsupported';
+      if (Notification.permission === 'granted') return wantNotify ? 'on' : 'off';
+      if (Notification.permission === 'denied') return 'blocked';
+      return 'off';
+    },
+    setNotify: function (on) { wantNotify = on; set('aa-notify', on ? '1' : '0'); }
+  };
+})();
+window.__alertsVisible = renderRunTimer;
+
+function paintRunAlerts() {
+  var ab = document.getElementById('runAlertsBtn');
+  if (!ab) return;
+  var st = awayAlert.notifyState();
+  var labels = { on: '🔔 Alerts on', off: '🔔 Alerts off', blocked: '🔔 Blocked', unsupported: '🔔 N/A' };
+  ab.textContent = labels[st] || labels.off;
+  ab.setAttribute('aria-pressed', st === 'on' ? 'true' : 'false');
+  ab.disabled = (st === 'unsupported' || st === 'blocked');
+  var sb = document.getElementById('runSoundBtn');
+  if (sb) {
+    var s = awayAlert.isSoundOn();
+    sb.textContent = s ? '🔊 Sound on' : '🔇 Sound off';
+    sb.setAttribute('aria-pressed', s ? 'true' : 'false');
+  }
+  var hint = document.getElementById('runAlertsHint');
+  if (hint) {
+    hint.textContent = st === 'on' ? 'Alerts on — sound + notification even in another tab.' :
+      st === 'blocked' ? 'Notifications blocked in browser settings — sound still works here.' :
+      st === 'unsupported' ? 'No notification popups in this browser — keep the tab open.' : '';
+  }
+}
+function toggleRunAlerts() {
+  awayAlert.unlockAudio();
+  if (!('Notification' in window)) { paintRunAlerts(); return; }
+  if (Notification.permission === 'granted') { awayAlert.setNotify(awayAlert.notifyState() !== 'on'); paintRunAlerts(); return; }
+  if (Notification.permission === 'denied') { paintRunAlerts(); return; }
+  Notification.requestPermission().then(function (p) { awayAlert.setNotify(p === 'granted'); paintRunAlerts(); });
+}
+function toggleRunSound() { awayAlert.unlockAudio(); awayAlert.toggleSound(); paintRunAlerts(); }
 
 function startRunTicker() {
   clearInterval(runTimerIv);
@@ -470,6 +634,8 @@ function startRunTicker() {
       const tg = document.getElementById('runTimerToggle');
       if (tg) tg.textContent = 'Start';
       saveRun();
+      awayAlert.fire('Focus time up', 'Timer done — stretch, water, then decide what\u2019s next.', true);
+      awayAlert.setLock(false);
     }
   }, 1000);
   renderRunTimer();
@@ -477,6 +643,7 @@ function startRunTicker() {
 
 function resetRunTimer() {
   clearInterval(runTimerIv);
+  awayAlert.setLock(false);
   run.endAt = null;
   run.secs = run.total;
   const tg = document.getElementById('runTimerToggle');
@@ -503,6 +670,7 @@ function closeRun() {
     saveRun();
   }
   clearInterval(runTimerIv);
+  awayAlert.setLock(false);
   panel.classList.remove('show');
   backdrop.classList.remove('show');
   showResumeBarIfNeeded();
@@ -510,6 +678,7 @@ function closeRun() {
 
 function finishRun() {
   clearInterval(runTimerIv);
+  awayAlert.setLock(false);
   run = null;
   saveRun();
   panel.classList.remove('show');
@@ -767,6 +936,41 @@ showResumeBarIfNeeded();
     });
   }
 
+  /* Theme v1 (shared pattern — see AGENTS.md §6). System / dark / light. */
+  var themeCtl = (function () {
+    function get() { try { return localStorage.getItem('comfort-theme') || 'system'; } catch (_) { return 'system'; } }
+    function set(v) { try { localStorage.setItem('comfort-theme', v); } catch (_) {} }
+    var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+    var meta = document.querySelector('meta[name="theme-color"]');
+    var nativeMeta = meta ? meta.getAttribute('content') : '#0f1117';
+    function effective() {
+      var t = get();
+      if (t === 'light') return 'light';
+      if (t === 'dark') return 'dark';
+      return (mq && mq.matches) ? 'light' : 'dark';
+    }
+    function paint() {
+      var btn = document.getElementById('comfortThemeBtn');
+      if (!btn) return;
+      var t = get();
+      var labels = { system: 'Theme: system', dark: 'Theme: dark', light: 'Theme: light' };
+      btn.title = (labels[t] || labels.system) + ' — tap to change';
+      btn.setAttribute('aria-pressed', t === 'dark' || t === 'light' ? 'true' : 'false');
+      btn.classList.toggle('active', t !== 'system');
+    }
+    function apply() {
+      var mode = effective();
+      document.documentElement.setAttribute('data-theme', mode);
+      if (meta) meta.setAttribute('content', mode === 'light' ? '#f5f0e8' : (meta.getAttribute('data-dark') || nativeMeta));
+      paint();
+    }
+    if (mq && mq.addEventListener) mq.addEventListener('change', function () { if (get() === 'system') apply(); });
+    return { apply: apply, cycle: function () {
+      var t = get();
+      set(t === 'system' ? 'dark' : t === 'dark' ? 'light' : 'system');
+      apply();
+    } };
+  })();
   document.getElementById('comfortFontBtn').addEventListener('click', function () {
     sizeIdx = (sizeIdx + 1) % SIZES.length;
     store.set('comfort-fontsize', String(sizeIdx));
@@ -794,6 +998,23 @@ showResumeBarIfNeeded();
   applySize();
   applyDyslexic();
   applyMotion();
+  document.getElementById('comfortThemeBtn').addEventListener('click', function () { themeCtl.cycle(); });
+  themeCtl.apply();
+})();
+/* First-visit coach — shows once, remembers dismissal on this device. */
+(function coach() {
+  var KEY = 'seen-sde';
+  var seen = false;
+  try { seen = localStorage.getItem(KEY) === '1'; } catch (_) { seen = true; }
+  var box = document.getElementById('coach');
+  if (!box || seen) return;
+  box.hidden = false;
+  var ok = document.getElementById('coachOk');
+  function dismiss() {
+    box.hidden = true;
+    try { localStorage.setItem(KEY, '1'); } catch (_) {}
+  }
+  if (ok) { ok.addEventListener('click', dismiss); ok.focus(); }
 })();
 </script>
 </body>

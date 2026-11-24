@@ -128,6 +128,23 @@ footer {
   color: var(--muted);
   letter-spacing: 0.05em;
 }
+.theme-btn { background: none; border: none; color: var(--muted); font: inherit; letter-spacing: 0.05em; cursor: pointer; padding: 8px 4px; min-height: 44px; text-transform: uppercase; }
+.theme-btn:hover { color: var(--text); }
+
+html { font-size: 20px; }
+
+/* ── Light theme ── */
+html[data-theme="light"] {
+  --bg: #f5f0e8;
+  --surface: #ede8de;
+  --border: #d4cbbe;
+  --text: #1a1510;
+  --muted: #6f6355;
+  --accent: #5d65b3;
+  --work: #1e7959;
+  --warn: #9c5b25;
+}
+html[data-theme="light"] .skip-link { color: #faf7f2; }
 
 /* ── Accessibility baseline ── */
 .skip-link {
@@ -186,6 +203,7 @@ footer {
   <li><strong>Reduce motion</strong> — stops scaling, pulsing, and transitions.</li>
   <li><strong>Read aloud</strong> — reads the page back, best natural voice the browser offers.</li>
   <li><strong>Voice input</strong> — a mic button sits next to every text field, including the brain dump box.</li>
+  <li><strong>Dark, light, and system themes.</strong> Every page follows your OS by default; the ◑ button pins dark or light. Both modes meet the same contrast bar.</li>
 </ul>
 <div class="box box-decision">
   <div class="box-label">Principle</div>
@@ -200,6 +218,7 @@ footer {
   <li><strong>English only.</strong> No translations yet.</li>
   <li><strong>Keyboard- and code-audited, not screen-reader tested.</strong> The semantics are built to the standard (landmarks, labels, live regions, timer roles), but no full pass with VoiceOver, TalkBack, or NVDA has happened yet.</li>
   <li><strong>Voice features depend on the browser.</strong> Dictation and read-aloud need browser support; dictation sends audio to your browser's speech service (see <a href="/privacy.html" style="color:var(--accent)">Privacy</a>).</li>
+  <li><strong>Background alerts need an open browser.</strong> Timer sound, pop-up notifications, and screen-awake work while the browser runs — install the page as an app for the best background behavior on phones. A fully closed browser cannot wake you.</li>
   <li><strong>Dyslexia font comes from a CDN</strong> the first time you enable it — it needs a connection that once.</li>
 </ul>
 <div class="box box-warn">
@@ -208,8 +227,45 @@ footer {
 </div>
 </div>
 
-<footer>adhd-tools.artisticmonk.in · accessibility</footer>
+<footer>adhd-tools.artisticmonk.in · accessibility · <button type="button" id="themeBtn" class="theme-btn">◑ System</button></footer>
 
 </div>
+<script>
+/* Theme v1 (shared pattern — see AGENTS.md §6). System / dark / light. */
+(function themeCtl() {
+  function get() { try { return localStorage.getItem('comfort-theme') || 'system'; } catch (_) { return 'system'; } }
+  function set(v) { try { localStorage.setItem('comfort-theme', v); } catch (_) {} }
+  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+  var meta = document.querySelector('meta[name="theme-color"]');
+  var nativeMeta = meta ? meta.getAttribute('content') : '#0f1117';
+  function effective() {
+    var t = get();
+    if (t === 'light') return 'light';
+    if (t === 'dark') return 'dark';
+    return (mq && mq.matches) ? 'light' : 'dark';
+  }
+  function paint() {
+    var btn = document.getElementById('themeBtn');
+    if (!btn) return;
+    var t = get();
+    btn.textContent = t === 'system' ? '◑ System' : t === 'dark' ? '◑ Dark' : '◑ Light';
+    btn.setAttribute('aria-pressed', t === 'dark' || t === 'light' ? 'true' : 'false');
+  }
+  function apply() {
+    var mode = effective();
+    document.documentElement.setAttribute('data-theme', mode);
+    if (meta) meta.setAttribute('content', mode === 'light' ? '#f5f0e8' : (meta.getAttribute('data-dark') || nativeMeta));
+    paint();
+  }
+  if (mq && mq.addEventListener) mq.addEventListener('change', function () { if (get() === 'system') apply(); });
+  var btn = document.getElementById('themeBtn');
+  if (btn) btn.addEventListener('click', function () {
+    var t = get();
+    set(t === 'system' ? 'dark' : t === 'dark' ? 'light' : 'system');
+    apply();
+  });
+  apply();
+})();
+</script>
 </body>
 </html>

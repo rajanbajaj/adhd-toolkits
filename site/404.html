@@ -20,7 +20,18 @@
     p { color: #8b92a5; }
     a { color: #818cf8; text-decoration: none; }
     a:hover { text-decoration: underline; }
+    html { font-size: 20px; }
+    /* ── Light theme ── */
+    html[data-theme="light"] body { background: #f5f0e8; color: #1a1510; }
+    html[data-theme="light"] h1 { color: #595cd9; }
+    html[data-theme="light"] p { color: #6f6355; }
+    html[data-theme="light"] a { color: #595cd9; }
+    html[data-theme="light"] .skip-link { background: #595cd9; color: #faf7f2; }
     main { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+    .theme-btn { background: none; border: none; color: #8b92a5; font: inherit; font-size: 0.7rem; letter-spacing: 0.05em; cursor: pointer; padding: 8px; min-height: 44px; text-transform: uppercase; }
+    .theme-btn:hover { color: #e2e8f0; }
+    html[data-theme="light"] .theme-btn { color: #6f6355; }
+    html[data-theme="light"] .theme-btn:hover { color: #1a1510; }
     .skip-link { position: absolute; left: 1rem; top: -100px; z-index: 200; font-family: -apple-system, sans-serif; font-size: 0.7rem; padding: 10px 16px; border-radius: 8px; background: #6366f1; color: #0f1117; text-decoration: none; }
     .skip-link:focus { top: 1rem; }
     :focus-visible { outline: 2px solid #818cf8; outline-offset: 2px; }
@@ -35,6 +46,44 @@
     <h1>404</h1>
     <p>Page not found.</p>
     <a href="/">← Back to toolkits</a>
+    <button type="button" id="themeBtn" class="theme-btn">◑ System</button>
   </main>
+<script>
+/* Theme v1 (shared pattern — see AGENTS.md §6). System / dark / light. */
+(function themeCtl() {
+  function get() { try { return localStorage.getItem('comfort-theme') || 'system'; } catch (_) { return 'system'; } }
+  function set(v) { try { localStorage.setItem('comfort-theme', v); } catch (_) {} }
+  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+  var meta = document.querySelector('meta[name="theme-color"]');
+  var nativeMeta = meta ? meta.getAttribute('content') : '#0f1117';
+  function effective() {
+    var t = get();
+    if (t === 'light') return 'light';
+    if (t === 'dark') return 'dark';
+    return (mq && mq.matches) ? 'light' : 'dark';
+  }
+  function paint() {
+    var btn = document.getElementById('themeBtn');
+    if (!btn) return;
+    var t = get();
+    btn.textContent = t === 'system' ? '◑ System' : t === 'dark' ? '◑ Dark' : '◑ Light';
+    btn.setAttribute('aria-pressed', t === 'dark' || t === 'light' ? 'true' : 'false');
+  }
+  function apply() {
+    var mode = effective();
+    document.documentElement.setAttribute('data-theme', mode);
+    if (meta) meta.setAttribute('content', mode === 'light' ? '#f5f0e8' : (meta.getAttribute('data-dark') || nativeMeta));
+    paint();
+  }
+  if (mq && mq.addEventListener) mq.addEventListener('change', function () { if (get() === 'system') apply(); });
+  var btn = document.getElementById('themeBtn');
+  if (btn) btn.addEventListener('click', function () {
+    var t = get();
+    set(t === 'system' ? 'dark' : t === 'dark' ? 'light' : 'system');
+    apply();
+  });
+  apply();
+})();
+</script>
 </body>
 </html>

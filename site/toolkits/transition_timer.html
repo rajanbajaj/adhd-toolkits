@@ -81,6 +81,8 @@ h1 { font-size: 1.6rem; font-weight: 500; letter-spacing: -0.02em; margin-bottom
 .btn:hover { background: rgba(251,191,36,0.22); }
 .btn-ghost { border-color: var(--border); background: transparent; color: var(--muted); }
 .btn-ghost:hover { border-color: var(--text); color: var(--text); background: transparent; }
+.alert-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.alert-hint { font-size: 0.66rem; color: var(--muted); margin-top: 8px; line-height: 1.6; min-height: 1em; }
 
 /* ── Countdown ── */
 .countdown {
@@ -99,6 +101,30 @@ h1 { font-size: 1.6rem; font-weight: 500; letter-spacing: -0.02em; margin-bottom
 
 footer { margin-top: 32px; font-size: 0.6rem; color: var(--muted); letter-spacing: 0.05em; }
 
+html { font-size: 20px; }
+
+/* ── Light theme ── */
+html[data-theme="light"] {
+  --bg: #f5f0e8;
+  --surface: #ede8de;
+  --border: #d4cbbe;
+  --text: #1a1510;
+  --muted: #6f6355;
+  --accent: #886713;
+}
+html[data-theme="light"] .skip-link { color: #faf7f2; }
+
+/* ── First-visit coach ── */
+.coach {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px; margin-bottom: 24px;
+}
+.coach-title { font-size: 0.85rem; font-weight: 500; margin-bottom: 10px; }
+.coach ul { list-style: none; padding: 0; margin: 0 0 14px; display: flex; flex-direction: column; gap: 8px; }
+.coach li { font-size: 0.8rem; color: var(--muted); line-height: 1.6; padding-left: 18px; position: relative; }
+.coach li::before { content: '→'; position: absolute; left: 0; color: var(--accent, #818cf8); }
+.coach-btn { font-family: inherit; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 12px 20px; min-height: 44px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text); }
+.coach-btn:hover { border-color: var(--text); }
 /* ── Accessibility baseline ── */
 .skip-link {
   position: absolute; left: 1rem; top: -100px; z-index: 200;
@@ -132,8 +158,8 @@ body.dyslexic-mode * {
   line-height: 1.6 !important;
   letter-spacing: 0.01em !important;
 }
-html.font-lg { font-size: 19px; }
-html.font-xl { font-size: 22px; }
+html.font-lg { font-size: 23px; }
+html.font-xl { font-size: 26px; }
 .a11y-bar {
   position: fixed; bottom: 20px; right: 20px; z-index: 200;
   display: flex; flex-direction: column; gap: 8px;
@@ -166,6 +192,14 @@ html.font-xl { font-size: 22px; }
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 <div class="app" id="main">
+<div class="coach" id="coach" hidden>
+  <p class="coach-title">First time here?</p>
+  <ul>
+    <li>Set the time and how much warning you need.</li>
+    <li>Tap 🔔 Background alerts once so it reaches you in another tab.</li>
+  </ul>
+  <button class="coach-btn" id="coachOk" type="button">Got it — don't show again</button>
+</div>
 <a href="/" class="back-link">← All Toolkits</a>
 
 <h1>Transition Timer</h1>
@@ -189,6 +223,11 @@ html.font-xl { font-size: 22px; }
     </div>
   </div>
   <button class="btn" id="ttStart" type="button">Start timer</button>
+  <div class="alert-row">
+    <button class="btn btn-ghost" id="ttAlertsBtn" type="button" aria-pressed="false">🔔 Background alerts: off</button>
+    <button class="btn btn-ghost" id="ttSoundBtn" type="button" aria-pressed="true">🔊 Sound: on</button>
+  </div>
+  <p class="alert-hint" id="ttAlertsHint" aria-live="polite"></p>
 </div>
 
 <div class="countdown" id="ttPanel">
@@ -203,10 +242,11 @@ html.font-xl { font-size: 22px; }
 
 <!-- Comfort Settings v1 (shared pattern — see AGENTS.md §6). Preferences persist in localStorage on this device only. -->
 <div class="a11y-bar" role="toolbar" aria-label="Comfort settings — saved only in this browser">
-  <button class="a11y-btn" id="comfortFontBtn" type="button" aria-pressed="false" title="Text size: Normal">A</button>
-  <button class="a11y-btn" id="comfortDyslexiaBtn" type="button" aria-pressed="false" title="Dyslexia-friendly font">Aa</button>
-  <button class="a11y-btn" id="comfortMotionBtn" type="button" aria-pressed="false" title="Reduce motion: off">◐</button>
-  <button class="a11y-btn" id="comfortReadBtn" type="button" aria-pressed="false" title="Read this page aloud">▶</button>
+  <button class="a11y-btn" id="comfortFontBtn" type="button" aria-pressed="false" aria-label="Text size" title="Text size: Normal">A</button>
+  <button class="a11y-btn" id="comfortDyslexiaBtn" type="button" aria-pressed="false" aria-label="Dyslexia-friendly font" title="Dyslexia-friendly font">Aa</button>
+  <button class="a11y-btn" id="comfortMotionBtn" type="button" aria-pressed="false" aria-label="Reduce motion" title="Reduce motion: off">◐</button>
+  <button class="a11y-btn" id="comfortReadBtn" type="button" aria-pressed="false" aria-label="Read this page aloud" title="Read this page aloud">▶</button>
+  <button class="a11y-btn" id="comfortThemeBtn" type="button" aria-pressed="false" aria-label="Color theme" title="Theme: system">◑</button>
 </div>
 
 <script>
@@ -252,6 +292,8 @@ function tick() {
     if (!dueAnnounced) {
       dueAnnounced = true;
       setStatus('Time to go — ' + label + '. Everything else can wait.');
+      awayAlert.fire('Time to go', label + '. Everything else can wait.', true);
+      awayAlert.setLock(false);
       buzz([200, 100, 200, 100, 400]);
     }
     return;
@@ -261,6 +303,7 @@ function tick() {
     if (!panel.classList.contains('wind')) {
       panel.classList.add('wind');
       setStatus('Wrapping up — ' + label + ' is soon. Save your place, grab what you need.');
+      awayAlert.fire('Wrapping up', label + ' is soon — save your place.', false);
       buzz([200, 100, 200]);
     }
     display.textContent = fmt(left);
@@ -291,6 +334,8 @@ function start() {
   document.getElementById('ttPanel').classList.add('on');
   document.getElementById('setupPanel').style.display = 'none';
   save({ label: label, target: target, windMin: Math.round(windMs / 60000) });
+  awayAlert.unlockAudio();
+  awayAlert.setLock(true);
   tick();
   timer = setInterval(tick, 1000);
   document.getElementById('ttCancel').focus();
@@ -312,6 +357,7 @@ function cancel(reason) {
   if (timer) clearInterval(timer);
   timer = null;
   save(null);
+  awayAlert.setLock(false);
   document.getElementById('ttPanel').classList.remove('on', 'wind', 'due');
   document.getElementById('setupPanel').style.display = '';
   document.title = 'Transition Timer — Leave on Time';
@@ -347,6 +393,128 @@ document.getElementById('windChips').addEventListener('click', function (e) {
     });
   }
   start();
+})();
+
+/* Away alerts v1 (shared pattern — see AGENTS.md §6).
+   Sound + OS notification + wake lock so the timer reaches you off-tab.
+   Tap "Background alerts" once to grant notification permission. */
+var awayAlert = (function () {
+  var TAG = 'transition-timer';
+  function get(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (_) { return d; } }
+  function set(k, v) { try { localStorage.setItem(k, v); } catch (_) {} }
+  var soundOn = get('aa-sound', '1') === '1';
+  var wantNotify = get('aa-notify', '0') === '1';
+  var ctx = null, lock = null, lockWanted = false;
+
+  function ensureAudio() {
+    try {
+      if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (ctx.state === 'suspended') ctx.resume();
+    } catch (_) {}
+  }
+  function tone(freq, delay, dur) {
+    var t = ctx.currentTime + delay;
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.14, t + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+  function chime(n) {
+    try {
+      ensureAudio();
+      if (!ctx) return;
+      for (var i = 0; i < n; i++) {
+        tone(523.25, i * 0.9, 0.4);
+        tone(784.00, i * 0.9 + 0.35, 0.55);
+      }
+    } catch (_) {}
+  }
+  function notify(title, body) {
+    try {
+      if (!wantNotify || !('Notification' in window)) return;
+      if (Notification.permission !== 'granted') return;
+      if (!document.hidden) return;
+      new Notification(title, { body: body, tag: TAG });
+    } catch (_) {}
+  }
+  function buzz(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (_) {} }
+  function requestLock() {
+    if (!lockWanted) return;
+    try {
+      if (!('wakeLock' in navigator)) return;
+      navigator.wakeLock.request('screen').then(function (l) {
+        lock = l;
+        lock.addEventListener('release', function () { lock = null; });
+      }).catch(function () { lock = null; });
+    } catch (_) {}
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) {
+      if (typeof window.__alertsVisible === 'function') { try { window.__alertsVisible(); } catch (_) {} }
+      requestLock();
+    }
+  });
+
+  return {
+    fire: function (title, body, urgent) {
+      if (soundOn) chime(urgent ? 2 : 1);
+      notify(title, body);
+      buzz(urgent ? [200, 100, 200, 100, 400] : [200, 100, 200]);
+    },
+    unlockAudio: ensureAudio,
+    setLock: function (on) {
+      lockWanted = on;
+      if (!on) { try { if (lock) lock.release(); } catch (_) {} lock = null; return; }
+      requestLock();
+    },
+    isSoundOn: function () { return soundOn; },
+    toggleSound: function () { soundOn = !soundOn; set('aa-sound', soundOn ? '1' : '0'); return soundOn; },
+    notifyState: function () {
+      if (!('Notification' in window)) return 'unsupported';
+      if (Notification.permission === 'granted') return wantNotify ? 'on' : 'off';
+      if (Notification.permission === 'denied') return 'blocked';
+      return 'off';
+    },
+    setNotify: function (on) { wantNotify = on; set('aa-notify', on ? '1' : '0'); }
+  };
+})();
+window.__alertsVisible = tick;
+
+(function paintAlerts() {
+  var alertsBtn = document.getElementById('ttAlertsBtn');
+  var soundBtn = document.getElementById('ttSoundBtn');
+  var hint = document.getElementById('ttAlertsHint');
+  function paint() {
+    var st = awayAlert.notifyState();
+    var labels = { on: '🔔 Background alerts: on', off: '🔔 Background alerts: off', blocked: '🔔 Alerts blocked in browser', unsupported: '🔔 Alerts not supported here' };
+    alertsBtn.textContent = labels[st] || labels.off;
+    alertsBtn.setAttribute('aria-pressed', st === 'on' ? 'true' : 'false');
+    alertsBtn.disabled = (st === 'unsupported' || st === 'blocked');
+    var s = awayAlert.isSoundOn();
+    soundBtn.textContent = s ? '🔊 Sound: on' : '🔇 Sound: off';
+    soundBtn.setAttribute('aria-pressed', s ? 'true' : 'false');
+    if (!hint) return;
+    if (st === 'on') hint.textContent = 'Alerts on — sound, notification, and screen-awake even in another tab.';
+    else if (st === 'blocked') hint.textContent = 'Notifications are blocked for this site in browser settings — sound still works with this tab open.';
+    else if (st === 'unsupported') hint.textContent = 'This browser can\u2019t pop notifications — keep this tab open and sound on.';
+    else hint.textContent = '';
+  }
+  alertsBtn.addEventListener('click', function () {
+    awayAlert.unlockAudio();
+    if (!('Notification' in window)) { paint(); return; }
+    if (Notification.permission === 'granted') { awayAlert.setNotify(awayAlert.notifyState() !== 'on'); paint(); return; }
+    if (Notification.permission === 'denied') { paint(); return; }
+    Notification.requestPermission().then(function (p) { awayAlert.setNotify(p === 'granted'); paint(); });
+  });
+  soundBtn.addEventListener('click', function () {
+    awayAlert.unlockAudio();
+    awayAlert.toggleSound();
+    paint();
+  });
+  paint();
 })();
 </script>
 
@@ -523,6 +691,41 @@ document.getElementById('windChips').addEventListener('click', function (e) {
       wrap.appendChild(status);
     });
   }
+  /* Theme v1 (shared pattern — see AGENTS.md §6). System / dark / light. */
+  var themeCtl = (function () {
+    function get() { try { return localStorage.getItem('comfort-theme') || 'system'; } catch (_) { return 'system'; } }
+    function set(v) { try { localStorage.setItem('comfort-theme', v); } catch (_) {} }
+    var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+    var meta = document.querySelector('meta[name="theme-color"]');
+    var nativeMeta = meta ? meta.getAttribute('content') : '#0f1117';
+    function effective() {
+      var t = get();
+      if (t === 'light') return 'light';
+      if (t === 'dark') return 'dark';
+      return (mq && mq.matches) ? 'light' : 'dark';
+    }
+    function paint() {
+      var btn = document.getElementById('comfortThemeBtn');
+      if (!btn) return;
+      var t = get();
+      var labels = { system: 'Theme: system', dark: 'Theme: dark', light: 'Theme: light' };
+      btn.title = (labels[t] || labels.system) + ' — tap to change';
+      btn.setAttribute('aria-pressed', t === 'dark' || t === 'light' ? 'true' : 'false');
+      btn.classList.toggle('active', t !== 'system');
+    }
+    function apply() {
+      var mode = effective();
+      document.documentElement.setAttribute('data-theme', mode);
+      if (meta) meta.setAttribute('content', mode === 'light' ? '#f5f0e8' : (meta.getAttribute('data-dark') || nativeMeta));
+      paint();
+    }
+    if (mq && mq.addEventListener) mq.addEventListener('change', function () { if (get() === 'system') apply(); });
+    return { apply: apply, cycle: function () {
+      var t = get();
+      set(t === 'system' ? 'dark' : t === 'dark' ? 'light' : 'system');
+      apply();
+    } };
+  })();
   document.getElementById('comfortFontBtn').addEventListener('click', function () {
     sizeIdx = (sizeIdx + 1) % SIZES.length;
     store.set('comfort-fontsize', String(sizeIdx));
@@ -549,6 +752,23 @@ document.getElementById('windChips').addEventListener('click', function (e) {
   applySize();
   applyDyslexic();
   applyMotion();
+  document.getElementById('comfortThemeBtn').addEventListener('click', function () { themeCtl.cycle(); });
+  themeCtl.apply();
+})();
+/* First-visit coach — shows once, remembers dismissal on this device. */
+(function coach() {
+  var KEY = 'seen-transition';
+  var seen = false;
+  try { seen = localStorage.getItem(KEY) === '1'; } catch (_) { seen = true; }
+  var box = document.getElementById('coach');
+  if (!box || seen) return;
+  box.hidden = false;
+  var ok = document.getElementById('coachOk');
+  function dismiss() {
+    box.hidden = true;
+    try { localStorage.setItem(KEY, '1'); } catch (_) {}
+  }
+  if (ok) { ok.addEventListener('click', dismiss); ok.focus(); }
 })();
 </script>
 </body>
