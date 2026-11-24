@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Small, self-contained toolkits for ADHD and AuDHD brains: start working, decide, regulate, and recover." />
+  <meta name="theme-color" content="#0f1117" />
   <title>Rajan's Toolkits</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,7 +25,7 @@
       --surface: #16181f;
       --border: #23262f;
       --text: #e2e8f0;
-      --muted: #6b7280;
+      --muted: #9aa3b2;
       --accent: #6366f1;
     }
 
@@ -297,6 +299,32 @@
       color: var(--muted);
       letter-spacing: 0.05em;
     }
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--text); }
+
+    /* ── Accessibility baseline ── */
+    .skip-link {
+      position: absolute; left: 1rem; top: -100px; z-index: 200;
+      font-size: 0.7rem; padding: 10px 16px; border-radius: 8px;
+      background: var(--accent); color: #0f1117; text-decoration: none;
+    }
+    .skip-link:focus { top: 1rem; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .router-btn { min-height: 44px; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+    html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
 
     @media (max-width: 500px) {
       .grid { grid-template-columns: 1fr; }
@@ -308,6 +336,7 @@
 </head>
 <body>
   <div class="wrap">
+    <a class="skip-link" href="#main">Skip to content</a>
     <header>
       <div class="header-eyebrow">adhd-tools.artisticmonk.in</div>
       <h1>Rajan's <span>Toolkits</span></h1>
@@ -316,7 +345,7 @@
       </div>
     </header>
 
-    <main>
+    <main id="main">
       <div class="router">
         <div class="router-title">Start here — what's happening right now?</div>
         <div class="router-grid">
@@ -326,6 +355,8 @@
           <a class="router-btn" style="--rb-color:#c84b2f" href="toolkits/good_enough_now.html"><span class="rb-dot"></span>Design session about to sprawl</a>
           <a class="router-btn" style="--rb-color:#ff6b35" href="toolkits/adhd_sde_toolkit.html"><span class="rb-dot"></span>How do I tackle this work task?</a>
           <a class="router-btn" style="--rb-color:#5ec08a" href="toolkits/grounding_anchor.html"><span class="rb-dot"></span>I'm flooded / spiralling right now</a>
+          <a class="router-btn" style="--rb-color:#4ecdc4" href="toolkits/brain_dump.html"><span class="rb-dot"></span>My head is full — dump it out</a>
+          <a class="router-btn" style="--rb-color:#fbbf24" href="toolkits/transition_timer.html"><span class="rb-dot"></span>I need to leave or switch on time</a>
         </div>
       </div>
 
@@ -338,7 +369,7 @@
       <div class="research-grid" id="researchGrid"></div>
     </main>
 
-    <footer>built for my brain · updated as needed</footer>
+    <footer>built for my brain · updated as needed · <a href="/accessibility.html">Accessibility</a> · <a href="/privacy.html">Privacy</a></footer>
   </div>
 
   <script>
@@ -392,6 +423,20 @@
         tag: "Grounding",
         color: "#5ec08a",
       },
+      {
+        title: "Brain Dump",
+        desc: "Get every looping thought out of your head and onto the page. No organizing, no prioritizing — capture first, sort later.",
+        file: "toolkits/brain_dump.html",
+        tag: "Capture",
+        color: "#4ecdc4",
+      },
+      {
+        title: "Transition Timer",
+        desc: "Set when you need to leave or switch, get a wind-down warning first — so time-blindness doesn't make you late.",
+        file: "toolkits/transition_timer.html",
+        tag: "Time",
+        color: "#fbbf24",
+      },
     ];
     // ──────────────────────────────────────────────────────────────────────
 
@@ -406,8 +451,6 @@
       const card = document.createElement("a");
       card.className = "rcard";
       card.href = file;
-      card.target = "_blank";
-      card.rel = "noopener";
       card.innerHTML = `
         <div class="rcard-date">${date}</div>
         <div class="rcard-tag" style="color:${c}">${tag}</div>
@@ -423,8 +466,6 @@
       const card = document.createElement("a");
       card.className = "card";
       card.href = file;
-      card.target = "_blank";
-      card.rel = "noopener";
       card.innerHTML = `
         <div class="card-accent" style="background:${c}"></div>
         <h2>${title}</h2>

@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Transition Timer: set when you need to leave or switch, get a wind-down warning first — so time-blindness doesn't make you late." />
+<meta name="theme-color" content="#0f1117" />
+<title>Transition Timer — Leave on Time</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-QN3P3HSD90"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-QN3P3HSD90');
+</script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #0f1117;
+  --surface: #16181f;
+  --border:  #23262f;
+  --text:    #e2e8f0;
+  --muted:   #9aa3b2;
+  --accent:  #fbbf24;
+  --go:      #34d399;
+  --danger:  #f87171;
+}
+
+body {
+  font-family: 'DM Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.app { max-width: 560px; margin: 0 auto; }
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--muted); text-decoration: none; margin-bottom: 20px;
+}
+.back-link:hover { color: var(--text); }
+
+h1 { font-size: 1.6rem; font-weight: 500; letter-spacing: -0.02em; margin-bottom: 4px; }
+.subtitle { font-size: 0.72rem; color: var(--muted); margin-bottom: 24px; letter-spacing: 0.03em; line-height: 1.6; }
+
+/* ── Setup ── */
+.panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px; margin-bottom: 16px;
+}
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 6px; }
+.field input {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); padding: 12px 14px;
+  font-family: 'DM Mono', monospace; font-size: 0.95rem;
+}
+.field input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+  font-family: 'DM Mono', monospace; font-size: 0.68rem; padding: 10px 16px;
+  border-radius: 20px; border: 1px solid var(--border); background: transparent;
+  color: var(--muted); cursor: pointer; min-height: 44px;
+}
+.chip.active { border-color: var(--accent); color: var(--accent); background: rgba(251,191,36,0.1); }
+
+.btn {
+  font-family: 'DM Mono', monospace; font-size: 0.72rem; text-transform: uppercase;
+  letter-spacing: 0.06em; padding: 12px 22px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--accent); background: rgba(251,191,36,0.12); color: var(--accent);
+  min-height: 44px;
+}
+.btn:hover { background: rgba(251,191,36,0.22); }
+.btn-ghost { border-color: var(--border); background: transparent; color: var(--muted); }
+.btn-ghost:hover { border-color: var(--text); color: var(--text); background: transparent; }
+
+/* ── Countdown ── */
+.countdown {
+  display: none; text-align: center;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 32px 16px; margin-bottom: 16px;
+}
+.countdown.on { display: block; }
+.countdown.wind { border-color: var(--accent); }
+.countdown.due { border-color: var(--danger); }
+#ttLabel { font-size: 0.9rem; margin-bottom: 8px; overflow-wrap: anywhere; }
+#ttDisplay { font-size: 2.6rem; font-weight: 500; letter-spacing: -0.02em; margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+.countdown.wind #ttDisplay { color: var(--accent); }
+.countdown.due #ttDisplay { color: var(--danger); }
+#ttStatus { font-size: 0.68rem; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+
+footer { margin-top: 32px; font-size: 0.6rem; color: var(--muted); letter-spacing: 0.05em; }
+
+/* ── Accessibility baseline ── */
+.skip-link {
+  position: absolute; left: 1rem; top: -100px; z-index: 200;
+  font-family: 'DM Mono', monospace; font-size: 0.66rem;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 10px 16px; border-radius: 8px;
+  background: var(--accent); color: #0f1117; text-decoration: none;
+}
+.skip-link:focus { top: 1rem; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button { min-height: 44px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* ── Comfort Settings v1 (shared pattern — see AGENTS.md §6) ── */
+body.dyslexic-mode,
+body.dyslexic-mode * {
+  font-family: 'OpenDyslexic', sans-serif !important;
+  line-height: 1.6 !important;
+  letter-spacing: 0.01em !important;
+}
+html.font-lg { font-size: 19px; }
+html.font-xl { font-size: 22px; }
+.a11y-bar {
+  position: fixed; bottom: 20px; right: 20px; z-index: 200;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.a11y-btn {
+  width: 44px; height: 44px; min-height: 44px; padding: 0; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--muted); cursor: pointer; font-size: 0.85rem;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace;
+}
+.a11y-btn:hover { border-color: var(--text); color: var(--text); }
+.a11y-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(251,191,36,0.14); }
+.a11y-btn.reading { border-color: var(--accent); color: var(--accent); }
+.input-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 12px; }
+.input-wrap input[type="text"], .input-wrap textarea { flex: 1; min-width: 0; margin-bottom: 0; }
+.mic-btn {
+  width: 44px; height: 44px; min-height: 44px; padding: 0; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--muted); cursor: pointer; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; touch-action: manipulation;
+}
+.mic-btn:hover { border-color: var(--accent); color: var(--accent); }
+.mic-btn.active { border-color: #f87171; color: #f87171; background: rgba(248,113,113,0.12); animation: comfort-mic-pulse 1s infinite; }
+@keyframes comfort-mic-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+.mic-status { width: 100%; font-size: 0.6rem; line-height: 1.4; padding: 0 2px; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="app" id="main">
+<a href="/" class="back-link">← All Toolkits</a>
+
+<h1>Transition Timer</h1>
+<p class="subtitle">Set when you need to leave or switch. The timer warns you <em>before</em> it's time — because the warning is the whole point when you're time-blind.</p>
+
+<div class="panel" id="setupPanel">
+  <div class="field">
+    <label for="ttWhat">What are you switching to?</label>
+    <input type="text" id="ttWhat" maxlength="120" placeholder="e.g. Leave for dentist, standup in 5…" autocomplete="off" />
+  </div>
+  <div class="field">
+    <label for="ttTime">What time is the thing?</label>
+    <input type="time" id="ttTime" />
+  </div>
+  <div class="field">
+    <label id="windLabel">Warn me ahead by</label>
+    <div class="chips" role="group" aria-labelledby="windLabel" id="windChips">
+      <button class="chip" type="button" data-min="5">5 min</button>
+      <button class="chip active" type="button" data-min="10">10 min</button>
+      <button class="chip" type="button" data-min="15">15 min</button>
+    </div>
+  </div>
+  <button class="btn" id="ttStart" type="button">Start timer</button>
+</div>
+
+<div class="countdown" id="ttPanel">
+  <div id="ttLabel"></div>
+  <div id="ttDisplay" role="timer" aria-label="Time remaining">--:--</div>
+  <div id="ttStatus" aria-live="polite"></div>
+  <button class="btn btn-ghost" id="ttCancel" type="button">Cancel (Esc)</button>
+</div>
+
+<footer>built for my brain · everything stays in this browser</footer>
+</div><!-- /app -->
+
+<!-- Comfort Settings v1 (shared pattern — see AGENTS.md §6). Preferences persist in localStorage on this device only. -->
+<div class="a11y-bar" role="toolbar" aria-label="Comfort settings — saved only in this browser">
+  <button class="a11y-btn" id="comfortFontBtn" type="button" aria-pressed="false" title="Text size: Normal">A</button>
+  <button class="a11y-btn" id="comfortDyslexiaBtn" type="button" aria-pressed="false" title="Dyslexia-friendly font">Aa</button>
+  <button class="a11y-btn" id="comfortMotionBtn" type="button" aria-pressed="false" title="Reduce motion: off">◐</button>
+  <button class="a11y-btn" id="comfortReadBtn" type="button" aria-pressed="false" title="Read this page aloud">▶</button>
+</div>
+
+<script>
+// ── Transition Timer ────────────────────────────────────────────────────
+var STORE_KEY = 'transition-v1';
+var timer = null;
+var target = 0;
+var windMs = 10 * 60 * 1000;
+var dueAnnounced = false;
+
+function save(state) {
+  try {
+    if (state) localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    else localStorage.removeItem(STORE_KEY);
+  } catch (_) {}
+}
+
+function fmt(ms) {
+  if (ms < 0) ms = 0;
+  var s = Math.floor(ms / 1000);
+  var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  function p(n) { return (n < 10 ? '0' : '') + n; }
+  return h > 0 ? h + ':' + p(m) + ':' + p(sec) : m + ':' + p(sec);
+}
+
+function buzz(pattern) {
+  try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (_) {}
+}
+
+function setStatus(text) {
+  document.getElementById('ttStatus').textContent = text;
+}
+
+function tick() {
+  var now = Date.now();
+  var display = document.getElementById('ttDisplay');
+  var panel = document.getElementById('ttPanel');
+  var label = document.getElementById('ttWhat').value.trim() || 'Time';
+  if (now >= target) {
+    display.textContent = 'GO';
+    panel.classList.add('due');
+    document.title = 'GO — ' + label;
+    if (!dueAnnounced) {
+      dueAnnounced = true;
+      setStatus('Time to go — ' + label + '. Everything else can wait.');
+      buzz([200, 100, 200, 100, 400]);
+    }
+    return;
+  }
+  var left = target - now;
+  if (left <= windMs) {
+    if (!panel.classList.contains('wind')) {
+      panel.classList.add('wind');
+      setStatus('Wrapping up — ' + label + ' is soon. Save your place, grab what you need.');
+      buzz([200, 100, 200]);
+    }
+    display.textContent = fmt(left);
+    document.title = 'Wrapping up ' + fmt(left) + ' — ' + label;
+  } else {
+    display.textContent = fmt(left - windMs);
+    setStatus('Relaxed — warning comes ' + Math.round(windMs / 60000) + ' min before ' + label + '.');
+    document.title = fmt(left - windMs) + ' to wind-down — ' + label;
+  }
+}
+
+function start() {
+  var timeVal = document.getElementById('ttTime').value;
+  var label = document.getElementById('ttWhat').value.trim();
+  if (!timeVal) {
+    setStatusSetup('Pick a time first.');
+    document.getElementById('ttTime').focus();
+    return;
+  }
+  var parts = timeVal.split(':');
+  var d = new Date();
+  d.setHours(parseInt(parts[0], 10), parseInt(parts[1], 10), 0, 0);
+  if (d.getTime() <= Date.now()) d.setDate(d.getDate() + 1); /* already passed today → tomorrow */
+  target = d.getTime();
+  dueAnnounced = false;
+  document.getElementById('ttLabel').textContent = label || 'The thing';
+  document.getElementById('ttPanel').classList.remove('wind', 'due');
+  document.getElementById('ttPanel').classList.add('on');
+  document.getElementById('setupPanel').style.display = 'none';
+  save({ label: label, target: target, windMin: Math.round(windMs / 60000) });
+  tick();
+  timer = setInterval(tick, 1000);
+  document.getElementById('ttCancel').focus();
+}
+
+function setStatusSetup(text) {
+  var s = document.getElementById('setupHint');
+  if (s) { s.textContent = text; return; }
+  s = document.createElement('p');
+  s.id = 'setupHint';
+  s.className = 'hint-setup';
+  s.setAttribute('aria-live', 'polite');
+  s.style.cssText = 'font-size:0.68rem;color:var(--accent);margin-top:10px;';
+  s.textContent = text;
+  document.getElementById('setupPanel').appendChild(s);
+}
+
+function cancel(reason) {
+  if (timer) clearInterval(timer);
+  timer = null;
+  save(null);
+  document.getElementById('ttPanel').classList.remove('on', 'wind', 'due');
+  document.getElementById('setupPanel').style.display = '';
+  document.title = 'Transition Timer — Leave on Time';
+  if (reason) setStatusSetup(reason);
+}
+
+document.getElementById('ttStart').addEventListener('click', start);
+document.getElementById('ttCancel').addEventListener('click', function () { cancel('Timer cancelled. Set a new one whenever.'); });
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' && timer) cancel('Timer cancelled. Set a new one whenever.');
+});
+document.getElementById('windChips').addEventListener('click', function (e) {
+  var chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('#windChips .chip').forEach(function (c) { c.classList.remove('active'); });
+  chip.classList.add('active');
+  windMs = parseInt(chip.dataset.min, 10) * 60 * 1000;
+});
+
+/* Resume a pending timer after reload */
+(function restore() {
+  var raw = null;
+  try { raw = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (_) {}
+  if (!raw || !raw.target || raw.target <= Date.now()) { save(null); return; }
+  document.getElementById('ttWhat').value = raw.label || '';
+  var d = new Date(raw.target);
+  document.getElementById('ttTime').value =
+    (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+  if (raw.windMin) {
+    windMs = raw.windMin * 60 * 1000;
+    document.querySelectorAll('#windChips .chip').forEach(function (c) {
+      c.classList.toggle('active', parseInt(c.dataset.min, 10) === raw.windMin);
+    });
+  }
+  start();
+})();
+</script>
+
+<script>
+/* Comfort Settings v1 (shared pattern — see AGENTS.md §6).
+   Preferences persist in localStorage on this device only. */
+(function comfortSettings() {
+  var store = {
+    get: function (k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (_) { return d; } },
+    set: function (k, v) { try { localStorage.setItem(k, v); } catch (_) {} }
+  };
+  var SIZES = [
+    { label: 'A',   cls: '',        title: 'Text size: Normal' },
+    { label: 'A+',  cls: 'font-lg', title: 'Text size: Large' },
+    { label: 'A++', cls: 'font-xl', title: 'Text size: Extra large' }
+  ];
+  var sizeIdx = parseInt(store.get('comfort-fontsize', '0'), 10) || 0;
+  if (sizeIdx < 0 || sizeIdx >= SIZES.length) sizeIdx = 0;
+  function applySize() {
+    var html = document.documentElement;
+    SIZES.forEach(function (s) { if (s.cls) html.classList.remove(s.cls); });
+    if (SIZES[sizeIdx].cls) html.classList.add(SIZES[sizeIdx].cls);
+    var btn = document.getElementById('comfortFontBtn');
+    if (!btn) return;
+    btn.textContent = SIZES[sizeIdx].label;
+    btn.title = SIZES[sizeIdx].title;
+    btn.classList.toggle('active', sizeIdx > 0);
+    btn.setAttribute('aria-pressed', sizeIdx > 0 ? 'true' : 'false');
+  }
+  var dyslexic = store.get('comfort-dyslexic', '0') === '1';
+  function applyDyslexic() {
+    if (dyslexic && !document.getElementById('opendyslexic-css')) {
+      var link = document.createElement('link');
+      link.id = 'opendyslexic-css';
+      link.rel = 'stylesheet';
+      link.href = 'https://fonts.cdnfonts.com/css/opendyslexic';
+      document.head.appendChild(link);
+    }
+    document.body.classList.toggle('dyslexic-mode', dyslexic);
+    var btn = document.getElementById('comfortDyslexiaBtn');
+    if (!btn) return;
+    btn.classList.toggle('active', dyslexic);
+    btn.setAttribute('aria-pressed', dyslexic ? 'true' : 'false');
+    btn.title = dyslexic ? 'Standard font' : 'Dyslexia-friendly font';
+  }
+  var motionOff = store.get('comfort-motion', '0') === '1';
+  function applyMotion() {
+    document.documentElement.classList.toggle('reduce-motion', motionOff);
+    var btn = document.getElementById('comfortMotionBtn');
+    if (!btn) return;
+    btn.classList.toggle('active', motionOff);
+    btn.setAttribute('aria-pressed', motionOff ? 'true' : 'false');
+    btn.title = motionOff ? 'Reduce motion: on' : 'Reduce motion: off';
+  }
+  var synth = window.speechSynthesis || null;
+  var voice = null;
+  var reading = false;
+  function pickVoice() {
+    if (!synth) return null;
+    var voices = synth.getVoices();
+    if (!voices.length) return null;
+    var en = voices.filter(function (v) { return /^en(-|_|$)/i.test(v.lang); });
+    var pool = en.length ? en : voices;
+    function score(v) {
+      var n = ((v.name || '') + ' ' + (v.voiceURI || '')).toLowerCase();
+      var s = 0;
+      if (/natural|neural|online|premium|enhanced/.test(n)) s += 100;
+      if (/google/.test(n)) s += 60;
+      if (/microsoft/.test(n)) s += 40;
+      if (!v.localService) s += 50;
+      if (/en-us/.test((v.lang || '').toLowerCase())) s += 10;
+      if (/zira|david|fred|albert|espeak/.test(n)) s -= 40;
+      return s;
+    }
+    return pool.slice().sort(function (a, b) { return score(b) - score(a); })[0] || null;
+  }
+  function collectChunks() {
+    var parts = [];
+    document.querySelectorAll('#main h1, #main h2, #main h3, #main p, #main li').forEach(function (el) {
+      if (el.closest('.a11y-bar')) return;
+      var t = el.textContent.replace(/\s+/g, ' ').trim();
+      if (t) parts.push(t);
+    });
+    var chunks = [];
+    parts.forEach(function (p) {
+      (p.match(/[^.!?]+[.!?]*\s*/g) || [p]).forEach(function (s) {
+        var t = s.trim();
+        if (t) chunks.push(t);
+      });
+    });
+    return chunks;
+  }
+  function setReadUI(on) {
+    var btn = document.getElementById('comfortReadBtn');
+    if (!btn) return;
+    btn.textContent = on ? '■' : '▶';
+    btn.classList.toggle('reading', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.title = on ? 'Stop reading' : 'Read this page aloud';
+  }
+  function stopReading() {
+    reading = false;
+    if (synth) synth.cancel();
+    setReadUI(false);
+  }
+  function startReading() {
+    if (!synth) return;
+    synth.cancel();
+    var queue = collectChunks();
+    if (!queue.length) return;
+    reading = true;
+    setReadUI(true);
+    voice = voice || pickVoice();
+    (function next() {
+      if (!reading || !queue.length) { stopReading(); return; }
+      var u = new SpeechSynthesisUtterance(queue.shift());
+      if (voice) u.voice = voice;
+      u.lang = (voice && voice.lang) || 'en-US';
+      u.rate = 0.95;
+      u.onend = next;
+      u.onerror = next;
+      synth.speak(u);
+    })();
+  }
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  var activeMic = null;
+  function setMicStatus(btn, msg) {
+    var wrap = btn.parentElement;
+    var status = wrap ? wrap.querySelector('.mic-status') : null;
+    if (status) status.textContent = msg || '';
+  }
+  function toggleMic(input, btn) {
+    if (!SR) { setMicStatus(btn, 'Use the mic key on your keyboard instead'); return; }
+    if (activeMic && activeMic.btn === btn) { activeMic.recognition.stop(); return; }
+    if (activeMic) activeMic.recognition.stop();
+    var recognition = new SR();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+    var prefix = input.value ? input.value + ' ' : '';
+    var committed = '';
+    recognition.onstart = function () { btn.classList.add('active'); setMicStatus(btn, 'Listening… tap mic to stop'); };
+    recognition.onresult = function (e) {
+      for (var i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) committed += e.results[i][0].transcript + ' ';
+      }
+      var last = e.results[e.results.length - 1];
+      input.value = prefix + committed + (last.isFinal ? '' : last[0].transcript);
+    };
+    recognition.onend = function () { btn.classList.remove('active'); activeMic = null; setMicStatus(btn, ''); };
+    recognition.onerror = function () { btn.classList.remove('active'); activeMic = null; setMicStatus(btn, 'Use the mic key on your keyboard instead'); };
+    activeMic = { recognition: recognition, btn: btn };
+    try { recognition.start(); }
+    catch (_) { btn.classList.remove('active'); activeMic = null; }
+  }
+  function initMics() {
+    document.querySelectorAll('#main input[type="text"], #main textarea').forEach(function (input) {
+      if (input.closest('.input-wrap')) return;
+      var wrap = document.createElement('div');
+      wrap.className = 'input-wrap';
+      input.parentNode.insertBefore(wrap, input);
+      wrap.appendChild(input);
+      var btn = document.createElement('button');
+      btn.className = 'mic-btn';
+      btn.type = 'button';
+      btn.title = 'Speak to fill';
+      btn.setAttribute('aria-label', 'Speak to fill this field');
+      btn.textContent = '🎤';
+      btn.addEventListener('click', function () { toggleMic(input, btn); });
+      wrap.appendChild(btn);
+      var status = document.createElement('div');
+      status.className = 'mic-status';
+      status.setAttribute('aria-live', 'polite');
+      wrap.appendChild(status);
+    });
+  }
+  document.getElementById('comfortFontBtn').addEventListener('click', function () {
+    sizeIdx = (sizeIdx + 1) % SIZES.length;
+    store.set('comfort-fontsize', String(sizeIdx));
+    applySize();
+  });
+  document.getElementById('comfortDyslexiaBtn').addEventListener('click', function () {
+    dyslexic = !dyslexic;
+    store.set('comfort-dyslexic', dyslexic ? '1' : '0');
+    applyDyslexic();
+  });
+  document.getElementById('comfortMotionBtn').addEventListener('click', function () {
+    motionOff = !motionOff;
+    store.set('comfort-motion', motionOff ? '1' : '0');
+    applyMotion();
+  });
+  document.getElementById('comfortReadBtn').addEventListener('click', function () {
+    reading ? stopReading() : startReading();
+  });
+  if (synth && synth.onvoiceschanged !== undefined) {
+    synth.addEventListener('voiceschanged', function () { voice = pickVoice(); });
+  }
+  window.addEventListener('beforeunload', function () { if (synth) synth.cancel(); });
+  initMics();
+  applySize();
+  applyDyslexic();
+  applyMotion();
+})();
+</script>
+</body>
+</html>

@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Two modes, one brain: social entry prep with spoon budget and soft exits, plus a work ramp for getting started." />
 <title>AuDHD Comfort Zone Toolkit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,7 +24,7 @@
   --card:    #1c2a3e;
   --border:  #253448;
   --text:    #dde4ef;
-  --muted:   #6b82a0;
+  --muted:   #9aa8c0;
   --social:  #818cf8;   /* indigo — calm, connection */
   --work:    #34d399;   /* emerald — growth, start */
   --spoon:   #fbbf24;   /* amber — energy */
@@ -322,7 +323,7 @@ textarea {
 }
 
 input[type="text"]:focus,
-textarea:focus { outline: none; border-color: var(--social); }
+textarea:focus { outline: 2px solid var(--social); outline-offset: 1px; border-color: var(--social); }
 
 textarea { resize: vertical; min-height: 52px; line-height: 1.5; }
 
@@ -706,8 +707,8 @@ body.dyslexic-mode * {
 }
 
 .a11y-btn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--surface);
@@ -738,8 +739,8 @@ html.font-xl { font-size: 22px; }
 .input-wrap input[type="text"] { flex: 1; min-width: 0; margin-bottom: 0; }
 
 .mic-btn {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--surface);
@@ -787,10 +788,36 @@ html.font-xl { font-size: 22px; }
 }
 .read-btn:hover { border-color: var(--muted); color: var(--text); }
 .read-btn.reading { border-color: var(--social); color: var(--social); }
+/* ── Accessibility baseline ── */
+.skip-link {
+  position: absolute; left: 1rem; top: -100px; z-index: 200;
+  font-family: 'DM Mono', monospace; font-size: 0.66rem;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 10px 16px; border-radius: 8px;
+  background: var(--social); color: #0e1521; text-decoration: none;
+}
+.skip-link:focus { top: 1rem; }
+:focus-visible { outline: 2px solid var(--social); outline-offset: 2px; }
+button { min-height: 44px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
 </style>
 </head>
 <body>
-<div class="app">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="app" id="main">
 
   <a href="/" class="back-link">← All Toolkits</a>
 
@@ -863,7 +890,7 @@ html.font-xl { font-size: 22px; }
       <div class="card">
         <div class="card-label">Spoons right now — click to set your level</div>
         <div class="spoon-track" id="spoonTrack"></div>
-        <div class="spoon-status" id="spoonStatus"></div>
+        <div class="spoon-status" id="spoonStatus" aria-live="polite"></div>
       </div>
 
       <div class="card">
@@ -1014,7 +1041,7 @@ html.font-xl { font-size: 22px; }
 
       <div class="card">
         <div class="card-label">Suggested recovery time</div>
-        <div class="recovery-time-display" id="recoveryTime">—</div>
+        <div class="recovery-time-display" id="recoveryTime" aria-live="polite">—</div>
         <div class="recovery-advice" id="recoveryAdvice"></div>
       </div>
 
@@ -1259,9 +1286,11 @@ html.font-xl { font-size: 22px; }
 </div><!-- /app -->
 
 <!-- Accessibility bar -->
-<div class="a11y-bar">
-  <button class="a11y-btn" id="fontSizeBtn" onclick="cycleFontSize()" title="Text size: Normal">A</button>
-  <button class="a11y-btn" id="dyslexiaBtn" onclick="toggleDyslexiaFont()" title="Dyslexia-friendly font">Aa</button>
+<!-- Comfort Settings v1 (shared pattern — see AGENTS.md §6). Preferences persist in localStorage on this device only. -->
+<div class="a11y-bar" role="toolbar" aria-label="Comfort settings — saved only in this browser">
+  <button class="a11y-btn" id="fontSizeBtn" onclick="cycleFontSize()" title="Text size: Normal" aria-pressed="false">A</button>
+  <button class="a11y-btn" id="dyslexiaBtn" onclick="toggleDyslexiaFont()" title="Dyslexia-friendly font" aria-pressed="false">Aa</button>
+  <button class="a11y-btn" id="motionBtn" onclick="toggleMotion()" title="Reduce motion: off" aria-pressed="false">◐</button>
   <button class="a11y-btn" id="ttsStopBtn" onclick="stopReading()" title="Stop reading" style="display:none">■</button>
 </div>
 
@@ -1907,7 +1936,7 @@ const fontSizes = [
   { key: 'lg',     label: 'A+',  cls: 'font-lg', title: 'Text size: Large'  },
   { key: 'xl',     label: 'A++', cls: 'font-xl', title: 'Text size: Extra large' },
 ];
-let fontSizeIdx = +(localStorage.getItem('audhd-fontsize') || 0);
+let fontSizeIdx = +(localStorage.getItem('comfort-fontsize') || 0);
 
 function initFontSize() {
   applyFontSize(fontSizeIdx);
@@ -1915,7 +1944,7 @@ function initFontSize() {
 
 function cycleFontSize() {
   fontSizeIdx = (fontSizeIdx + 1) % fontSizes.length;
-  localStorage.setItem('audhd-fontsize', fontSizeIdx);
+  localStorage.setItem('comfort-fontsize', fontSizeIdx);
   applyFontSize(fontSizeIdx);
 }
 
@@ -1928,23 +1957,26 @@ function applyFontSize(idx) {
   btn.textContent = size.label;
   btn.title = size.title;
   btn.classList.toggle('active', idx > 0);
+  btn.setAttribute('aria-pressed', idx > 0 ? 'true' : 'false');
 }
 
 // ── Accessibility: Dyslexia font toggle ───────────────────────────────────
-let dyslexicFont = localStorage.getItem('audhd-dyslexic') === '1';
+let dyslexicFont = localStorage.getItem('comfort-dyslexic') === '1';
 
 function initDyslexiaToggle() {
   const btn = document.getElementById('dyslexiaBtn');
   if (dyslexicFont) { applyDyslexicFont(true); btn.classList.add('active'); }
+  btn.setAttribute('aria-pressed', dyslexicFont ? 'true' : 'false');
   btn.title = dyslexicFont ? 'Standard font' : 'Dyslexia-friendly font';
 }
 
 function toggleDyslexiaFont() {
   dyslexicFont = !dyslexicFont;
-  localStorage.setItem('audhd-dyslexic', dyslexicFont ? '1' : '0');
+  localStorage.setItem('comfort-dyslexic', dyslexicFont ? '1' : '0');
   applyDyslexicFont(dyslexicFont);
   const btn = document.getElementById('dyslexiaBtn');
   btn.classList.toggle('active', dyslexicFont);
+  btn.setAttribute('aria-pressed', dyslexicFont ? 'true' : 'false');
   btn.title = dyslexicFont ? 'Standard font' : 'Dyslexia-friendly font';
 }
 
@@ -1959,6 +1991,29 @@ function applyDyslexicFont(on) {
   document.body.classList.toggle('dyslexic-mode', on);
 }
 
+// ── Accessibility: Reduce motion (Comfort Settings v1 shared keys) ─────────
+let reduceMotion = false;
+try { reduceMotion = localStorage.getItem('comfort-motion') === '1'; } catch (_) {}
+
+function initMotionToggle() {
+  applyMotionPref();
+}
+
+function toggleMotion() {
+  reduceMotion = !reduceMotion;
+  try { localStorage.setItem('comfort-motion', reduceMotion ? '1' : '0'); } catch (_) {}
+  applyMotionPref();
+}
+
+function applyMotionPref() {
+  document.documentElement.classList.toggle('reduce-motion', reduceMotion);
+  const btn = document.getElementById('motionBtn');
+  if (!btn) return;
+  btn.classList.toggle('active', reduceMotion);
+  btn.setAttribute('aria-pressed', reduceMotion ? 'true' : 'false');
+  btn.title = reduceMotion ? 'Reduce motion: on' : 'Reduce motion: off';
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────
 buildSpoons();
 updateSenseProgress();
@@ -1968,6 +2023,7 @@ initMicButtons();
 initReadButtons();
 initFontSize();
 initDyslexiaToggle();
+initMotionToggle();
 initSession();
 </script>
 </body>

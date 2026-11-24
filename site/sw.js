@@ -1,11 +1,15 @@
-const CACHE = 'toolkits-v3';
+const CACHE = 'toolkits-v4';
 const PRECACHE = [
   '/toolkits/audhd_comfort_zone.html',
   '/toolkits/adhd_sde_toolkit.html',
   '/toolkits/good_enough_now.html',
   '/toolkits/wide_first.html',
   '/toolkits/grounding_anchor.html',
+  '/toolkits/brain_dump.html',
+  '/toolkits/transition_timer.html',
   '/index.html',
+  '/accessibility.html',
+  '/privacy.html',
   '/icon.svg',
 ];
 

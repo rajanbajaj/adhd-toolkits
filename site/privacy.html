@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Privacy on this site: what stays on your device, what leaves it, and why." />
+<meta name="theme-color" content="#0f1117" />
+<title>Privacy &amp; Local Data — Rajan's Toolkits</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #0f1117;
+  --surface: #16181f;
+  --border:  #23262f;
+  --text:    #e2e8f0;
+  --muted:   #9aa3b2;
+  --accent:  #34d399;
+  --warn:    #fbbf24;
+}
+
+body {
+  font-family: 'DM Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.7;
+}
+
+.wrap { max-width: 740px; margin: 0 auto; padding: 0 1.5rem 6rem; }
+
+.back-link {
+  display: inline-block;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 2.5rem 0 0;
+  margin-bottom: 2.5rem;
+}
+.back-link:hover { color: var(--text); }
+
+.article-meta {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+.article-deck {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.65;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.section { margin-bottom: 2.5rem; }
+
+h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+p { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.2rem; margin-bottom: 0.75rem; }
+li { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.3rem; line-height: 1.6; }
+li strong { color: var(--text); font-weight: 500; }
+
+code {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--accent);
+}
+
+.box {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.74rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  border: 1px solid;
+}
+.box-decision { background: rgba(52,211,153,0.07); border-color: rgba(52,211,153,0.3); color: var(--text); }
+.box-warn { background: rgba(251,191,36,0.07); border-color: rgba(251,191,36,0.3); color: var(--text); }
+.box-label {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+.box-decision .box-label { color: var(--accent); }
+.box-warn .box-label { color: var(--warn); }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+
+/* ── Accessibility baseline ── */
+.skip-link {
+  position: absolute; left: 1rem; top: -100px; z-index: 200;
+  font-family: 'DM Mono', monospace; font-size: 0.66rem;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 10px 16px; border-radius: 8px;
+  background: var(--accent); color: #0f1117; text-decoration: none;
+}
+.skip-link:focus { top: 1rem; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 520px) {
+  h1 { font-size: 1.35rem; }
+  h2 { font-size: 0.95rem; }
+  .box { font-size: 0.7rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="main">
+
+<a class="skip-link" href="#main">Skip to content</a>
+<a href="/" class="back-link">← All Toolkits</a>
+
+<div class="article-meta">Standards · adhd-tools.artisticmonk.in</div>
+<h1>Privacy &amp; Local Data</h1>
+<p class="article-deck">
+  Short version: your words stay in your browser. There are no accounts, no logins, and no server that receives what you type. The longer version — what exactly stays, and the few things that do leave — is below.
+</p>
+
+<div class="section">
+<h2>What stays on your device</h2>
+<ul>
+  <li><strong>Everything you type.</strong> Brain dumps, session plans, scores, timers, and comfort settings (text size, font, motion, read-aloud state) live in <code>localStorage</code> in your own browser.</li>
+  <li><strong>Nothing syncs.</strong> Clearing site data in your browser wipes it; nobody else can see it because it never leaves.</li>
+  <li><strong>No accounts, no health records anywhere else.</strong> There is nowhere for your data to go — the site has no backend.</li>
+</ul>
+<div class="box box-decision">
+  <div class="box-label">Principle</div>
+  A tool for vulnerable moments should not phone home with them.<br>
+  If you want something gone, clear it in the tool (or clear site data) and it is gone everywhere, because everywhere is one place: your browser.
+</div>
+</div>
+
+<div class="section">
+<h2>What leaves your device</h2>
+<ul>
+  <li><strong>Page-visit counts.</strong> Most pages include a lightweight analytics snippet that records that a page was visited — not what you typed, clicked, or saved. It measures footfall, never content.</li>
+  <li><strong>Voice dictation audio.</strong> The mic button uses your browser's built-in speech recognition, which sends audio to your browser vendor's speech service (Google, Apple, or Microsoft, depending on your browser) for transcription. If that bothers you, use the keyboard instead — it works everywhere here.</li>
+  <li><strong>Font downloads.</strong> Pages fetch fonts from Google Fonts, and the dyslexia-friendly font from its CDN the first time you enable it. Those requests tell the CDN an IP address loaded a font — standard web behavior, no content attached.</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>What this site is not</h2>
+<div class="box box-warn">
+  <div class="box-label">A gentle note</div>
+  None of this is medical advice or a diagnosis, and no tool here replaces a therapist, doctor, or your own judgement. These are scaffolding — external structure for a brain that does better with structure outside its own head.
+</div>
+</div>
+
+<footer>adhd-tools.artisticmonk.in · privacy &amp; local data</footer>
+
+</div>
+</body>
+</html>

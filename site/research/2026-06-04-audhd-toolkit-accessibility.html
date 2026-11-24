@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="The philosophy underneath every toolkit: spoons, two kinds of stuck, masking, breadth-first thinking, and grounding. In plain language." />
+<meta name="theme-color" content="#0f1117" />
 <title>AuDHD Toolkit: Accessibility-First Design — Session Notes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +17,7 @@
   --surface: #16181f;
   --border:  #23262f;
   --text:    #e2e8f0;
-  --muted:   #6b7280;
+  --muted:   #9aa3b2;
   --accent:  #818cf8;
   --work:    #34d399;
   --warn:    #fbbf24;
@@ -171,6 +173,29 @@ pre code {
 .box-fix      .box-label { color: var(--work); }
 .box-warn     .box-label { color: var(--warn); }
 
+/* ── Accessibility baseline ── */
+.skip-link {
+  position: absolute; left: 1rem; top: -100px; z-index: 200;
+  font-family: 'DM Mono', monospace; font-size: 0.66rem;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 10px 16px; border-radius: 8px;
+  background: var(--accent); color: #0f1117; text-decoration: none;
+}
+.skip-link:focus { top: 1rem; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
 @media (max-width: 520px) {
   h1 { font-size: 1.35rem; }
   h2 { font-size: 0.95rem; }
@@ -190,8 +215,9 @@ footer {
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap" id="main">
 
+<a class="skip-link" href="#main">Skip to content</a>
 <a href="/" class="back-link">← All Toolkits</a>
 
 <div class="article-meta">Concepts &amp; Philosophy · adhd-tools.artisticmonk.in</div>
@@ -340,7 +366,7 @@ footer {
 
 <footer>adhd-tools.artisticmonk.in · concepts &amp; philosophy</footer>
 
-<button id="readAloudBtn" type="button" aria-label="Read this article aloud">▶ Read aloud</button>
+<button id="readAloudBtn" type="button" aria-label="Read this article aloud" aria-pressed="false">▶ Read aloud</button>
 
 <style>
 #readAloudBtn {
@@ -436,6 +462,7 @@ footer {
     queue = [];
     synth.cancel();
     btn.textContent = '▶ Read aloud';
+    btn.setAttribute('aria-pressed', 'false');
     btn.classList.remove('reading');
   }
 
@@ -444,6 +471,7 @@ footer {
     queue = collectChunks();
     reading = true;
     btn.textContent = '■ Stop';
+    btn.setAttribute('aria-pressed', 'true');
     btn.classList.add('reading');
     speakNext();
   }

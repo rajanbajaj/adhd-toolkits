@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Accessibility on this site: what is built in, what the known limits are, and the standard every page is held to." />
+<meta name="theme-color" content="#0f1117" />
+<title>Accessibility — Rajan's Toolkits</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #0f1117;
+  --surface: #16181f;
+  --border:  #23262f;
+  --text:    #e2e8f0;
+  --muted:   #9aa3b2;
+  --accent:  #818cf8;
+  --work:    #34d399;
+  --warn:    #fbbf24;
+}
+
+body {
+  font-family: 'DM Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.7;
+}
+
+.wrap { max-width: 740px; margin: 0 auto; padding: 0 1.5rem 6rem; }
+
+.back-link {
+  display: inline-block;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 2.5rem 0 0;
+  margin-bottom: 2.5rem;
+}
+.back-link:hover { color: var(--text); }
+
+.article-meta {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+.article-deck {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.65;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.section { margin-bottom: 2.5rem; }
+
+h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+h3 {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text);
+  margin: 1.2rem 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+p { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem; }
+
+ul, ol { padding-left: 1.2rem; margin-bottom: 0.75rem; }
+li { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.3rem; line-height: 1.6; }
+li strong { color: var(--text); font-weight: 500; }
+
+.box {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.74rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  border: 1px solid;
+}
+.box-decision { background: rgba(129,140,248,0.07); border-color: rgba(129,140,248,0.3); color: var(--text); }
+.box-warn { background: rgba(251,191,36,0.07); border-color: rgba(251,191,36,0.3); color: var(--text); }
+.box-label {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+.box-decision .box-label { color: var(--accent); }
+.box-warn .box-label { color: var(--warn); }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+
+/* ── Accessibility baseline ── */
+.skip-link {
+  position: absolute; left: 1rem; top: -100px; z-index: 200;
+  font-family: 'DM Mono', monospace; font-size: 0.66rem;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 10px 16px; border-radius: 8px;
+  background: var(--accent); color: #0f1117; text-decoration: none;
+}
+.skip-link:focus { top: 1rem; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 520px) {
+  h1 { font-size: 1.35rem; }
+  h2 { font-size: 0.95rem; }
+  .box { font-size: 0.7rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="main">
+
+<a class="skip-link" href="#main">Skip to content</a>
+<a href="/" class="back-link">← All Toolkits</a>
+
+<div class="article-meta">Standards · adhd-tools.artisticmonk.in</div>
+<h1>Accessibility</h1>
+<p class="article-deck">
+  These tools are for brains that mainstream interfaces routinely fail. So accessibility here is not a checklist bolted on at the end — it is the bar every page has to clear. This page says what is built in, what is not, and where the limits are.
+</p>
+
+<div class="section">
+<h2>What every page does</h2>
+<ul>
+  <li><strong>Keyboard-first.</strong> Everything interactive works with Tab, Shift+Tab, and Enter. A skip link jumps straight to the content, focus is always visible, and Escape cancels the transition timer.</li>
+  <li><strong>Status you can hear.</strong> Timers carry <strong>role="timer"</strong> so screen readers treat them as clocks, not chatter. Counts, phase changes, and wind-down warnings are announced through polite live regions.</li>
+  <li><strong>No motion ambushes.</strong> The breathing pacer goes static under <strong>prefers-reduced-motion</strong>, and every toolkit has a manual reduce-motion toggle that does the same.</li>
+  <li><strong>Readable text.</strong> Body text meets WCAG AA contrast (4.5:1). No page opens internal links in new tabs — you stay where you are.</li>
+  <li><strong>Your state survives.</strong> Half-finished sessions, dumps, and timers persist in this browser across reloads. Interruptions are normal here, not punished.</li>
+</ul>
+</div>
+
+<div class="section">
+<h2>Comfort settings on every toolkit</h2>
+<p>Each toolkit has a small toolbar (bottom-right) with four controls. Set them once — they carry across every toolkit on this device:</p>
+<ul>
+  <li><strong>Text size</strong> — Normal, Large, Extra large.</li>
+  <li><strong>Dyslexia-friendly font</strong> — OpenDyslexic, loaded only when you switch it on.</li>
+  <li><strong>Reduce motion</strong> — stops scaling, pulsing, and transitions.</li>
+  <li><strong>Read aloud</strong> — reads the page back, best natural voice the browser offers.</li>
+  <li><strong>Voice input</strong> — a mic button sits next to every text field, including the brain dump box.</li>
+</ul>
+<div class="box box-decision">
+  <div class="box-label">Principle</div>
+  <strong>Meet the brain where it is.</strong><br>
+  A page you can't comfortably read, in a moment when reading is already hard, isn't neutral — it's another demand. Multiple ways in lower that demand instead of adding to it.
+</div>
+</div>
+
+<div class="section">
+<h2>Known limits</h2>
+<ul>
+  <li><strong>English only.</strong> No translations yet.</li>
+  <li><strong>Keyboard- and code-audited, not screen-reader tested.</strong> The semantics are built to the standard (landmarks, labels, live regions, timer roles), but no full pass with VoiceOver, TalkBack, or NVDA has happened yet.</li>
+  <li><strong>Voice features depend on the browser.</strong> Dictation and read-aloud need browser support; dictation sends audio to your browser's speech service (see <a href="/privacy.html" style="color:var(--accent)">Privacy</a>).</li>
+  <li><strong>Dyslexia font comes from a CDN</strong> the first time you enable it — it needs a connection that once.</li>
+</ul>
+<div class="box box-warn">
+  <div class="box-label">A gentle note</div>
+  None of this is medical advice or a diagnosis, and no tool here replaces a therapist, doctor, or your own judgement. These are scaffolding — external structure for a brain that does better with structure outside its own head.
+</div>
+</div>
+
+<footer>adhd-tools.artisticmonk.in · accessibility</footer>
+
+</div>
+</body>
+</html>
